@@ -5,21 +5,21 @@
 extern "C" {
 #endif
 
-// Invalid geometry type
+/* Invalid geometry type */
 #define GEOMETRY_TYPE_NONE 0
-// single point geometry
+/* single point geometry */
 #define GEOMETRY_TYPE_POINT 1
-// Path usually consists of one or a group of line segments connected end to
-// end. It can be a straight line segment, an arc segment or a bezier curve.
+/* Path usually consists of one or a group of line segments connected end to
+ * end. It can be a straight line segment, an arc segment or a bezier curve. */
 #define GEOMETRY_TYPE_PATH 2
-// Polygon is usually composed of a group of closed Rings, and there is at least
-// one outer ring in these Rings. If there is only one outer ring, then the
-// other rings are inner rings of the outer ring.
+/* Polygon is usually composed of a group of closed Rings, and there is at
+ * least one outer ring in these Rings. If there is only one outer ring, then
+ * the other rings are inner rings of the outer ring. */
 #define GEOMETRY_TYPE_POLYGON 3
-// Collection is the parent type of Polygon and Polyline, but we usually use
-// collection to represent it. The geometric types of elements in collection are
-// inconsistent. If the geometry type is the same, it is usually represented by
-// polygon or polyline.
+/* Collection is the parent type of Polygon and Polyline, but we usually use
+ * collection to represent it. The geometric types of elements in collection are
+ * inconsistent. If the geometry type is the same, it is usually represented by
+ * polygon or polyline. */
 #define GEOMETRY_TYPE_COLLECTION 4
 #define GEOMETRY_TYPE_MULTIPOINT 5 // 复合点、多点
 #define GEOMETRY_TYPE_POLYLINE 6   // 多段折线
@@ -28,7 +28,7 @@ extern "C" {
 #define GEOMETRY_TYPE_CIRCLEARC 9  // 三点圆弧
 #define GEOMETRY_TYPE_RING 10      // 单圈
 
-typedef struct coordinate_blob coordinate;
+    typedef struct coordinate_blob coordinate;
 
 coordinate *create_coordinate(int i_n, const int *i_p, int c_n, int c_dim,
                               const double *c_p, int flags);

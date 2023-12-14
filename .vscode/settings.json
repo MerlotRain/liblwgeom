@@ -3,6 +3,7 @@
         "bezier",
         "CIRCLEARC",
         "hashtab",
+        "NURBS",
         "POLYLINE"
     ]
 }
