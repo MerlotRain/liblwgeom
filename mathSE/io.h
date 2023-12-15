@@ -1,10 +1,13 @@
-#ifndef RW_H
-#define RW_H
+#ifndef __IO_H__
+#define __IO_H__
+
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef struct coordinate_blob coordinate;
 
 coordinate *read_from_wkt(const char *wkt);
 coordinate *read_from_wkb(const char *b, size_t cs, int endian_type);
@@ -30,4 +33,4 @@ int write_to_gml3(coordinate *c, char **kml);
 }
 #endif
 
-#endif // RW_H
+#endif // __IO_H__

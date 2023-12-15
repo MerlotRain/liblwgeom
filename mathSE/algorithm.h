@@ -1,5 +1,7 @@
-#ifndef ALGORITHM_H
-#define ALGORITHM_H
+#ifndef __ALGORITHM_H__
+#define __ALGORITHM_H__
+
+#include "i4.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,7 +30,7 @@ extern "C" {
 #define GEOMETRY_TYPE_CIRCLEARC 9  // 三点圆弧
 #define GEOMETRY_TYPE_RING 10      // 单圈
 
-    typedef struct coordinate_blob coordinate;
+typedef struct coordinate_blob coordinate;
 
 coordinate *create_coordinate(int i_n, const int *i_p, int c_n, int c_dim,
                               const double *c_p, int flags);
@@ -73,8 +75,10 @@ void geometry_center2(coordinate *c, double *result);
 void geometry_centroid2(coordinate *c, double *result);
 void geometry_envelope2(coordinate *c, double *result);
 
+
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif // ALGORITHM_H
+#endif // __ALGORITHM_H__

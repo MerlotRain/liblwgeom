@@ -1,9 +1,18 @@
 {
     "cSpell.words": [
         "bezier",
+        "cala",
         "CIRCLEARC",
+        "ewkb",
+        "ewkt",
+        "geohash",
         "hashtab",
+        "longlat",
         "NURBS",
         "POLYLINE"
-    ]
+    ],
+    "files.associations": {
+        "i4.h": "c",
+        "proj.h": "c"
+    }
 }

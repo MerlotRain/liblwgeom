@@ -1,5 +1,5 @@
-#ifndef INDEX_H
-#define INDEX_H
+#ifndef __INDEX_H__
+#define __INDEX_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,4 +13,4 @@ typedef struct __spr_geohash_index geohash_index_t;
 }
 #endif
 
-#endif // INDEX_H
+#endif // __INDEX_H__

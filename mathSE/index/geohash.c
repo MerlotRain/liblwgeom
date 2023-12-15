@@ -1,4 +1,5 @@
 #include "geohash.h"
+#include <stddef.h>
 
 #define GEO_LAT_MIN -85.05112878
 #define GEO_LAT_MAX 85.05112878
@@ -20,3 +21,10 @@ struct geo_array {
 
 struct geo_array *g_geo_array = NULL;
 
+void init_geo_point_buckets() {
+  if (g_geo_array == NULL) {
+    g_geo_array = malloc(sizeof(struct geo_array));
+    if (g_geo_array == NULL)
+      return;
+  }
+}

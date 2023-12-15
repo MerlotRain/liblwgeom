@@ -1,5 +1,5 @@
-#ifndef I4_H
-#define I4_H
+#ifndef __I4_H__
+#define __I4_H__
 
 #include <stddef.h>
 
@@ -16,8 +16,13 @@ void set_i4_prop(i4_t *p, size_t index, int prop);
 int get_i4_prop(i4_t *p, size_t index);
 int i4_prop_size(i4_t *p);
 
+typedef struct i4_stream {
+  i4_t *stream;
+  size_t ss;
+} i4_stream;
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif // I4_H
+#endif // __I4_H__

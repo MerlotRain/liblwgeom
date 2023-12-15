@@ -1,5 +1,5 @@
-#ifndef COORDINATE_H
-#define COORDINATE_H
+#ifndef __COORDINATE_H__
+#define __COORDINATE_H__
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -39,4 +39,4 @@ bool compare_raw_point3d(raw_point3d *a, raw_point3d *b);
 }
 #endif
 
-#endif // COORDINATE_H
+#endif // __COORDINATE_H__

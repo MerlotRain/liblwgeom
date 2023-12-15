@@ -1,6 +1,7 @@
-#ifndef MATHSE_GEOHASH_H
-#define MATHSE_GEOHASH_H
+#ifndef __GEOHASH_H__
+#define __GEOHASH_H__
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -21,32 +22,56 @@ typedef struct __geo_point geo_point_t;
 typedef struct {
   uint64_t bits;
   uint8_t step;
-} geo_hash_bits;
+} geohash_bits;
 
 typedef struct {
-  geo_hash_bits north;
-  geo_hash_bits east;
-  geo_hash_bits west;
-  geo_hash_bits south;
-  geo_hash_bits south_west;
-  geo_hash_bits south_east;
-  geo_hash_bits north_west;
-  geo_hash_bits north_east;
-} geo_hash_neighbors;
+  geohash_bits north;
+  geohash_bits east;
+  geohash_bits west;
+  geohash_bits south;
+  geohash_bits south_west;
+  geohash_bits south_east;
+  geohash_bits north_west;
+  geohash_bits north_east;
+} geohash_neighbors;
 
 typedef struct {
   double max;
   double min;
-} geo_hash_range;
+} geohash_range;
 
-typedef struct __geo_hash_shape geo_hash_shape;
+typedef struct {
+  geohash_bits hash;
+  geohash_range longitude;
+  geohash_range latitude;
+} geohash_area;
 
-void get_get_hash_range(geo_hash_range *long_range, geo_hash_range *lat_range);
+void get_geohash_range(geohash_range *long_range, geohash_range *lat_range);
+geohash_bits *geohash_encode(const geohash_range *long_range,
+                             const geohash_range *lat_range, double longitude,
+                             double latitude, uint8_t step);
+geohash_bits *geohash_encode_type(double longitude, double latitude,
+                                  uint8_t step);
+geohash_bits *geohash_encode_WGS84(double longitude, double latitude,
+                                   uint8_t step);
+geohash_area *geohash_decode(const geohash_range long_range,
+                             const geohash_range lat_range,
+                             const geohash_bits hash);
+geohash_area *geohash_decode_type(const geohash_range long_range,
+                                  const geohash_range lat_range,
+                                  const geohash_bits hash);
+geohash_area *geohash_decode_WGS84(const geohash_range long_range,
+                                   const geohash_range lat_range,
+                                   const geohash_bits hash);
 
-void create_geo_point_buckets();
+bool geohash_decode_area_longlat(const geohash_area *area, double *xy);
+bool geohash_decode_longlat_type(const geohash_area *area, double *xy);
+bool geohash_decode_longlat_WGS84(const geohash_area *area, double *xy);
+
+geohash_neighbors *geohash_query_neighbors(const geohash_bits *hash);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // MATHSE_GEOHASH_H
+#endif // __GEOHASH_H__
