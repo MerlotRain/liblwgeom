@@ -7,6 +7,8 @@ extern "C" {
 
 typedef struct __spr_index index_t;
 
+typedef struct __spr_geo_hash_index geo_hash_index_t;
+
 #ifdef __cplusplus
 }
 #endif
