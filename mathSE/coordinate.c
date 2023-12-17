@@ -1,5 +1,10 @@
 
+#include "coordinate.h"
 #include "algorithm.h"
+#include "factory.h"
+#include <float.h>
+#include <math.h>
+#include <stdlib.h>
 
 // clang-format off
 
@@ -65,18 +70,58 @@
 
 double g_tolerance = 0.00001;
 
-coordinate *create_coordinate(int i_n, const int *i_p, int c_n, int c_dim,
-                              const double *c_p, int flags) {
-                                
-                              }
-
-void coordinate_info(coordinate *c, int *i_n, int **i_p, int *c_n, int *c_dim,
-                     double **c_p) {}
-
-void coordinate_destroy(coordinate *c) {}
-
 double tolerance(double tol) {
   double tmp = g_tolerance;
   g_tolerance = tol;
   return tmp;
+}
+
+/* ---------------------- coordinate factory functions ---------------------- */
+
+coordinate *create_coordinate(uint32_t i_n, const int *i_p, uint32_t c_n,
+                              uint32_t c_dim, const double *c_p, int flags) {
+  return NULL;
+}
+
+void coordinate_info(coordinate *c, uint32_t *i_n, int **i_p, uint32_t *c_n,
+                     uint32_t *c_dim, double **c_p) {}
+
+void coordinate_destroy(coordinate *c) {}
+
+coordinate *create_point(double *p) { return NULL; }
+
+coordinate *create_line(double *p) { return NULL; }
+
+coordinate *create_line2(double *p, double angle, double length) {
+  return NULL;
+}
+
+coordinate *create_arc(double *p) { return NULL; }
+
+coordinate *create_arc2(double *c, double radius, double angle1,
+                        double angle2) {
+  return NULL;
+}
+
+coordinate *create_arc3(double *p, double chord) { return NULL; }
+
+coordinate *create_path(double *p, int num) { return NULL; }
+
+coordinate *create_envelope(double *p) { return NULL; }
+
+/* -------------------------- coordinate functions -------------------------- */
+
+static int compare_double(double a, double b) {
+  const double diff = a > b;
+  return (int)(diff >= -4 * DBL_EPSILON) & (int)(diff <= 4 * DBL_EPSILON);
+}
+
+int compare_raw_point(struct raw_point *a, struct raw_point *b) {
+  return compare_double(a->x, b->x) & compare_double(a->y, b->y);
+}
+
+int compare_raw_point3d(struct raw_point3d *a, struct raw_point3d *b) {
+
+  return compare_double(a->x, b->x) & compare_double(a->y, b->y) &
+         compare_double(a->z, b->z);
 }

@@ -62,22 +62,69 @@ void destroy_mem_table(mem_table *tab) {
   if (tab == NULL)
     return;
 
-    
+  if (tab->fields != NULL) {
+    free(tab->fields);
+  }
+
+  tab->cursor = NULL;
+  if (tab->data != NULL) {
+    for (int i = 0; i < tab->row_num; ++i) {
+      free(tab->data[i]);
+    }
+    free(tab->data);
+  }
+  if (tab->ht != NULL) {
+    hashtab_free(tab->ht);
+  }
+
+  // free spatial index
 }
 
-table_field *find_column_by_name(mem_table *tab, const char *name) {
+uint32_t find_column_by_name(mem_table *tab, const char *name) {
+  if (tab == NULL)
+    return -1;
+  for (int i = 0; i < tab->col_num; ++i) {
+    if (strcmp(tab->fields[i].name, name) == 0)
+      return i;
+  }
+  return -1;
+}
+
+table_field *table_fields(mem_table *tab) {
+  if (tab == NULL)
+    return NULL;
+  return tab->fields;
+}
+
+uint64_t table_rows(mem_table *tab) {
+  if (tab == NULL)
+    return 0;
+  return tab->row_num;
+}
+
+uint32_t table_column(mem_table *tab) {
+  if (tab == NULL)
+    return 0;
+  return tab->col_num;
+}
+
+void reset_cursor(mem_table *tab) {
+  if (tab == NULL) {
+    return;
+  }
+  tab->cursor = NULL;
+}
+
+char *table_next(mem_table *tab) {
+  if (tab == NULL || tab->data == NULL)
+    return NULL;
+
+  if (tab->cursor == NULL) {
+    return tab->data[0];
+  } else {
+  }
   return NULL;
 }
-
-table_field *table_fields(mem_table *tab) { return NULL; }
-
-uint64_t table_rows(mem_table *tab) { return 0; }
-
-uint32_t table_column(mem_table *tab) { return 0; }
-
-void reset_cursor(mem_table *tab) {}
-
-char *table_next(mem_table *tab) { return NULL; }
 
 char *get_row(mem_table *tab, int64_t id) { return NULL; }
 

@@ -3,6 +3,7 @@
         "bezier",
         "cala",
         "CIRCLEARC",
+        "deinterleave",
         "ewkb",
         "ewkt",
         "geohash",
@@ -13,6 +14,11 @@
     ],
     "files.associations": {
         "i4.h": "c",
-        "proj.h": "c"
+        "proj.h": "c",
+        "index.h": "c",
+        "stddef.h": "c",
+        "stdint.h": "c",
+        "limits.h": "c",
+        "float.h": "c"
     }
 }

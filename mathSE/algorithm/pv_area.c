@@ -3,11 +3,9 @@
 
 extern double g_tolerance;
 
-double value_area(coordinate* c) {
- if(c == NULL)
- {
+double value_area(coordinate *c) {
+  if (c == NULL) {
     perror("value_area: invalid coordinate");
     return 0.0;
- }
- 
+  }
 }

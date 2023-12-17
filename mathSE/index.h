@@ -7,7 +7,13 @@ extern "C" {
 
 typedef struct __spr_index index_t;
 
-typedef struct __spr_geohash_index geohash_index_t;
+typedef struct __spr_r_index r_index;
+
+typedef struct __spr_str_index str_index;
+
+typedef struct __spr_quad_index quad_index;
+
+typedef struct __spr_geohash_index geohash_index;
 
 #ifdef __cplusplus
 }

@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-typedef struct coordinate_blob {
+struct coordinate_blob {
   uint8_t type;
   uint32_t interpret_num;
   uint32_t coord_num;
@@ -32,8 +32,8 @@ struct raw_point3d {
   double x, y, z;
 };
 
-bool compare_raw_point(raw_point *a, raw_point *b);
-bool compare_raw_point3d(raw_point3d *a, raw_point3d *b);
+int compare_raw_point(struct raw_point *a, struct raw_point *b);
+int compare_raw_point3d(struct raw_point3d *a, struct raw_point3d *b);
 
 #ifdef __cplusplus
 }

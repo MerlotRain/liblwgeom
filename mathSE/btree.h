@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
+typedef struct __btree btree;
 
+typedef struct __btree_node btree_node;
 
 #ifdef __cplusplus
 }

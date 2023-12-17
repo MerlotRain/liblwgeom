@@ -32,12 +32,6 @@ extern "C" {
 
 typedef struct coordinate_blob coordinate;
 
-coordinate *create_coordinate(int i_n, const int *i_p, int c_n, int c_dim,
-                              const double *c_p, int flags);
-void coordinate_info(coordinate *c, int *i_n, int **i_p, int *c_n, int *c_dim,
-                     double **c_p);
-void coordinate_destroy(coordinate *c);
-
 double tolerance(double tol);
 
 /* -------------------------------------------------------------------------- */
@@ -74,8 +68,6 @@ void geometry_label2(coordinate *c, double *result);
 void geometry_center2(coordinate *c, double *result);
 void geometry_centroid2(coordinate *c, double *result);
 void geometry_envelope2(coordinate *c, double *result);
-
-
 
 #ifdef __cplusplus
 }

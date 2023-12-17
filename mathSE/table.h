@@ -36,7 +36,7 @@ mem_table *create_mem_table(table_field *fields, uint32_t size);
 void destroy_mem_table(mem_table *tab);
 
 /* ------------------------------ read function ----------------------------- */
-table_field *find_column_by_name(mem_table *tab, const char *name);
+uint32_t find_column_by_name(mem_table *tab, const char *name);
 table_field *table_fields(mem_table *tab);
 uint64_t table_rows(mem_table *tab);
 uint32_t table_column(mem_table *tab);

@@ -1,11 +1,20 @@
 #ifndef __FACTORY_H__
 #define __FACTORY_H__
 
-typedef struct coordinate coordinate;
+#include <stdint.h>
+
+typedef struct coordinate_blob coordinate;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+coordinate *create_coordinate(uint32_t i_n, const int *i_p, uint32_t c_n,
+                              uint32_t c_dim, const double *c_p, int flags);
+void coordinate_info(coordinate *c, uint32_t *i_n, int **i_p, uint32_t *c_n,
+                     uint32_t *c_dim, double **c_p);
+
+void coordinate_destroy(coordinate *c);
 
 /* create point */
 coordinate *create_point(double *p);
