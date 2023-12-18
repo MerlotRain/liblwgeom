@@ -12,6 +12,8 @@ extern "C" {
 #define TRANS_XIAN80_TO_CGCS2000 5
 #define TRANS_XIAN80_TO_WGS84 6
 
+#define TRANS_FORWARD 1
+#define TRANS_INVERSE -1
 
 typedef struct __crs_transformation transformation;
 
