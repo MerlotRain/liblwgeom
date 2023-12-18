@@ -1,10 +1,36 @@
 #include "geohash.h"
+#include <math.h>
 #include <stddef.h>
+
+/**
+ * The GeoHash module defaults to using the WGS84 coordinate system and defines
+ * the ellipsoidal parameters related to WGS84. So, all input coordinates should
+ * use the geodetic coordinates in the WGS84 coordinate system. In the CRS
+ * module, common coordinate conversion methods are provided. If you need to
+ * convert relevant coordinates into projection coordinates, please complete
+ * them in the CRS module.
+ * https://epsg.io/4326
+ */
 
 #define GEO_LAT_MIN -85.05112878
 #define GEO_LAT_MAX 85.05112878
 #define GEO_LONG_MIN -180
 #define GEO_LONG_MAX 180
+
+#define D_R (M_PI / 180.0)
+#define R_MAJOR 6378137.0
+#define R_MINOR 6356752.3142
+#define RATIO (R_MINOR / R_MAJOR)
+#define ECCENT (sqrt(1.0 - (RATIO * RATIO)))
+#define COM (0.5 * ECCENT)
+
+/// @brief The usual PI/180 constant
+const double DEG_TO_RAD = 0.017453292519943295769236907684886;
+/// @brief Earth's quatratic mean radius for WGS-84
+const double EARTH_RADIUS_IN_METERS = 6372797.560856;
+
+const double MERCATOR_MAX = 20037726.37;
+const double MERCATOR_MIN = -20037726.37;
 
 struct geo_point {
   double longitude;
