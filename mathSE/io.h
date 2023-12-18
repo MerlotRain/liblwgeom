@@ -7,6 +7,20 @@
 extern "C" {
 #endif
 
+#define ENDIAN_BIG 0
+#define ENDIAN_LITTLE 1
+
+uint64_t bswap_uint64(uint64_t src);
+uint32_t bswap_uint32(uint32_t src);
+uint16_t bswap_uint16(uint16_t src);
+
+int64_t bswap_int64(int64_t src);
+int32_t bswap_int32(int32_t src);
+int16_t bswap_int16(int16_t src);
+
+float bswap_float(float src);
+double bswap_double(double src);
+
 typedef struct coordinate_blob coordinate;
 
 coordinate *read_from_wkt(const char *wkt);
