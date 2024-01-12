@@ -1,6 +1,5 @@
-#include "table.h"
+#include "mathSE.h"
 #include "hashtable.h"
-#include "index.h"
 #include <string.h>
 
 /* ------------------------------ memory table ------------------------------ */

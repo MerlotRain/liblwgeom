@@ -1,24 +1,29 @@
 {
-    "cSpell.words": [
-        "bezier",
-        "cala",
-        "CIRCLEARC",
-        "deinterleave",
-        "ewkb",
-        "ewkt",
-        "geohash",
-        "hashtab",
-        "longlat",
-        "NURBS",
-        "POLYLINE"
-    ],
-    "files.associations": {
-        "i4.h": "c",
-        "proj.h": "c",
-        "index.h": "c",
-        "stddef.h": "c",
-        "stdint.h": "c",
-        "limits.h": "c",
-        "float.h": "c"
-    }
+  "cSpell.words": [
+    "bezier",
+    "cala",
+    "CGCS",
+    "CIRCLEARC",
+    "Cornsilk",
+    "deinterleave",
+    "epsg",
+    "ewkb",
+    "ewkt",
+    "Gainsboro",
+    "geohash",
+    "hashtab",
+    "longlat",
+    "MATHSE",
+    "NURBS",
+    "POLYLINE"
+  ],
+  "files.associations": {
+    "i4.h": "c",
+    "proj.h": "c",
+    "index.h": "c",
+    "stddef.h": "c",
+    "stdint.h": "c",
+    "limits.h": "c",
+    "float.h": "c"
+  }
 }
