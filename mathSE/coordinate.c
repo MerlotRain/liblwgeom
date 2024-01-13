@@ -1,7 +1,6 @@
 
 #include "coordinate.h"
-#include "algorithm.h"
-#include "factory.h"
+#include "mathSE.h"
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
@@ -19,10 +18,10 @@
  * | 1            | n > 1              | Point cluster with n points.                                                          |
  * | 2            | 1                  | Line string whose vertices are connected by straight line segments.                   |
  * | 2            | 2                  | Line string made up of a connected sequence of circular arcs.                         |
- * |              |                    | Each circular arc is described using three coordinates:                               |
+ * |              |                    | Each circular arc is described using three coordinate_blob_ts:                               |
  * |              |                    | the start point of the arc, any point on the arc, and the end point of the arc.       |
- * |              |                    | The coordinates for a point designating the end of one arc and the start of           |
- * |              |                    | the next arc are not repeated. For example, five coordinates are used to              |
+ * |              |                    | The coordinate_blob_ts for a point designating the end of one arc and the start of           |
+ * |              |                    | the next arc are not repeated. For example, five coordinate_blob_ts are used to              |
  * |              |                    | describe a line string made up of two connected circular arcs.                        |
  * |              |                    | Points 1, 2, and 3 define the first arc, and points 3, 4,                             |
  * |              |                    | and 5 define the second arc, where point 3 is only stored once.                       |
@@ -34,13 +33,13 @@
  * |              |                    | with point 5 the same as point 1.                                                     |
  * | 1003 or 2003 | 2                  | Polygon made up of a connected sequence of circular arcs that closes on itself.       |
  * |              |                    | The end point of the last arc is the same as the start point of the first arc.        |
- * |              |                    | Each circular arc is described using three coordinates:                               |
+ * |              |                    | Each circular arc is described using three coordinate_blob_ts:                               |
  * |              |                    | the start point of the arc, any point on the arc, and the end point of the arc.       |
- * |              |                    | The coordinates for a point designating the end of one arc and the start of           |
- * |              |                    | the next arc are not repeated. For example, five coordinates are used to describe     |
+ * |              |                    | The coordinate_blob_ts for a point designating the end of one arc and the start of           |
+ * |              |                    | the next arc are not repeated. For example, five coordinate_blob_ts are used to describe     |
  * |              |                    | a polygon made up of two connected circular arcs. Points 1, 2, and 3                  |
  * |              |                    | define the first arc, and points 3, 4, and 5 define the second arc.                   |
- * |              |                    | The coordinates for points 1 and 5 must be the same (tolerance is not considered),    |
+ * |              |                    | The coordinate_blob_ts for points 1 and 5 must be the same (tolerance is not considered),    |
  * |              |                    | and point 3 is not repeated.                                                          |
  * | 1003 or 2003 | 3                  | Rectangle type (sometimes called optimized rectangle). A bounding rectangle such      |
  * |              |                    | that only two points, the lower-left and the upper-right, are required to             |
@@ -68,60 +67,59 @@
 
 // clang-format on
 
-double g_tolerance = 0.00001;
-
-double tolerance(double tol) {
-  double tmp = g_tolerance;
-  g_tolerance = tol;
-  return tmp;
+int compare_raw_point(const raw_point_t *a, const raw_point_t *b) {
+  return a->x == b->x && a->y == b->y;
 }
 
-/* ---------------------- coordinate factory functions ---------------------- */
-
-coordinate *create_coordinate(uint32_t i_n, const int *i_p, uint32_t c_n,
-                              uint32_t c_dim, const double *c_p, int flags) {
+coordinate_blob_t *create_coordinate(const uint32_t i_n, const int *i_p,
+                                     const uint32_t c_n, const double *c_p,
+                                     const int flags) {
   return NULL;
 }
 
-void coordinate_info(coordinate *c, uint32_t *i_n, int **i_p, uint32_t *c_n,
-                     uint32_t *c_dim, double **c_p) {}
+void coordinate_info(const coordinate_blob_t *c, uint32_t *i_n, int **i_p,
+                     uint32_t *c_n, double **c_p) {}
 
-void coordinate_destroy(coordinate *c) {}
+void coordinate_destroy(coordinate_blob_t *c) {}
 
-coordinate *create_point(double *p) { return NULL; }
+coordinate_blob_t *create_point(const double *p) { return NULL; }
 
-coordinate *create_line(double *p) { return NULL; }
+coordinate_blob_t *create_line(const double *p) { return NULL; }
 
-coordinate *create_line2(double *p, double angle, double length) {
+coordinate_blob_t *create_line2(const double *p, const double angle,
+                                const double length) {
   return NULL;
 }
 
-coordinate *create_arc(double *p) { return NULL; }
+coordinate_blob_t *create_arc(const double *p) { return NULL; }
 
-coordinate *create_arc2(double *c, double radius, double angle1,
-                        double angle2) {
+coordinate_blob_t *create_arc2(const double *c, const double radius,
+                               const double angle1, const double angle2) {
   return NULL;
 }
 
-coordinate *create_arc3(double *p, double chord) { return NULL; }
-
-coordinate *create_path(double *p, int num) { return NULL; }
-
-coordinate *create_envelope(double *p) { return NULL; }
-
-/* -------------------------- coordinate functions -------------------------- */
-
-static int compare_double(double a, double b) {
-  const double diff = a > b;
-  return (int)(diff >= -4 * DBL_EPSILON) & (int)(diff <= 4 * DBL_EPSILON);
+coordinate_blob_t *create_arc3(const double *p, const double chord) {
+  return NULL;
 }
 
-int compare_raw_point(struct raw_point *a, struct raw_point *b) {
-  return compare_double(a->x, b->x) & compare_double(a->y, b->y);
-}
+coordinate_blob_t *create_path(const double *p, const int num) { return NULL; }
 
-int compare_raw_point3d(struct raw_point3d *a, struct raw_point3d *b) {
+coordinate_blob_t *create_envelope(const double *p) { return NULL; }
 
-  return compare_double(a->x, b->x) & compare_double(a->y, b->y) &
-         compare_double(a->z, b->z);
+int geometry_type(const coordinate_blob_t *c) { return 0; }
+
+int *coordinate_interpret(const coordinate_blob_t *c) { return NULL; }
+
+int coordinate_interpret_n(const coordinate_blob_t *c) { return 0; }
+
+double *coordinate_coord(const coordinate_blob_t *c) { return NULL; }
+
+unsigned int coordinate_point_n(const coordinate_blob_t *c) { return 0; }
+
+int coordinate_dim_g(const coordinate_blob_t *c) { return 0; }
+
+int coordinate_sub_n(const coordinate_blob_t *c) { return 0; }
+
+coordinate_blob_t *coordinate_sub_at(coordinate_blob_t *c, int index) {
+  return NULL;
 }

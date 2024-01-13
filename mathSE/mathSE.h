@@ -521,6 +521,29 @@ void coordinate_info(const coordinate_blob_t *c, uint32_t *i_n, int **i_p,
 /* Destroy coordinate blob */
 void coordinate_destroy(coordinate_blob_t *c);
 
+/* Get geometry type
+ * c: coordinate blob
+ * return: geometry type */
+int geometry_type(const coordinate_blob_t *c);
+/* Pointer of coordinate interpret
+ * c: coordinate blob
+ * return: pointer of coordinate interpret */
+int *coordinate_interpret(const coordinate_blob_t *c);
+/* Number of coordinate interpret */
+int coordinate_interpret_n(const coordinate_blob_t *c);
+/* Return geometry point pointer */
+double *coordinate_coord(const coordinate_blob_t *c);
+/* Return geometry point number */
+unsigned int coordinate_point_n(const coordinate_blob_t *c);
+/* Return geometry dimension type, value range is {TRUE, FALSE, P, L, A} */
+int coordinate_dim_g(const coordinate_blob_t *c);
+/* Sub number of coordinate
+ * c: coordinate blob
+ * return: >= 1 */
+int coordinate_sub_n(const coordinate_blob_t *c);
+/* Sub coordinate blob */
+coordinate_blob_t *coordinate_sub_at(coordinate_blob_t *c, int index);
+
 /* create point. p is the first address of a two-dimensional point coordinate */
 coordinate_blob_t *create_point(const double *p);
 /* create two point line. p is the first address of two two-dimensional point
@@ -580,29 +603,6 @@ int i4_prop_size(i4_t *p);
  * tol: new tolerance
  * return: old tolerance */
 double tolerance(double tol);
-
-/* Get geometry type
- * c: coordinate blob
- * return: geometry type */
-int geometry_type(const coordinate_blob_t *c);
-/* Pointer of coordinate interpret
- * c: coordinate blob
- * return: pointer of coordinate interpret */
-int *coordinate_interpret(const coordinate_blob_t *c);
-/* Number of coordinate interpret */
-int coordinate_interpret_n(const coordinate_blob_t *c);
-/* Return geometry point pointer */
-double *coordinate_coord(const coordinate_blob_t *c);
-/* Return geometry point number */
-unsigned int coordinate_point_n(const coordinate_blob_t *c);
-/* Return geometry dimension type, value range is {TRUE, FALSE, P, L, A} */
-int coordinate_dim_g(const coordinate_blob_t *c);
-/* Sub number of coordinate
- * c: coordinate blob
- * return: >= 1 */
-int coordinate_sub_n(const coordinate_blob_t *c);
-/* Sub coordinate blob */
-coordinate_blob_t *coordinate_sub_at(coordinate_blob_t *c, int index);
 
 /* Compute numerical properties of geometry */
 double geometry_prop_value(const coordinate_blob_t *c, int mode);

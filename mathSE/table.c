@@ -1,17 +1,17 @@
-#include "mathSE.h"
 #include "hashtable.h"
+#include "mathSE.h"
 #include <string.h>
 
 /* ------------------------------ memory table ------------------------------ */
-struct __mem_table {
+struct se_mem_table {
   uint32_t col_num;
   uint64_t row_num;
   uint32_t row_size;
-  struct table_field *fields;
+  table_field_t *fields;
   char **data;
   char *cursor;
   struct hash_table *ht;
-  index_t *spa_index;
+  void *spa_index;
 };
 
 /* Necessary fields for a row of data, including unique id and geometry field
@@ -22,30 +22,30 @@ struct __mem_table {
 #define ROW_MASK 12
 #endif
 
-uint32_t cala_row_bytes(table_field *fields, size_t size) {
+uint32_t cala_row_bytes(table_field_t *fields, size_t size) {
   if (fields == NULL)
     return ROW_MASK;
-  uint32_t size = ROW_MASK;
+  uint32_t sz = ROW_MASK;
   for (int i = 0; i < size; ++i) {
-    table_field *fid = fields + i;
+    table_field_t *fid = fields + i;
     if (fid->type == 't' && fid->size > 0) {
-      size += fid->size;
+      sz += fid->size;
     } else if (fid->type == 'b') {
-      size += sizeof(struct data_blob);
+      sz += sizeof(struct se_data_blob);
     }
-    return size;
+    return sz;
   }
 }
 
 /* -------------------------- memory table function -------------------------
  */
 
-mem_table *create_mem_table(table_field *fields, uint32_t size) {
-  mem_table *table = (mem_table *)malloc(sizeof(mem_table));
+mem_table_t *create_mem_table(table_field_t *fields, uint32_t size, int flag) {
+  mem_table_t *table = (mem_table_t *)malloc(sizeof(mem_table_t));
   if (table == NULL)
     return NULL;
 
-  memset(table, 0, sizeof(mem_table));
+  memset(table, 0, sizeof(mem_table_t));
   table->col_num = size;
   table->row_num = 0;
   table->row_size = cala_row_bytes(fields, size);
@@ -57,7 +57,7 @@ mem_table *create_mem_table(table_field *fields, uint32_t size) {
   return table;
 }
 
-void destroy_mem_table(mem_table *tab) {
+void destroy_mem_table(mem_table_t *tab) {
   if (tab == NULL)
     return;
 
@@ -79,7 +79,7 @@ void destroy_mem_table(mem_table *tab) {
   // free spatial index
 }
 
-uint32_t find_column_by_name(mem_table *tab, const char *name) {
+uint32_t find_column_by_name(mem_table_t *tab, const char *name) {
   if (tab == NULL)
     return -1;
   for (int i = 0; i < tab->col_num; ++i) {
@@ -89,32 +89,32 @@ uint32_t find_column_by_name(mem_table *tab, const char *name) {
   return -1;
 }
 
-table_field *table_fields(mem_table *tab) {
+table_field_t *table_field_ts(mem_table_t *tab) {
   if (tab == NULL)
     return NULL;
   return tab->fields;
 }
 
-uint64_t table_rows(mem_table *tab) {
+uint64_t table_rows(mem_table_t *tab) {
   if (tab == NULL)
     return 0;
   return tab->row_num;
 }
 
-uint32_t table_column(mem_table *tab) {
+uint32_t table_column(mem_table_t *tab) {
   if (tab == NULL)
     return 0;
   return tab->col_num;
 }
 
-void reset_cursor(mem_table *tab) {
+void reset_cursor(mem_table_t *tab) {
   if (tab == NULL) {
     return;
   }
   tab->cursor = NULL;
 }
 
-char *table_next(mem_table *tab) {
+char *table_next(mem_table_t *tab) {
   if (tab == NULL || tab->data == NULL)
     return NULL;
 
@@ -125,52 +125,68 @@ char *table_next(mem_table *tab) {
   return NULL;
 }
 
-char *get_row(mem_table *tab, int64_t id) { return NULL; }
+char *get_row(mem_table_t *tab, int64_t id) { return NULL; }
 
-coordinate *read_coordinate(mem_table *tab, int64_t id) { return NULL; }
-
-int8_t read_cell_i8(mem_table *tab, int64_t id, int32_t column) { return 0; }
-
-uint8_t read_cell_u8(mem_table *tab, int64_t id, int32_t column) { return 0; }
-
-int16_t read_cell_i16(mem_table *tab, int64_t id, int32_t column) { return 0; }
-
-uint16_t read_cell_u16(mem_table *tab, int64_t id, int32_t column) { return 0; }
-
-int32_t read_cell_i32(mem_table *tab, int64_t id, int32_t column) { return 0; }
-
-uint32_t read_cell_u32(mem_table *tab, int64_t id, int32_t column) { return 0; }
-
-int64_t read_cell_i64(mem_table *tab, int64_t id, int32_t column) { return 0; }
-
-uint64_t read_cell_u64(mem_table *tab, int64_t id, int32_t column) { return 0; }
-
-double read_cell_double(mem_table *tab, int64_t id, int32_t column) {
-  return 0.0;
-}
-
-float read_cell_float(mem_table *tab, int64_t id, int32_t column) {
-  return 0.0f;
-}
-
-char *read_cell_str(mem_table *tab, int64_t id, int32_t column) { return NULL; }
-
-data_blob *read_cell_blob(mem_table *tab, int64_t id, int32_t column) {
+coordinate_blob_t *read_coordinate(mem_table_t *tab, int64_t id) {
   return NULL;
 }
 
-void create_spr_index(mem_table *tab) {}
+int8_t read_cell_i8(mem_table_t *tab, int64_t id, int32_t column) { return 0; }
 
-char *add_row(mem_table *tab) { return NULL; }
+uint8_t read_cell_u8(mem_table_t *tab, int64_t id, int32_t column) { return 0; }
 
-void set_row_byte_data(mem_table *tab, int64_t id, int32_t column, char *data) {
+int16_t read_cell_i16(mem_table_t *tab, int64_t id, int32_t column) {
+  return 0;
 }
 
-void set_row_blob_data(mem_table *tab, int64_t id, int32_t column,
+uint16_t read_cell_u16(mem_table_t *tab, int64_t id, int32_t column) {
+  return 0;
+}
+
+int32_t read_cell_i32(mem_table_t *tab, int64_t id, int32_t column) {
+  return 0;
+}
+
+uint32_t read_cell_u32(mem_table_t *tab, int64_t id, int32_t column) {
+  return 0;
+}
+
+int64_t read_cell_i64(mem_table_t *tab, int64_t id, int32_t column) {
+  return 0;
+}
+
+uint64_t read_cell_u64(mem_table_t *tab, int64_t id, int32_t column) {
+  return 0;
+}
+
+double read_cell_double(mem_table_t *tab, int64_t id, int32_t column) {
+  return 0.0;
+}
+
+float read_cell_float(mem_table_t *tab, int64_t id, int32_t column) {
+  return 0.0f;
+}
+
+char *read_cell_str(mem_table_t *tab, int64_t id, int32_t column) {
+  return NULL;
+}
+
+data_blob *read_cell_blob(mem_table_t *tab, int64_t id, int32_t column) {
+  return NULL;
+}
+
+void create_spr_index(mem_table_t *tab) {}
+
+char *add_row(mem_table_t *tab) { return NULL; }
+
+void set_row_byte_data(mem_table_t *tab, int64_t id, int32_t column,
+                       char *data) {}
+
+void set_row_blob_data(mem_table_t *tab, int64_t id, int32_t column,
                        data_blob *data) {}
 
-void set_coordinate(mem_table *tab, int64_t id) {}
+void set_coordinate(mem_table_t *tab, int64_t id) {}
 
-void remove_row(mem_table *tab, int64_t id) {}
+void remove_row(mem_table_t *tab, int64_t id) {}
 
-void remove_range(mem_table *tab, int64_t *id, uint32_t num) {}
+void remove_range(mem_table_t *tab, int64_t *id, uint32_t num) {}
