@@ -6,6 +6,8 @@
 #ifndef __MATHSE_H__
 #define __MATHSE_H__
 
+#include <cstddef>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -15,6 +17,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* ------------------------------ Geometry Type ----------------------------- */
 
 /* Invalid geometry type */
 #define GEOMETRY_TYPE_NONE 0
@@ -54,125 +58,588 @@ extern "C" {
  * polygons. */
 #define GEOMETRY_TYPE_RING 10
 
+/* Dimension value of non-empty geometries (= {P, L, A}) */
+#define GEOMETRY_DIMENSION_TRUE -2
+/* Dimension value of empty geometry (-1) */
+#define GEOMETRY_DIMENSION_FALSE -1
+/* Dimension value of point geometry (0) */
+#define GEOMETRY_DIMENSION_P 0
+/* Dimension value of line geometry (1) */
+#define GEOMETRY_DIMENSION_L 1
+/* Dimension value of area geometry (2) */
+#define GEOMETRY_DIMENSION_A 2
+
+/* --------------------------- Geometry Algorithm --------------------------- */
+
+/* Calculate the length of a geometry */
+#define GEOMETRY_PROP_VALUE_LENGTH 0
+/* Calculate the width of a geometry */
+#define GEOMETRY_PROP_VALUE_WIDTH 1
+/* Calculate the height of a geometry */
+#define GEOMETRY_PROP_VALUE_HEIGHT 2
+/* Calculate the area of a geometry */
+#define GEOMETRY_PROP_VALUE_AREA 3
+
+/* Get a clone of the geometry */
+#define GEOMETRY_PROP_GEO_CLONE 10
+/* Get the marker point of the geometry, which must be inside the geometry */
+#define GEOMETRY_PROP_GEO_LABEL 11
+/* Get the center point of the geometry */
+#define GEOMETRY_PROP_GEO_CENTER 12
+/* Get the centroid point of the geometry */
+#define GEOMETRY_PROP_GEO_CENTROID 13
+/* Get the envelope of the geometry */
+#define GEOMETRY_PROP_GEO_ENVELOPE 14
+/* Get the oriented minimum envelope of the geometry */
+#define GEOMETRY_PROP_GEO_ORIENTED_ENVELOPE 15
+/* Get the minimum envelope of the geometry */
+#define GEOMETRY_PROP_GEO_ENVELOPE_CIRCLE 16
+/* Get the inner minimum rectangle of the geometry */
+#define GEOMETRY_PROP_GEO_INNER_RECT 17
+/* Get the inner minimum square of the geometry */
+#define GEOMETRY_PROP_GEO_INNER_SQUARE 18
+/* Get the inner minimum circle of the geometry */
+#define GEOMETRY_PROP_GEO_INNER_CIRCLE 19
+/* Get the smallest convex polygon that contains all the points int the geometry
+ */
+#define GEOMETRY_PROP_GEO_CONVEX_HULL 20
+/* Get the simplified geometry */
+#define GEOMETRY_PROP_GEO_SIMPLIFY 21
+/* Geometric simplification that preserves the original geometric topology */
+#define GEOMETRY_PROP_GEO_TOPOLOGY_PRESERVING_SIMPLIFY 22
+/* Get the boundary of the geometry */
+#define GEOMETRY_PROP_GEO_BOUNDARY 23
+
+/* Delete all duplicate points, and pass in the duplicate point judgment
+ * threshold (double) in para */
+#define GEOMETRY_MODIFY_REMOVE_REPEAT 40
+/* Douglas compression algorithm, para is the compression algorithm threshold
+ * (double) */
+#define GEOMETRY_MODIFY_DOUGLAS 41
+/* Reverse the order of the points in the geometry, para is null */
+#define GEOMETRY_MODIFY_REVERSE 42
+
+/* Computes the result of union two geometries */
+#define GEOMETRY_COMBINE_UNION 50
+/* Computes the result of the intersection of two geometries */
+#define GEOMETRY_COMBINE_INTERSECT 51
+/* Computes the result of the difference of two geometries*/
+#define GEOMETRY_COMBINE_DIFFERENCE 52
+/* Calculate the result of the difference between two geometric symmetries */
+#define GEOMETRY_COMBINE_SYM_DIFFERENCE 53
+
+/* Two geometries do not fit this relationship */
+#define GEOMETRY_RELATION_RESULT_UNFIT -1
+/* The two geometries do not satisfy this relationship */
+#define GEOMETRY_RELATION_RESULT_FALSE 0
+/* Two geometries satisfy this relationship */
+#define GEOMETRY_RELATION_RESULT_TRUE 1
+
+/* Two geometries is disjoint each other */
+#define GEOMETRY_SPR_IS_DISJOINT 60
+/* Two geometries is intersect each other */
+#define GEOMETRY_SPR_IS_INTERSECT 61
+/* Two geometries is contain each other */
+#define GEOMETRY_SPR_IS_CONTAIN 62
+/* Two geometries is cross each other */
+#define GEOMETRY_SPR_IS_CROSS 63
+/* Two geometries is equal */
+#define GEOMETRY_SPR_IS_EQUAL 64
+/* Two geometries is touch each other */
+#define GEOMETRY_SPR_IS_TOUCH 65
+/* Two geometries is overlap each other */
+#define GEOMETRY_SPR_IS_OVERLAP 66
+/* Two geometries is within each other */
+#define GEOMETRY_SPR_IS_WITHIN 67
+
+/* Check geometry is simple */
+#define GEOMETRY_CHECK_1_SIMPLE 80
+/* Check geometry is close */
+#define GEOMETRY_CHECK_1_CLOSE 81
+/* Check geometry is good direction */
+#define GEOMETRY_CHECK_1_GOOD_DIRECTION 82
+/* Check geometry is self cross */
+#define GEOMETRY_CHECK_1_SELF_CROSS 83
+/* Check geometry has repeat point */
+#define GEOMETRY_CHECK_1_REPEAT 84
+/* Check line is lap */
+#define GEOMETRY_CHECK_1_LAP 85
+
+/* Check geometry repeat points */
+#define GEOMETRY_CHECK_2_REPEAT_POINT 0x01
+/* Check geometry isolate points */
+#define GEOMETRY_CHECK_2_ISOLATE_POINT 0x02
+/* Check geometry pseudo endpoints */
+#define GEOMETRY_CHECK_2_PSEUDO_ENDPOINT 0x04
+
+/* ---------------------- Coordinate Reference System ---------------------- */
+
+/* Conversion between WGS84 coordinate system and CGCS2000 coordinate system,
+ * the default is from WGS84 to CGCS2000 */
+#define TRANS_WGS84_WITH_CGCS2000
+/* Conversion between WGS84 coordinate system and XIAN80 coordinate system,
+ * the default is from WGS84 to XIAN80 */
+#define TRANS_WGS84_WITH_XIAN80
+/* Conversion between CGCS2000 coordinate system and XIAN80 coordinate system,
+ * the default is from CGCS2000 to XIAN80 */
+#define TRANS_CGCS2000_WITH_XIAN80
+
+/* Apply transformation to observation - in forward or inverse direction */
+/* Forward */
+#define TRANS_FORWARD 1
+/* do nothing */
+#define TRANS_NONE 0
+/* Inverse */
+#define TRANS_INVERSE -1
+
+/* --------------------------------- GeoHash -------------------------------- */
+
+/* Direction north */
+#define GEOHASH_DIRECTION_NORTH 0
+/* Direction east */
+#define GEOHASH_DIRECTION_EAST 1
+/* Direction west */
+#define GEOHASH_DIRECTION_WEST 2
+/* Direction south */
+#define GEOHASH_DIRECTION_SOUTH 3
+/* Direction south west */
+#define GEOHASH_DIRECTION_SOUTH_WEST 4
+/* Direction south east */
+#define GEOHASH_DIRECTION_SOUTH_EAST 5
+/* Direction north west */
+#define GEOHASH_DIRECTION_NORTH_WEST 6
+/* Direction north east */
+#define GEOHASH_DIRECTION_NORTH_EAST 7
+
+/* ------------------------------- Read Write ------------------------------- */
+/* Byte order big */
+#define ENDIAN_BIG 0
+/* Byte order little */
+#define ENDIAN_LITTLE 1
+
+/* -------------------------------- Graphics -------------------------------- */
+
+typedef unsigned int RGB;
+const RGB RGB_MASK = 0x00ffffff;
+/* Get the red component of a color */
+#define RED(rgb) ((rgb >> 16) & 0xff)
+/* Get the green component of a color */
+#define GREEN(rgb) ((rgb >> 8) & 0xff)
+/* Get the blue component of a color */
+#define BLUE(rgb) (rgb & 0xff)
+/* Get the alpha component of a color */
+#define ALPHA(rgb) (rgb >> 24)
+/* Create color with red, green, and blue components */
+#define INIT_RGB(r, g, b)                                                      \
+  ((0xffu << 24) | ((r & 0xffu) << 16) | ((g & 0xffu) << 8) | (b & 0xffu))
+/* Create color with red, green, blue, and alpha components */
+#define INIT_RGBA(r, g, b, a)                                                  \
+  (((a & 0xffu) << 24) | ((r & 0xffu) << 16) | ((g & 0xffu) << 8) | (b & 0xffu))
+
+/* https://www.w3schools.com/colors/ A color selection list suitable for HTML.
+ * The color value is in standard ARGB format. The specified component of the
+ * color can be obtained through RED, GREEN, BLUE, and ALPHA macros. */
+enum COLOR {
+  AliceBlue = 0xFFF0F8FF,
+  AntiqueWhite = 0xFFFAEBD7,
+  Aqua = 0xFF00FFFF,
+  Aquamarine = 0xFF7FFFD4,
+  Azure = 0xFFF0FFFF,
+  Beige = 0xFFF5F5DC,
+  Bisque = 0xFFFFE4C4,
+  Black = 0xFF000000,
+  BlanchedAlmond = 0xFFFFEBCD,
+  Blue = 0xFF0000FF,
+  BlueViolet = 0xFF8A2BE2,
+  Brown = 0xFFA52A2A,
+  BurlyWood = 0xFFDEB887,
+  CadetBlue = 0xFF5F9EA0,
+  Chartreuse = 0xFF7FFF00,
+  Chocolate = 0xFFD2691E,
+  Coral = 0xFFFF7F50,
+  CornflowerBlue = 0xFF6495ED,
+  Cornsilk = 0xFFFFF8DC,
+  Crimson = 0xFFDC143C,
+  Cyan = 0xFF00FFFF,
+  DarkBlue = 0xFF00008B,
+  DarkCyan = 0xFF008B8B,
+  DarkGoldenrod = 0xFFB8860B,
+  DarkGray = 0xFFA9A9A9,
+  DarkGreen = 0xFF006400,
+  DarkKhaki = 0xFFBDB76B,
+  DarkMagenta = 0xFF8B008B,
+  DarkOliveGreen = 0xFF556B2F,
+  DarkOrange = 0xFFFF8C00,
+  DarkOrchid = 0xFF9932CC,
+  DarkRed = 0xFF8B0000,
+  DarkSalmon = 0xFFE9967A,
+  DarkSeaGreen = 0xFF8FBC8B,
+  DarkSlateBlue = 0xFF483D8B,
+  DarkSlateGray = 0xFF2F4F4F,
+  DarkTurquoise = 0xFF00CED1,
+  DarkViolet = 0xFF9400D3,
+  DeepPink = 0xFFFF1493,
+  DeepSkyBlue = 0xFF00BFFF,
+  DimGray = 0xFF696969,
+  DodgerBlue = 0xFF1E90FF,
+  Feldspar = 0xFFD19275,
+  Firebrick = 0xFFB22222,
+  FloralWhite = 0xFFFFFAF0,
+  ForestGreen = 0xFF228B22,
+  Fuchsia = 0xFFFF00FF,
+  Gainsboro = 0xFFDCDCDC,
+  GhostWhite = 0xFFF8F8FF,
+  Gold = 0xFFFFD700,
+  Goldenrod = 0xFFDAA520,
+  Gray = 0xFF808080,
+  Green = 0xFF00FF00,
+  GreenYellow = 0xFFADFF2F,
+  Honeydew = 0xFFF0FFF0,
+  HotPink = 0xFFFF69B4,
+  IndianRed = 0xFFCD5C5C,
+  Indigo = 0xFF4B0082,
+  Ivory = 0xFFFFFFF0,
+  Khaki = 0xFFF0E68C,
+  Lavender = 0xFFE6E6FA,
+  LavenderBlush = 0xFFFFF0F5,
+  LawnGreen = 0xFF7CFC00,
+  LemonChiffon = 0xFFFFFACD,
+  LightBlue = 0xFFADD8E6,
+  LightCoral = 0xFFF08080,
+  LightCyan = 0xFFE0FFFF,
+  LightGoldenrodYellow = 0xFFFAFAD2,
+  LightGray = 0xFFD3D3D3,
+  LightGrey = 0xFFD3D3D3,
+  LightGreen = 0xFF90EE90,
+  LightPink = 0xFFFFB6C1,
+  LightSalmon = 0xFFFFA07A,
+  LightSeaGreen = 0xFF20B2AA,
+  LightSkyBlue = 0xFF87CEFA,
+  LightSlateBlue = 0xFF8470FF,
+  LightSlateGray = 0xFF778899,
+  LightSteelBlue = 0xFFB0C4DE,
+  LightYellow = 0xFFFFFFE0,
+  Lime = 0xFF00FF00,
+  LimeGreen = 0xFF32CD32,
+  Linen = 0xFFFAF0E6,
+  Magenta = 0xFFFF00FF,
+  Maroon = 0xFF800000,
+  MediumAquamarine = 0xFF66CDAA,
+  MediumBlue = 0xFF0000CD,
+  MediumOrchid = 0xFFBA55D3,
+  MediumPurple = 0xFF9370DB,
+  MediumSeaGreen = 0xFF3CB371,
+  MediumSlateBlue = 0xFF7B68EE,
+  MediumSpringGreen = 0xFF00FA9A,
+  MediumTurquoise = 0xFF48D1CC,
+  MediumVioletRed = 0xFFC71585,
+  MidnightBlue = 0xFF191970,
+  MintCream = 0xFFF5FFFA,
+  MistyRose = 0xFFFFE4E1,
+  Moccasin = 0xFFFFE4B5,
+  NavajoWhite = 0xFFFFDEAD,
+  Navy = 0xFF000080,
+  OldLace = 0xFFFDF5E6,
+  Olive = 0xFF808000,
+  OliveDrab = 0xFF6B8E23,
+  Orange = 0xFFFFA500,
+  OrangeRed = 0xFFFF4500,
+  Orchid = 0xFFDA70D6,
+  PaleGoldenrod = 0xFFEEE8AA,
+  PaleGreen = 0xFF98FB98,
+  PaleTurquoise = 0xFFAFEEEE,
+  PaleVioletRed = 0xFFDB7093,
+  PapayaWhip = 0xFFFFEFD5,
+  PeachPuff = 0xFFFFDAB9,
+  Peru = 0xFFCD853F,
+  Pink = 0xFFFFC0CB,
+  Plum = 0xFFDDA0DD,
+  PowderBlue = 0xFFB0E0E6,
+  Purple = 0xFF800080,
+  Red = 0xFFFF0000,
+  RosyBrown = 0xFFBC8F8F,
+  RoyalBlue = 0xFF4169E1,
+  SaddleBrown = 0xFF8B4513,
+  Salmon = 0xFFFA8072,
+  SandyBrown = 0xFFF4A460,
+  SeaGreen = 0xFF2E8B57,
+  SeaShell = 0xFFFFF5EE,
+  Sienna = 0xFFA0522D,
+  Silver = 0xFFC0C0C0,
+  SkyBlue = 0xFF87CEEB,
+  SlateBlue = 0xFF6A5ACD,
+  SlateGray = 0xFF708090,
+  Snow = 0xFFFFFAFA,
+  SpringGreen = 0xFF00FF7F,
+  SteelBlue = 0xFF4682B4,
+  Tan = 0xFFD2B48C,
+  Teal = 0xFF008080,
+  Thistle = 0xFFD8BFD8,
+  Tomato = 0xFFFF6347,
+  Transparent = 0x00FFFFFF,
+  Turquoise = 0xFF40E0D0,
+  Violet = 0xFFEE82EE,
+  VioletRed = 0xFFD02090,
+  Wheat = 0xFFF5DEB3,
+  White = 0xFFFFFFFF,
+  WhiteSmoke = 0xFFF5F5F5,
+  Yellow = 0xFFFFFF00,
+  YellowGreen = 0xFF9ACD32,
+};
+
+/* Circle point */
+#define SYMBOL_POINT_CIRCLE 0
+/* Square point */
+#define SYMBOL_POINT_SQUARE 1
+
+/* A plain line. */
+#define PEN_STYLE_SOLID_LINE 100
+/* Dashes separated by a few pixels. */
+#define PEN_STYLE_DASH_LINE 101
+/* Dots separated by a few pixels. */
+#define PEN_STYLE_DOT_LINE 102
+/* Alternate dots and dashes. */
+#define PEN_STYLE_DASH_DOT_LINE 103
+/* One dash, two dots, one dash, two dots. */
+#define PEN_STYLE_DASH_DOT_DOT_LINE 104
+
+/* a square line end that does not cover the end point of the line. */
+#define PEN_CAP_FLAT_STYLE 110
+/* a square line end that covers the end point and extends beyond it by half the
+ * line width. */
+#define PEN_CAP_ROUND_STYLE 111
+/* a rounded line end. */
+#define PEN_CAP_SQUARE_STYLE 112
+
+/* The outer edges of the lines are extended to meet at an angle, and this area
+ * is filled. */
+#define PEN_JOIN_MITER_STYLE 120
+/* The triangular notch between the two lines is filled. */
+#define PEN_JOIN_BEVEL_STYLE 121
+/* A circular arc between the two lines is filled. */
+#define PEN_JOIN_ROUND_STYLE 122
+
+/* Uniform color. */
+#define BRUSH_SOLID_STYLE 130
+/* Horizontal lines. */
+#define BRUSH_HORIZONTAL_STYLE 131
+/* Vertical lines. */
+#define BRUSH_VERTICAL_STYLE 132
+/* Backward diagonal lines. */
+#define BRUSH_FDIAG_STYLE 133
+/* Forward diagonal lines.*/
+#define BRUSH_BDIAG_STYLE 134
+/* Crossing horizontal and vertical lines. */
+#define BRUSH_CROSS_STYLE 135
+/* Crossing diagonal lines. */
+#define BRUSH_DIAGCROSS_STYLE 136
+
+/* --------------------------------- Matrix --------------------------------- */
+/* Return matrix m11 element */
+#define MATRIX_M11(m) ((m)->m_m11)
+/* Return matrix m12 element */
+#define MATRIX_M12(m) ((m)->m_m12)
+/* Return matrix m21 element */
+#define MATRIX_M21(m) ((m)->m_m21)
+/* Return matrix m22 element */
+#define MATRIX_M22(m) ((m)->m_m22)
+/* Return matrix dx element */
+#define MATRIX_DX(m) ((m)->m_dx)
+/* Return matrix dy element */
+#define MATRIX_DY(m) ((m)->m_dy)
+
+/* Return matrix scale int x direction */
+#define MATRIX_SCALE_X(m) ((m)->m_m11)
+/* Return matrix scale int y direction */
+#define MATRIX_SCALE_Y(m) ((m)->m_m22)
+/* Return matrix rotate angle */
+#define MATRIX_ROTATE_ANGLE(m) (asin((m)->m_m12))
+/* Return matrix offset x */
+#define MATRIX_OFFSET_X(m) ((m)->m_dx)
+/* Return matrix offset y */
+#define MATRIX_OFFSET_Y(m) ((m)->m_dy)
+
 /* -------------------------------------------------------------------------- */
 /*                                 Coordinate                                 */
 /* -------------------------------------------------------------------------- */
 
+/* A binary block of geometric coordinates, used to express the coordinate
+ * information of a geometric body. */
 typedef struct se_coordinate_blob coordinate_blob_t;
 
+/* A simple two-dimensional point coordinate structure. */
 typedef struct se_raw_point {
   double x;
   double y;
 } raw_point_t;
 
-typedef struct se_raw_point3d {
-  double x;
-  double y;
-  double z;
-} raw_point3d_t;
-
-int compare_raw_point(raw_point_t *a, raw_point_t *b);
-int compare_raw_point3d(raw_point3d_t *a, raw_point3d_t *b);
+/* Returns whether the coordinates of two points are within the tolerance range
+ * Include:
+ * 0: Points are equal within tolerance
+ * 1: Points are not equal within tolerance
+ */
+int compare_raw_point(const raw_point_t *a, const raw_point_t *b);
 
 /* -------------------------------------------------------------------------- */
 /*                             Coordinate factory                             */
 /* -------------------------------------------------------------------------- */
 
-
-coordinate_blob_t *create_coordinate(uint32_t i_n, const int *i_p, uint32_t c_n,
-                                     uint32_t c_dim, const double *c_p,
-                                     int flags);
-void coordinate_info(coordinate_blob_t *c, uint32_t *i_n, int **i_p,
-                     uint32_t *c_n, uint32_t *c_dim, double **c_p);
-
+/* Create coordinate blob
+ * i_n: interpret number
+ * i_p: interpret array, it's range is [i_p, i_p + 3 * i_n)
+ * c_n: coordinate number
+ * c_p: coordinate pointer, it's range is [c_p, c_p + c_n)]
+ * flags: Whether to copy coordinate memory. 0: Copy the output coordinate
+ * memory block and take over memory management. 1: The output memory is not
+ * copied and only referenced, and the memory is managed externally.*/
+coordinate_blob_t *create_coordinate(const uint32_t i_n, const int *i_p,
+                                     const uint32_t c_n, const double *c_p,
+                                     const int flags);
+/* Get coordinate information */
+void coordinate_info(const coordinate_blob_t *c, uint32_t *i_n, int **i_p,
+                     uint32_t *c_n, double **c_p);
+/* Destroy coordinate blob */
 void coordinate_destroy(coordinate_blob_t *c);
 
-/* create point */
-coordinate_blob_t *create_point(double *p);
-/* create two point line */
-coordinate_blob_t *create_line(double *p);
+/* create point. p is the first address of a two-dimensional point coordinate */
+coordinate_blob_t *create_point(const double *p);
+/* create two point line. p is the first address of two two-dimensional point
+ * coordinate arrays */
+coordinate_blob_t *create_line(const double *p);
 /* create line by one point and angle with length */
-coordinate_blob_t *create_line2(double *p, double angle, double length);
+coordinate_blob_t *create_line2(const double *p, const double angle,
+                                const double length);
 /* create arc line by three point */
-coordinate_blob_t *create_arc(double *p);
+coordinate_blob_t *create_arc(const double *p);
 /* create arc by circle and sweep angle */
-coordinate_blob_t *create_arc2(double *c, double radius, double angle1,
-                               double angle2);
+coordinate_blob_t *create_arc2(const double *c, const double radius,
+                               const double angle1, const double angle2);
 /* create arc by begin and end point, chord */
-coordinate_blob_t *create_arc3(double *p, double chord);
+coordinate_blob_t *create_arc3(const double *p, const double chord);
 /* create single path */
-coordinate_blob_t *create_path(double *p, int num);
+coordinate_blob_t *create_path(const double *p, const int num);
 /* create envelope */
-coordinate_blob_t *create_envelope(double *p);
+coordinate_blob_t *create_envelope(const double *p);
 
 /* -------------------------------------------------------------------------- */
 /*                                     i4                                     */
 /* -------------------------------------------------------------------------- */
 
+/* se_i4 is an attribute object, which consists of two parts, one is the object
+ * pointer, and the second is the object's attribute information.
+ * These attribute information are not possessed by the object itself, such as
+ * polygon area, polygon enclosing rectangle, etc. Rather, they are some markup
+ * attributes, such as the ID of the polygon, and the correspondence between the
+ * polygon and a certain field attribute.
+ * These properties are passed
+ * externally, and we agree that the passed-in value can only be a simple int
+ * value, and the meaning of the value is determined externally.
+ * After completing a set of object operations, these attribute values
+ * still exist in the object, and the object can be obtained by obtaining
+ * the attribute values. */
 typedef struct se_i4 i4_t;
 
+/* Create i4 */
 i4_t *create_i4(const void *p, size_t prop_size);
+/* Destroy i4 */
 void destroy_i4(i4_t *p);
+/* Return prop pointer */
 const void *i4_ptr(i4_t *p);
+/* Set prop value */
 void set_i4_prop(i4_t *p, size_t index, int prop);
+/* Get prop value */
 int get_i4_prop(i4_t *p, size_t index);
+/* Return prop size*/
 int i4_prop_size(i4_t *p);
-
-double tolerance(double tol);
 
 /* -------------------------------------------------------------------------- */
 /*                                  Algorithm                                 */
 /* -------------------------------------------------------------------------- */
 
-int geometry_type(coordinate_blob_t *c);
-int *coordinate_interpret(coordinate_blob_t *c);
-int coordinate_interpret_n(coordinate_blob_t *c);
-double *coordinate_coord(coordinate_blob_t *c);
-unsigned int coordinate_point_n(coordinate_blob_t *c);
-int coordinate_dim_c(coordinate_blob_t *c);
-int coordinate_dim_g(coordinate_blob_t *c);
-int coordinate_sub_n(coordinate_blob_t *c);
+/* Set global tolerance
+ * tol: new tolerance
+ * return: old tolerance */
+double tolerance(double tol);
+
+/* Get geometry type
+ * c: coordinate blob
+ * return: geometry type */
+int geometry_type(const coordinate_blob_t *c);
+/* Pointer of coordinate interpret
+ * c: coordinate blob
+ * return: pointer of coordinate interpret */
+int *coordinate_interpret(const coordinate_blob_t *c);
+/* Number of coordinate interpret */
+int coordinate_interpret_n(const coordinate_blob_t *c);
+/* Return geometry point pointer */
+double *coordinate_coord(const coordinate_blob_t *c);
+/* Return geometry point number */
+unsigned int coordinate_point_n(const coordinate_blob_t *c);
+/* Return geometry dimension type, value range is {TRUE, FALSE, P, L, A} */
+int coordinate_dim_g(const coordinate_blob_t *c);
+/* Sub number of coordinate
+ * c: coordinate blob
+ * return: >= 1 */
+int coordinate_sub_n(const coordinate_blob_t *c);
+/* Sub coordinate blob */
 coordinate_blob_t *coordinate_sub_at(coordinate_blob_t *c, int index);
 
-double value_area(coordinate_blob_t *c);
-double value_length(coordinate_blob_t *c);
-double value_width(coordinate_blob_t *c);
-double value_height(coordinate_blob_t *c);
+/* Compute numerical properties of geometry */
+double geometry_prop_value(const coordinate_blob_t *c, int mode);
 
-coordinate_blob_t *geometry_clone(coordinate_blob_t *c);
-coordinate_blob_t *geometry_label(coordinate_blob_t *c);
-coordinate_blob_t *geometry_center(coordinate_blob_t *c);
-coordinate_blob_t *geometry_centroid(coordinate_blob_t *c);
-coordinate_blob_t *geometry_envelope(coordinate_blob_t *c);
+/* Get the geometric properties of a geometry */
+coordinate_blob_t *geometry_prop_geo(const coordinate_blob_t *c, int mode);
 
-void geometry_label2(coordinate_blob_t *c, double *result);
-void geometry_center2(coordinate_blob_t *c, double *result);
-void geometry_centroid2(coordinate_blob_t *c, double *result);
-void geometry_envelope2(coordinate_blob_t *c, double *result);
+/* Obtain simple geometric properties of the geometry. These properties usually
+ * only require a fixed number of point coordinates to describe, such as center,
+ * center of gravity, label point, circumscribed rectangle, inscribed circle,
+ * circumscribed circle, inscribed circle*/
+int geometry_prop_geo2(const coordinate_blob_t *c, int mode, double **result);
+
+/* Modify geometry properties */
+int geometry_modify(coordinate_blob_t *c, int mode, void *para);
+/* Computes the result of two geometric combination operations */
+coordinate_blob_t *geometry_combine(const coordinate_blob_t *a,
+                                    const coordinate_blob_t *b, int mode);
+
+/* Query whether two geometric relationships satisfy the specified spatial
+ * relationship */
+int geometry_spr_query_is(const coordinate_blob_t *a,
+                          const coordinate_blob_t *b, int mode);
+/* Determine the spatial relationship between two geometries and obtain the
+ * intersection matrix, The matrix is an integer array of length 9 */
+int geometry_spr_query(const coordinate_blob_t *a, const coordinate_blob_t *b,
+                       int *matrix);
+
+/* Check individual geometric correctness */
+int geometry_check_1(const coordinate_blob_t *c, int mode);
+
+/* Checks a set of geometries for correctness and writes error messages to the
+ * stream */
+int geometry_check_2(const i4_t *r, const int r_n, i4_t **w, int *w_n,
+                     int mode);
 
 /* -------------------------------------------------------------------------- */
 /*                         Coordinate Reference System                        */
 /* -------------------------------------------------------------------------- */
 
-#define TRANS_WGS84_TO_CGCS2000 0
-#define TRANS_WGS84_TO_XIAN80 1
-#define TRANS_CGCS2000_TO_WGS84 3
-#define TRANS_CGCS2000_TO_XIAN80 4
-#define TRANS_XIAN80_TO_CGCS2000 5
-#define TRANS_XIAN80_TO_WGS84 6
-
-#define TRANS_FORWARD 1
-#define TRANS_INVERSE -1
-
+/* Spatial coordinate conversion */
 typedef struct se_crs_transform crs_transformation_t;
 
+/* Creates a coordinate transformation based on the EPSG value, or returns NULL
+ * if the EPSG value is not found
+ * epsg_from: from epsg code epsg_to: to epsg
+ * code return: transformation object */
 crs_transformation_t *create_trans(int epsg_from, int epsg_to);
+/* Create commonly used coordinate transformations */
 crs_transformation_t *create_wellknown_trans(int wellknown);
 void destroy_trans(crs_transformation_t *trans);
 
-int trans_coord(crs_transformation_t *trans, int direction, double *c);
-int trans_coord_array(crs_transformation_t *trans, int direction, double *c,
-                      int c_n);
+/* trans point */
+int trans_coord(const crs_transformation_t *trans, int direction, double *c);
+/* trans point array */
+int trans_coord_array(const crs_transformation_t *trans, int direction,
+                      double *c, int c_n);
 
 /* -------------------------------------------------------------------------- */
 /*                                    Table                                   */
@@ -193,14 +660,22 @@ typedef struct se_table_field {
 } table_field_t;
 
 /* blob or clob column data */
-typedef struct data_blob {
-  uint64_t cs;
-  char *data;
+typedef struct se_data_blob {
+  uint64_t bs; /* blob size */
+  char *data;  /* blob header pointer */
 } data_blob;
 
+/* memory table */
 typedef struct se_mem_table mem_table_t;
 
-mem_table_t *create_mem_table(table_field_t *fields, uint32_t size);
+/* Create memory table
+ * fields memory table field
+ * size memory table row size
+ * flag memory table flag
+        0: create OID and geometry field
+        1: do not create OID and geometry field
+*/
+mem_table_t *create_mem_table(table_field_t *fields, uint32_t size, int flag);
 void destroy_mem_table(mem_table_t *tab);
 
 /* ------------------------------ read function ----------------------------- */
@@ -247,16 +722,23 @@ void remove_range(mem_table_t *tab, int64_t *id, uint32_t num);
 /*                                   GeoHash                                  */
 /* -------------------------------------------------------------------------- */
 
-typedef struct se_geohash_point geohash_point_t;
+/*
+ * Hashing works like this:
+ * Divide the world into 4 buckets.  Label each one as such:
+ *  -----------------
+ *  |       |       |
+ *  |       |       |
+ *  | 0,1   | 1,1   |
+ *  -----------------
+ *  |       |       |
+ *  |       |       |
+ *  | 0,0   | 1,0   |
+ *  -----------------
+ */
 
-#define GEOHASH_DIRECTION_NORTH 0
-#define GEOHASH_DIRECTION_EAST 1
-#define GEOHASH_DIRECTION_WEST 2
-#define GEOHASH_DIRECTION_SOUTH 3
-#define GEOHASH_DIRECTION_SOUTH_WEST 4
-#define GEOHASH_DIRECTION_SOUTH_EAST 5
-#define GEOHASH_DIRECTION_NORTH_WEST 6
-#define GEOHASH_DIRECTION_NORTH_EAST 7
+/* The point structure of the GeoHash algorithm, which saves point coordinates,
+ * longitude and latitude, and point attribute information */
+typedef struct se_geohash_point geohash_point_t;
 
 typedef struct se_geohash_bits {
   uint64_t bits;
@@ -303,9 +785,9 @@ geohash_area_t *geohash_decode_WGS84(const geohash_range_t long_range,
                                      const geohash_range_t lat_range,
                                      const geohash_bits_t hash);
 
-int geohash_decode_area_longlat(const geohash_area_t *area, double *xy);
-int geohash_decode_longlat_type(const geohash_area_t *area, double *xy);
-int geohash_decode_longlat_WGS84(const geohash_area_t *area, double *xy);
+bool geohash_decode_area_longlat(const geohash_area_t *area, double *xy);
+bool geohash_decode_longlat_type(const geohash_area_t *area, double *xy);
+bool geohash_decode_longlat_WGS84(const geohash_area_t *area, double *xy);
 
 geohash_neighbors_t *geohash_query_neighbors(const geohash_bits_t *hash);
 
@@ -316,9 +798,6 @@ geohash_neighbors_t *geohash_query_neighbors(const geohash_bits_t *hash);
 /* -------------------------------------------------------------------------- */
 /*                                 Read Write                                 */
 /* -------------------------------------------------------------------------- */
-
-#define ENDIAN_BIG 0
-#define ENDIAN_LITTLE 1
 
 uint64_t bswap_uint64(uint64_t src);
 uint32_t bswap_uint32(uint32_t src);
@@ -355,180 +834,113 @@ int write_to_gml3(coordinate_blob_t *c, char **kml);
 /*                                  Graphics                                  */
 /* -------------------------------------------------------------------------- */
 
-typedef unsigned int RGB;
-const RGB RGB_MASK = 0x00ffffff;
-
-#define RED(rgb) ((rgb >> 16) & 0xff)
-#define GREEN(rgb) ((rgb >> 8) & 0xff)
-#define BLUE(rgb) (rgb & 0xff)
-#define ALPHA(rgb) (rgb >> 24)
-#define INIT_RGB(r, g, b)                                                      \
-  ((0xffu << 24) | ((r & 0xffu) << 16) | ((g & 0xffu) << 8) | (b & 0xffu))
-#define INIT_RGBA(r, g, b, a)                                                  \
-  (((a & 0xffu) << 24) | ((r & 0xffu) << 16) | ((g & 0xffu) << 8) | (b & 0xffu))
-
-enum {
-  SEAliceBlue = 0xFFF0F8FF,
-  SEAntiqueWhite = 0xFFFAEBD7,
-  SEAqua = 0xFF00FFFF,
-  SEAquamarine = 0xFF7FFFD4,
-  SEAzure = 0xFFF0FFFF,
-  SEBeige = 0xFFF5F5DC,
-  SEBisque = 0xFFFFE4C4,
-  SEBlack = 0xFF000000,
-  SEBlanchedAlmond = 0xFFFFEBCD,
-  SEBlue = 0xFF0000FF,
-  SEBlueViolet = 0xFF8A2BE2,
-  SEBrown = 0xFFA52A2A,
-  SEBurlyWood = 0xFFDEB887,
-  SECadetBlue = 0xFF5F9EA0,
-  SEChartreuse = 0xFF7FFF00,
-  SEChocolate = 0xFFD2691E,
-  SECoral = 0xFFFF7F50,
-  SECornflowerBlue = 0xFF6495ED,
-  SECornsilk = 0xFFFFF8DC,
-  SECrimson = 0xFFDC143C,
-  SECyan = 0xFF00FFFF,
-  SEDarkBlue = 0xFF00008B,
-  SEDarkCyan = 0xFF008B8B,
-  SEDarkGoldenrod = 0xFFB8860B,
-  SEDarkGray = 0xFFA9A9A9,
-  SEDarkGreen = 0xFF006400,
-  SEDarkKhaki = 0xFFBDB76B,
-  SEDarkMagenta = 0xFF8B008B,
-  SEDarkOliveGreen = 0xFF556B2F,
-  SEDarkOrange = 0xFFFF8C00,
-  SEDarkOrchid = 0xFF9932CC,
-  SEDarkRed = 0xFF8B0000,
-  SEDarkSalmon = 0xFFE9967A,
-  SEDarkSeaGreen = 0xFF8FBC8B,
-  SEDarkSlateBlue = 0xFF483D8B,
-  SEDarkSlateGray = 0xFF2F4F4F,
-  SEDarkTurquoise = 0xFF00CED1,
-  SEDarkViolet = 0xFF9400D3,
-  SEDeepPink = 0xFFFF1493,
-  SEDeepSkyBlue = 0xFF00BFFF,
-  SEDimGray = 0xFF696969,
-  SEDodgerBlue = 0xFF1E90FF,
-  SEFeldspar = 0xFFD19275,
-  SEFirebrick = 0xFFB22222,
-  SEFloralWhite = 0xFFFFFAF0,
-  SEForestGreen = 0xFF228B22,
-  SEFuchsia = 0xFFFF00FF,
-  SEGainsboro = 0xFFDCDCDC,
-  SEGhostWhite = 0xFFF8F8FF,
-  SEGold = 0xFFFFD700,
-  SEGoldenrod = 0xFFDAA520,
-  SEGray = 0xFF808080,
-  SEGreen = 0xFF00FF00,
-  SEGreenYellow = 0xFFADFF2F,
-  SEHoneydew = 0xFFF0FFF0,
-  SEHotPink = 0xFFFF69B4,
-  SEIndianRed = 0xFFCD5C5C,
-  SEIndigo = 0xFF4B0082,
-  SEIvory = 0xFFFFFFF0,
-  SEKhaki = 0xFFF0E68C,
-  SELavender = 0xFFE6E6FA,
-  SELavenderBlush = 0xFFFFF0F5,
-  SELawnGreen = 0xFF7CFC00,
-  SELemonChiffon = 0xFFFFFACD,
-  SELightBlue = 0xFFADD8E6,
-  SELightCoral = 0xFFF08080,
-  SELightCyan = 0xFFE0FFFF,
-  SELightGoldenrodYellow = 0xFFFAFAD2,
-  SELightGray = 0xFFD3D3D3,
-  SELightGrey = 0xFFD3D3D3,
-  SELightGreen = 0xFF90EE90,
-  SELightPink = 0xFFFFB6C1,
-  SELightSalmon = 0xFFFFA07A,
-  SELightSeaGreen = 0xFF20B2AA,
-  SELightSkyBlue = 0xFF87CEFA,
-  SELightSlateBlue = 0xFF8470FF,
-  SELightSlateGray = 0xFF778899,
-  SELightSteelBlue = 0xFFB0C4DE,
-  SELightYellow = 0xFFFFFFE0,
-  SELime = 0xFF00FF00,
-  SELimeGreen = 0xFF32CD32,
-  SELinen = 0xFFFAF0E6,
-  SEMagenta = 0xFFFF00FF,
-  SEMaroon = 0xFF800000,
-  SEMediumAquamarine = 0xFF66CDAA,
-  SEMediumBlue = 0xFF0000CD,
-  SEMediumOrchid = 0xFFBA55D3,
-  SEMediumPurple = 0xFF9370DB,
-  SEMediumSeaGreen = 0xFF3CB371,
-  SEMediumSlateBlue = 0xFF7B68EE,
-  SEMediumSpringGreen = 0xFF00FA9A,
-  SEMediumTurquoise = 0xFF48D1CC,
-  SEMediumVioletRed = 0xFFC71585,
-  SEMidnightBlue = 0xFF191970,
-  SEMintCream = 0xFFF5FFFA,
-  SEMistyRose = 0xFFFFE4E1,
-  SEMoccasin = 0xFFFFE4B5,
-  SENavajoWhite = 0xFFFFDEAD,
-  SENavy = 0xFF000080,
-  SEOldLace = 0xFFFDF5E6,
-  SEOlive = 0xFF808000,
-  SEOliveDrab = 0xFF6B8E23,
-  SEOrange = 0xFFFFA500,
-  SEOrangeRed = 0xFFFF4500,
-  SEOrchid = 0xFFDA70D6,
-  SEPaleGoldenrod = 0xFFEEE8AA,
-  SEPaleGreen = 0xFF98FB98,
-  SEPaleTurquoise = 0xFFAFEEEE,
-  SEPaleVioletRed = 0xFFDB7093,
-  SEPapayaWhip = 0xFFFFEFD5,
-  SEPeachPuff = 0xFFFFDAB9,
-  SEPeru = 0xFFCD853F,
-  SEPink = 0xFFFFC0CB,
-  SEPlum = 0xFFDDA0DD,
-  SEPowderBlue = 0xFFB0E0E6,
-  SEPurple = 0xFF800080,
-  SERed = 0xFFFF0000,
-  SERosyBrown = 0xFFBC8F8F,
-  SERoyalBlue = 0xFF4169E1,
-  SESaddleBrown = 0xFF8B4513,
-  SESalmon = 0xFFFA8072,
-  SESandyBrown = 0xFFF4A460,
-  SESeaGreen = 0xFF2E8B57,
-  SESeaShell = 0xFFFFF5EE,
-  SESienna = 0xFFA0522D,
-  SESilver = 0xFFC0C0C0,
-  SESkyBlue = 0xFF87CEEB,
-  SESlateBlue = 0xFF6A5ACD,
-  SESlateGray = 0xFF708090,
-  SESnow = 0xFFFFFAFA,
-  SESpringGreen = 0xFF00FF7F,
-  SESteelBlue = 0xFF4682B4,
-  SETan = 0xFFD2B48C,
-  SETeal = 0xFF008080,
-  SEThistle = 0xFFD8BFD8,
-  SETomato = 0xFFFF6347,
-  SETransparent = 0x00FFFFFF,
-  SETurquoise = 0xFF40E0D0,
-  SEViolet = 0xFFEE82EE,
-  SEVioletRed = 0xFFD02090,
-  SEWheat = 0xFFF5DEB3,
-  SEWhite = 0xFFFFFFFF,
-  SEWhiteSmoke = 0xFFF5F5F5,
-  SEYellow = 0xFFFFFF00,
-  SEYellowGreen = 0xFF9ACD32,
-};
-
 void rgb2hsv(RGB rgb, double *h, double *s, double *v);
 void hsv2rgb(double h, double s, double v, RGB *rgb);
+RGB random_color();
 
+/* Map drawing context, which is a memory block in png format and supports
+ * multi-threaded drawing.*/
 typedef struct se_graphics_context graphics_context_t;
 
+/* Graphics display transform structure */
 typedef struct se_graphics_display_transform {
-  double reference_scale;
-  double map_extent[4];
-  double device_extent[4];
-  double resolution;
-  double scale;
-  double rotate_angle;
-  float dpi;
+  double reference_scale;  /* reference scale */
+  double map_extent[4];    /* map extent */
+  double device_extent[2]; /* device extent. device is a size struct, only need
+                              to set width and height */
+  double resolution;   /* resolution, The geographic length represented by each
+                          pixel*/
+  double scale;        /* map scale */
+  double rotate_angle; /* map rotate angle */
+  float dpi;           /* device dpi, default value is 96.*/
 } graphics_display_transform_t;
+
+/* Point symbol structure */
+typedef struct se_point_symbol {
+  RGB color;  /* point color */
+  float size; /* Point size. When the symbol is a circular point, it represents
+                 the diameter of the circle; when it is a square point, it
+                 represents the side length of the square. */
+  int style;  /* point style, circle or square */
+
+} point_symbol_t;
+
+/* Line symbol structure */
+typedef struct se_line_symbol {
+  RGB color;          /* line color */
+  float thickness;    /* line thickness */
+  int pen_cap;        /* pen cap style */
+  int pen_join;       /* pen join style */
+  int pen_style;      /* pen style */
+  double miter_limit; /* The miter limit of the pen. The miter limit is only
+                         relevant when the join style is miter. */
+} line_symbol_t;
+
+/* Fill symbol structure */
+typedef struct se_fill_symbol {
+  RGB fill_color;         /* fill color */
+  line_symbol_t out_line; /* fill out line symbol */
+  int brush_style;        /* brush style */
+} fill_symbol_t;
+
+/* Create graphics context
+ * The width and height of the context are in pixels.
+ * flags: 0: single thread drawing(default)
+ *        1: Multithreaded drawing */
+graphics_context_t *create_graphics_context(const int width, const int height,
+                                            int flags);
+void destroy_graphics_context(graphics_context_t *context);
+
+/* --------------------------------------------------------------------------
+ */
+/*                                   Matrix */
+/* --------------------------------------------------------------------------
+ */
+
+/* Affine transformation matrix
+ * m11 | m12 | 0
+ * m21 | m22 | 0
+ * dx  | dy  | 1
+ * Typically, after initializing the matrix, the values of each element are
+ * as follows [1 0 0] [0 1 0] [0 0 1] The basic formula of affine
+ * transformation is nx = m11 * x + m21 * y + dx; ny = m12 * x + m22 * y +
+ * dy;
+ */
+typedef struct se_matrix {
+  union {
+    float m_m[6];
+    struct {
+      float m_m11, m_m12, m_m21, m_m22, m_dx, m_dy;
+    };
+  };
+} matrix_t;
+
+/* Matrix left multiplication */
+void matrix_left_multiply(matrix_t *m, const matrix_t *mat);
+/* Matrix (right) multiplication */
+void matrix_multiply(matrix_t *m, const matrix_t *mat);
+/* Matrix translation transformation */
+void matrix_translate(matrix_t *m, const float x, const float y);
+/* Matrix scaling transformation */
+void matrix_scale(matrix_t *m, const float x, const float y);
+/* Matrix rotation transformation */
+void matrix_rotate(matrix_t *m, const float angle);
+/* Matrix rotation transformation based on a certain center point */
+void matrix_rotate2(matrix_t *m, const float angle, const float x,
+                    const float y);
+/* matrix shear transformation */
+void matrix_shear(matrix_t *m, const float x, const float y);
+/* Matrix mirror transformation */
+void matrix_mirror(matrix_t *m, const float x, const float y);
+/* Matrix inversion matrix */
+void matrix_invert(matrix_t *m);
+/* Determine whether the matrix can be inverted */
+bool matrix_invertible(const matrix_t *m);
+/* Determine whether the matrix can be an identity matrix */
+bool matrix_identity(const matrix_t *m);
+
+/* Transform point coordinates using a matrix */
+void matrix_trans_points(const matrix_t *m, double *points, int count);
 
 #ifdef __cplusplus
 }

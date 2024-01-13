@@ -8,7 +8,7 @@
  * after the data flow calculation is completed.
  *
  */
-struct __i4 {
+struct se_i4 {
   /* The property size */
   int size;
   /* The property value pointer */
@@ -63,9 +63,9 @@ void destroy_i4(i4_t *p) {
 
 /**
  * @brief Get i4 properties pointer
- * 
- * @param p 
- * @return ptrdiff_t* 
+ *
+ * @param p
+ * @return ptrdiff_t*
  */
 const void *i4_ptr(i4_t *p) {
   if (p == NULL)
@@ -75,10 +75,10 @@ const void *i4_ptr(i4_t *p) {
 
 /**
  * @brief Set the i4 prop object
- * 
- * @param p 
- * @param index 
- * @param prop 
+ *
+ * @param p
+ * @param index
+ * @param prop
  */
 void set_i4_prop(i4_t *p, size_t index, int prop) {
   if (p == NULL)
@@ -92,10 +92,10 @@ void set_i4_prop(i4_t *p, size_t index, int prop) {
 
 /**
  * @brief Get the i4 prop object
- * 
- * @param p 
- * @param index 
- * @return int 
+ *
+ * @param p
+ * @param index
+ * @return int
  */
 int get_i4_prop(i4_t *p, size_t index) {
   if (p == NULL)
@@ -109,9 +109,9 @@ int get_i4_prop(i4_t *p, size_t index) {
 
 /**
  * @brief Get i4 properties size
- * 
- * @param p 
- * @return int 
+ *
+ * @param p
+ * @return int
  */
 int i4_prop_size(i4_t *p) {
   if (p == NULL)
