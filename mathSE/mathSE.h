@@ -6,7 +6,6 @@
 #ifndef __MATHSE_H__
 #define __MATHSE_H__
 
-#include <cstddef>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -387,6 +386,25 @@ enum COLOR {
   YellowGreen = 0xFF9ACD32,
 };
 
+/**
+ * context_format_t:
+ * @FORMAT_INVALID: no such format exist or is supported.
+ * @FORMAT_ARGB32: each pixel is a 32-bit quantity, with alpha in the upper 8
+ *    bits, red in the next 8 bits, then green, then blue. The 32-bits
+ *    quantities are stored native-endian. Pre-multiplied alpha is used.
+ * @FORMAT_RGB24: RGB24 each pixel is a 32-bit quantity, with the upper 8 bits
+ *    unused. Red, Green, and Blue are stored in the remaining 24 bits int the
+ *    order.
+ * @FORMAT_A8: A8 each pixel is an 8-bit quantity holding an alpha value.
+ *
+ */
+typedef enum se_context_format {
+  FORMAT_INVALID = -1,
+  FORMAT_ARGB32 = 0,
+  FORMAT_RGB32 = 1,
+  FORMAT_A8 = 2
+} context_format_t;
+
 /* Circle point */
 #define SYMBOL_POINT_CIRCLE 0
 /* Square point */
@@ -435,6 +453,8 @@ enum COLOR {
 #define BRUSH_DIAGCROSS_STYLE 136
 
 /* --------------------------------- Matrix --------------------------------- */
+#define MATRIX_INIT                                                            \
+  { 1, 0, 0, 1, 0, 0 }
 /* Return matrix m11 element */
 #define MATRIX_M11(m) ((m)->m_m11)
 /* Return matrix m12 element */
@@ -888,7 +908,7 @@ typedef struct se_fill_symbol {
  * flags: 0: single thread drawing(default)
  *        1: Multithreaded drawing */
 graphics_context_t *create_graphics_context(const int width, const int height,
-                                            int flags);
+                                            context_format_t fmt, int flags);
 void destroy_graphics_context(graphics_context_t *context);
 
 /* --------------------------------------------------------------------------

@@ -27,6 +27,7 @@
     "stddef.h": "c",
     "stdint.h": "c",
     "limits.h": "c",
-    "float.h": "c"
+    "float.h": "c",
+    "png.h": "c"
   }
 }
