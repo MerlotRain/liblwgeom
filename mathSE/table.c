@@ -33,8 +33,8 @@ uint32_t cala_row_bytes(table_field_t *fields, size_t size) {
     } else if (fid->type == 'b') {
       sz += sizeof(struct se_data_blob);
     }
-    return sz;
   }
+  return sz;
 }
 
 /* -------------------------- memory table function -------------------------

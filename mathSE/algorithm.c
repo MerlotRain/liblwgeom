@@ -1,4 +1,13 @@
 #include "mathSE.h"
+#include <assert.h>
+
+static double geo_prop_value_area(const coordinate_blob_t *c) { return 0.0; }
+
+static double geo_prop_value_height(const coordinate_blob_t *c) { return 0.0; }
+
+static double geo_prop_value_width(const coordinate_blob_t *c) { return 0.0; }
+
+static double geo_prop_value_length(const coordinate_blob_t *c) { return 0.0; }
 
 double g_tolerance = 0.00001;
 
@@ -8,7 +17,23 @@ double tolerance(double tol) {
   return tmp;
 }
 
-double geometry_prop_value(const coordinate_blob_t *c, int mode) { return 0.0; }
+double geometry_prop_value(const coordinate_blob_t *c, int mode) {
+  assert(c);
+
+  switch (mode) {
+  case GEOMETRY_PROP_VALUE_AREA:
+    return geo_prop_value_area(c);
+  case GEOMETRY_PROP_VALUE_HEIGHT:
+    return geo_prop_value_height(c);
+  case GEOMETRY_PROP_VALUE_WIDTH:
+    return geo_prop_value_width(c);
+  case GEOMETRY_PROP_VALUE_LENGTH:
+    return geo_prop_value_length(c);
+  default:
+    fprintf(stderr, "Unknown mode: %d\n", mode);
+  }
+  return 0.0;
+}
 
 coordinate_blob_t *geometry_prop_geo(const coordinate_blob_t *c, int mode) {
   return NULL;
