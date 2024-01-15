@@ -82,13 +82,57 @@ void coordinate_info(const coordinate_blob_t *c, uint32_t *i_n, int **i_p,
 
 void coordinate_destroy(coordinate_blob_t *c) {}
 
-coordinate_blob_t *create_point(const double *p) { return NULL; }
+coordinate_blob_t *create_point(const double *p) {
+  coordinate_blob_t *coord =
+      (coordinate_blob_t *)malloc(sizeof(coordinate_blob_t));
+  if (!coord)
+    return NULL;
 
-coordinate_blob_t *create_line(const double *p) { return NULL; }
+  coord->geo_type = GEOMETRY_TYPE_POINT;
+  coord->interpret_num = 1;
+  coord->coord_num = 2;
+  coord->coord = NULL;
+  coord->interpret = NULL;
+
+  coord->interpret = (int *)malloc(3 * sizeof(int));
+  if (!coord->interpret) {
+    free(coord);
+    return NULL;
+  }
+
+  INT_TUP_POINT
+  memcpy(coord->interpret, &__itt__, sizeof(struct se_interpret_tuple));
+  coord->interpret[0] = 1;
+  coord->interpret[1] = INTERPRET_TYPE_POINT;
+  coord->interpret[2] = 1;
+
+  coord->coord = (double *)malloc(2 * sizeof(double));
+  if (!coord->coord) {
+    free(coord->interpret);
+    coord->interpret = NULL;
+    free(coord);
+    coord = NULL;
+    return NULL;
+  }
+  memcpy(coord->coord, p, sizeof(double) * 2);
+  return coord;
+}
+
+static coordinate_blob_t *create_line_2_point(double x1, double y1, double x2,
+                                              double y2) {
+
+}
+
+coordinate_blob_t *create_line(const double *p) {
+  return create_line_2_point(p[0], p[1], p[2], p[3]);
+}
 
 coordinate_blob_t *create_line2(const double *p, const double angle,
                                 const double length) {
-  return NULL;
+
+  double x_end = p[0] + cos(angle) * length;
+  double y_end = p[1] + sin(angle) * length;
+  return create_line_2_point(p[0], p[1], x_end, y_end);
 }
 
 coordinate_blob_t *create_arc(const double *p) { return NULL; }
