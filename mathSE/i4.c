@@ -1,4 +1,4 @@
-#include "mathSE.h"
+#include "mathse.h"
 #include <stdlib.h>
 #include <string.h>
 

@@ -1,4 +1,4 @@
-#include "mathSE.h"
+#include "mathse.h"
 #include <proj.h>
 
 crs_transformation_t *create_trans(int epsg_from, int epsg_to) { return NULL; }

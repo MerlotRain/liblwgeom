@@ -1,4 +1,4 @@
-#include "mathSE.h"
+#include "mathse.h"
 
 void matrix_left_multiply(matrix_t *m, const matrix_t *mat) {
   matrix_t mx = MATRIX_INIT;

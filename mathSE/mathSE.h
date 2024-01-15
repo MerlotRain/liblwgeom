@@ -6,6 +6,14 @@
 #ifndef __MATHSE_H__
 #define __MATHSE_H__
 
+#ifndef MAX
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -500,11 +508,18 @@ typedef struct se_raw_point {
  */
 int compare_raw_point(const raw_point_t *a, const raw_point_t *b);
 
+/* rectangle row structure*/
+typedef struct se_raw_box {
+  raw_point_t lower_left;
+  raw_point_t upper_right;
+} raw_box_t;
+
 /* -------------------------------------------------------------------------- */
 /*                             Coordinate factory                             */
 /* -------------------------------------------------------------------------- */
 
 /* Create coordinate blob
+ * geo: geo type
  * i_n: interpret number
  * i_p: interpret array, it's range is [i_p, i_p + 3 * i_n)
  * c_n: coordinate number
@@ -512,9 +527,9 @@ int compare_raw_point(const raw_point_t *a, const raw_point_t *b);
  * flags: Whether to copy coordinate memory. 0: Copy the output coordinate
  * memory block and take over memory management. 1: The output memory is not
  * copied and only referenced, and the memory is managed externally.*/
-coordinate_blob_t *create_coordinate(const uint32_t i_n, const int *i_p,
-                                     const uint32_t c_n, const double *c_p,
-                                     const int flags);
+coordinate_blob_t *create_coordinate(const uint8_t geo, const uint32_t i_n,
+                                     const int *i_p, const uint32_t c_n,
+                                     const double *c_p, const int flags);
 /* Get coordinate information */
 void coordinate_info(const coordinate_blob_t *c, uint32_t *i_n, int **i_p,
                      uint32_t *c_n, double **c_p);

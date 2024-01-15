@@ -1,15 +1,43 @@
-#include "mathSE.h"
+#include "coordinate.h"
+#include "mathse.h"
 #include <assert.h>
 
-static double geo_prop_value_area(const coordinate_blob_t *c) { return 0.0; }
+extern double alg_polygon_area(const coordinate_blob_t *c);
+extern void alg_calc_envelope(const double *coord, int c_n, double *env);
 
-static double geo_prop_value_height(const coordinate_blob_t *c) { return 0.0; }
+static double geo_prop_value_area(const coordinate_blob_t *c) {
+  assert(c);
+  assert(c->interpret);
+  assert(c->coord);
 
-static double geo_prop_value_width(const coordinate_blob_t *c) { return 0.0; }
+  interpret_tuple_t *inter = (interpret_tuple_t *)(c->interpret);
+  if (inter == NULL)
+    return 0.0;
+  switch (inter[0].Type) {
+  case INTERPRET_TYPE_POINT:
+  case INTERPRET_TYPE_LINE:
+  case INTERPRET_TYPE_COMPOUND_LINE:
+    return 0.0;
+  }
+
+  return 0.0;
+}
+
+static double geo_prop_value_height(const coordinate_blob_t *c) {
+  raw_box_t box;
+  alg_calc_envelope(c->coord, c->coord_num, (double *)&box);
+  return box.upper_right.y - box.lower_left.y;
+}
+
+static double geo_prop_value_width(const coordinate_blob_t *c) {
+  raw_box_t box;
+  alg_calc_envelope(c->coord, c->coord_num, (double *)&box);
+  return box.upper_right.x - box.lower_left.x;
+}
 
 static double geo_prop_value_length(const coordinate_blob_t *c) { return 0.0; }
 
-double g_tolerance = 0.00001;
+double g_tolerance = 0.000001;
 
 double tolerance(double tol) {
   double tmp = g_tolerance;
