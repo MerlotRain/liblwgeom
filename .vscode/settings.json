@@ -19,7 +19,8 @@
     "MATHSE",
     "NURBS",
     "POLYLINE",
-    "saveout"
+    "saveout",
+    "THREADPOOL"
   ],
   "files.associations": {
     "i4.h": "c",

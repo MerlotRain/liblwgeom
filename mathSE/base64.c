@@ -239,7 +239,7 @@ char *base64_encode(const unsigned char *data, size_t len) {
 
   /* We can use a smaller limit here, since we know the saved state is 0,
      +1 is needed for trailing \0, also check for unlikely integer overflow */
-  RETURN_VAL_IF_FAIL(len < ((LONG_MAX - 1) / 4 - 1) * 3, NULL);
+  RETURN_VAL_IF_FAIL(len < ((ULONG_MAX - 1) / 4 - 1) * 3, NULL);
 
   out = (char *)malloc((len / 3 + 1) * 4 + 1);
 

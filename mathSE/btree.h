@@ -5,9 +5,9 @@
 extern "C" {
 #endif
 
-typedef struct __btree btree;
+typedef struct se_btree btree_t;
 
-typedef struct __btree_node btree_node;
+typedef struct se_btree_node btree_node_t;
 
 #ifdef __cplusplus
 }
