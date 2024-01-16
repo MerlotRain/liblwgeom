@@ -68,7 +68,6 @@ static void *worker(void *arg) {
     pthread_cond_signal(&pool->not_full);
     pthread_mutex_unlock(&pool->mutex_pool);
 
-    printf("thread %ld start working...\n", pthread_self());
     pthread_mutex_lock(&pool->mutex_busy);
     pool->busy_num++;
     pthread_mutex_unlock(&pool->mutex_busy);
@@ -76,7 +75,6 @@ static void *worker(void *arg) {
     free(task.arg);
     task.arg = NULL;
 
-    printf("thread %ld end working...\n", pthread_self());
     pthread_mutex_lock(&pool->mutex_busy);
     pool->busy_num--;
     pthread_mutex_unlock(&pool->mutex_busy);
@@ -246,7 +244,6 @@ void thread_pool_exit(thread_pool_t *pool) {
   for (int i = 0; i < pool->max_num; ++i) {
     if (pool->thread_ids[i] == tid) {
       pool->thread_ids[i] = 0;
-      printf("thread_pool_exit() called, %ld exiting...\n", tid);
       break;
     }
   }
