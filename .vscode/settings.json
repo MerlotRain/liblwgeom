@@ -18,7 +18,8 @@
     "longlat",
     "MATHSE",
     "NURBS",
-    "POLYLINE"
+    "POLYLINE",
+    "saveout"
   ],
   "files.associations": {
     "i4.h": "c",
@@ -28,6 +29,7 @@
     "stdint.h": "c",
     "limits.h": "c",
     "float.h": "c",
-    "png.h": "c"
+    "png.h": "c",
+    "glib.h": "c"
   }
 }
