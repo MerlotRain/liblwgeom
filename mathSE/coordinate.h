@@ -139,8 +139,8 @@ extern "C" {
 #define INTERPRET_PRE_LINE_PATH 1
 /* The geometry interpretation is arc line. */
 #define INTERPRET_PRE_LINE_ARC 2
-/* The geometry interpretation is b-shape line. */
-#define INTERPRET_PRE_LINE_B_SHAPE 3
+/* The geometry interpretation is bezier line. */
+#define INTERPRET_PRE_LINE_BEZIER 3
 /* The geometry interpretation is path polygon. */
 #define INTERPRET_PRE_POLYGON_PATH 1
 /* The geometry interpretation is arc polygon. */
