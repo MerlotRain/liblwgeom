@@ -6,14 +6,7 @@
 #ifndef __MATHSE_H__
 #define __MATHSE_H__
 
-#ifndef MAX
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#endif
-
-#ifndef MIN
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#endif
-
+#include "mmalloc.h"
 #include <assert.h>
 #include <math.h>
 #include <stdbool.h>
@@ -24,6 +17,14 @@
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifndef MAX
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
 /* ------------------------------ Geometry Type ----------------------------- */
