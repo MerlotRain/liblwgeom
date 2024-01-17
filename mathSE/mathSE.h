@@ -506,13 +506,30 @@ typedef struct se_raw_point {
  * 0: Points are equal within tolerance
  * 1: Points are not equal within tolerance
  */
-int compare_raw_point(const raw_point_t *a, const raw_point_t *b);
+int compare_raw_point(const raw_point_t a, const raw_point_t b);
+
+/* Returns the midpoint of two points. */
+raw_point_t mid_point(const raw_point_t a, const raw_point_t b);
 
 /* rectangle row structure*/
 typedef struct se_raw_box {
   raw_point_t lower_left;
   raw_point_t upper_right;
 } raw_box_t;
+
+/* simple bezier curve */
+typedef struct se_bezier {
+  raw_point_t p1;
+  raw_point_t p2;
+  raw_point_t p3;
+  raw_point_t p4;
+} bezier_t;
+
+typedef struct se_arc {
+  raw_point_t p1;
+  raw_point_t p2;
+  raw_point_t p3;
+} arc_t;
 
 /* -------------------------------------------------------------------------- */
 /*                             Coordinate factory                             */

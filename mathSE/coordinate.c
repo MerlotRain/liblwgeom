@@ -7,8 +7,13 @@
 #include <stdlib.h>
 #include <sys/_types/_null.h>
 
-int compare_raw_point(const raw_point_t *a, const raw_point_t *b) {
-  return a->x == b->x && a->y == b->y;
+int compare_raw_point(const raw_point_t a, const raw_point_t b) {
+  return a.x == b.x && a.y == b.y;
+}
+
+raw_point_t mid_point(const raw_point_t a, const raw_point_t b) {
+  raw_point_t pt = {.x = (a.x + b.x) / 2.0, .y = (a.y + b.y) / 2.0};
+  return pt;
 }
 
 coordinate_blob_t *create_coordinate(const uint8_t geo, const uint32_t i_n,
