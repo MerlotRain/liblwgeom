@@ -1,5 +1,4 @@
-#include "geohash.h"
-#include <math.h>
+#include "../mathse.h"
 #include <stddef.h>
 
 /**
@@ -107,59 +106,61 @@ static inline uint64_t deinterleave64(uint64_t interleaved) {
   return x | (y << 32);
 }
 
-void get_geohash_range(geohash_range *long_range, geohash_range *lat_range) {
+void get_geohash_range(geohash_range_t *long_range,
+                       geohash_range_t *lat_range) {
   long_range->max = GEO_LONG_MAX;
   long_range->min = GEO_LONG_MIN;
   lat_range->max = GEO_LAT_MAX;
   lat_range->min = GEO_LAT_MIN;
 }
 
-geohash_bits *geohash_encode(const geohash_range *long_range,
-                             const geohash_range *lat_range, double longitude,
-                             double latitude, uint8_t step) {
+geohash_bits_t *geohash_encode(const geohash_range_t *long_range,
+                               const geohash_range_t *lat_range,
+                               double longitude, double latitude,
+                               uint8_t step) {
   return NULL;
 }
 
-geohash_bits *geohash_encode_type(double longitude, double latitude,
-                                  uint8_t step) {
+geohash_bits_t *geohash_encode_type(double longitude, double latitude,
+                                    uint8_t step) {
   return NULL;
 }
 
-geohash_bits *geohash_encode_WGS84(double longitude, double latitude,
-                                   uint8_t step) {
+geohash_bits_t *geohash_encode_WGS84(double longitude, double latitude,
+                                     uint8_t step) {
   return NULL;
 }
 
-geohash_area *geohash_decode(const geohash_range long_range,
-                             const geohash_range lat_range,
-                             const geohash_bits hash) {
+geohash_area_t *geohash_decode(const geohash_range_t long_range,
+                               const geohash_range_t lat_range,
+                               const geohash_bits_t hash) {
   return NULL;
 }
 
-geohash_area *geohash_decode_type(const geohash_range long_range,
-                                  const geohash_range lat_range,
-                                  const geohash_bits hash) {
+geohash_area_t *geohash_decode_type(const geohash_range_t long_range,
+                                    const geohash_range_t lat_range,
+                                    const geohash_bits_t hash) {
   return NULL;
 }
 
-geohash_area *geohash_decode_WGS84(const geohash_range long_range,
-                                   const geohash_range lat_range,
-                                   const geohash_bits hash) {
+geohash_area_t *geohash_decode_WGS84(const geohash_range_t long_range,
+                                     const geohash_range_t lat_range,
+                                     const geohash_bits_t hash) {
   return NULL;
 }
 
-bool geohash_decode_area_longlat(const geohash_area *area, double *xy) {
+bool geohash_decode_area_longlat(const geohash_area_t *area, double *xy) {
   return false;
 }
 
-bool geohash_decode_longlat_type(const geohash_area *area, double *xy) {
+bool geohash_decode_longlat_type(const geohash_area_t *area, double *xy) {
   return false;
 }
 
-bool geohash_decode_longlat_WGS84(const geohash_area *area, double *xy) {
+bool geohash_decode_longlat_WGS84(const geohash_area_t *area, double *xy) {
   return false;
 }
 
-geohash_neighbors *geohash_query_neighbors(const geohash_bits *hash) {
+geohash_neighbors_t *geohash_query_neighbors(const geohash_bits_t *hash) {
   return NULL;
 }

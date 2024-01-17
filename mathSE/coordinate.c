@@ -1,11 +1,8 @@
 
 #include "coordinate.h"
+#include "math-private.h"
 #include "mathse.h"
-#include <assert.h>
 #include <float.h>
-#include <math.h>
-#include <stdlib.h>
-#include <sys/_types/_null.h>
 
 int compare_raw_point(const raw_point_t a, const raw_point_t b) {
   return a.x == b.x && a.y == b.y;
@@ -14,6 +11,44 @@ int compare_raw_point(const raw_point_t a, const raw_point_t b) {
 raw_point_t mid_point(const raw_point_t a, const raw_point_t b) {
   raw_point_t pt = {.x = (a.x + b.x) / 2.0, .y = (a.y + b.y) / 2.0};
   return pt;
+}
+
+raw_point_t triangle_in_centre(const triangle_t t) {
+  double len0 = math_distance(t.p2.x, t.p2.y, t.p3.x, t.p3.y);
+  double len1 = math_distance(t.p1.x, t.p1.y, t.p2.x, t.p2.y);
+  double len2 = math_distance(t.p1.x, t.p1.y, t.p3.x, t.p3.y);
+  double circum = len0 + len1 + len2;
+  double in_x = (len0 * t.p1.x + len1 * t.p2.x + len2 * t.p3.x) / circum;
+  double in_y = (len0 * t.p1.y + len1 * t.p2.y + len2 * t.p3.y) / circum;
+  raw_point_t in = {.x = in_x, .y = in_y};
+  return in;
+}
+
+raw_point_t triangle_circum_centre(const triangle_t t) {
+  double cx = t.p3.x;
+  double cy = t.p3.y;
+  double ax = t.p1.x - cx;
+  double ay = t.p1.y - cy;
+  double bx = t.p2.x - cx;
+  double by = t.p2.y - cy;
+  double d = 2.0 * (ax * by - ay * bx);
+  double x = (by * (ax * ax + ay * ay) - ay * (bx * bx + by * by)) / d;
+  double y = (ax * (bx * bx + by * by) - bx * (ax * ax + ay * ay)) / d;
+  raw_point_t p = {.x = cx + x, .y = cy + y};
+  return p;
+}
+
+int triangle_is_acute(const triangle_t t) {
+  if (!math_is_acute(t.p1.x, t.p1.y, t.p2.x, t.p2.y, t.p3.x, t.p3.y)) {
+    return 0;
+  }
+  if (!math_is_acute(t.p2.x, t.p2.y, t.p3.x, t.p3.y, t.p1.x, t.p1.y)) {
+    return 0;
+  }
+  if (!math_is_acute(t.p3.x, t.p3.y, t.p1.x, t.p1.y, t.p2.x, t.p2.y)) {
+    return 0;
+  }
+  return 1;
 }
 
 coordinate_blob_t *create_coordinate(const uint8_t geo, const uint32_t i_n,

@@ -1,7 +1,24 @@
 #include "math-private.h"
 #include "mathse.h"
-#include <assert.h>
-#include <math.h>
+
+double math_to_degrees(double radians) { return radians * 180.0 / M_PI; }
+
+double math_radians(double degrees) { return degrees * M_PI / 180.0; }
+
+double math_angle(double x1, double y1, double x2, double y2) {
+  double dx = x2 - x1;
+  double dy = y2 - y1;
+  return atan2(dy, dx);
+}
+
+int math_is_acute(double x1, double y1, double x2, double y2, double x3,
+                  double y3) {
+  double dx0 = x1 - x2;
+  double dy0 = y1 - y2;
+  double dx1 = x3 - x2;
+  double dy1 = y3 - y2;
+  return dx0 * dx1 + dy0 * dy1 > 0;
+}
 
 double math_distance(double x1, double y1, double x2, double y2) {
   double dx = x1 - x2;

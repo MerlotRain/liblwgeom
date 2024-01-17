@@ -8,6 +8,7 @@
     "Cornsilk",
     "deinterleave",
     "DIAGCROSS",
+    "ECCENT",
     "epsg",
     "ewkb",
     "ewkt",
@@ -20,6 +21,7 @@
     "MATHSE",
     "NURBS",
     "POLYLINE",
+    "quatratic",
     "saveout",
     "THREADPOOL"
   ],
@@ -32,6 +34,7 @@
     "limits.h": "c",
     "float.h": "c",
     "png.h": "c",
-    "glib.h": "c"
+    "glib.h": "c",
+    "string.h": "c"
   }
 }

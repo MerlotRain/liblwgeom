@@ -1,8 +1,6 @@
 #include "../coordinate.h"
 #include "../math-private.h"
 #include "../mathse.h"
-#include <assert.h>
-#include <math.h>
 
 static double __alg_arc_length(const double *coord, int length) {
   assert(length > 0);
@@ -99,6 +97,7 @@ static double __alg_circle_length(const double *coord) {
   return M_PI * radius * radius;
 }
 
+/* Calculate geometry length */
 double alg_length(coordinate_blob_t *c) {
   assert(c);
 

@@ -14,6 +14,7 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
+#include <assert.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -501,6 +502,40 @@ typedef struct se_raw_point {
   double y;
 } raw_point_t;
 
+/* rectangle */
+typedef struct se_raw_box {
+  raw_point_t lower_left;
+  raw_point_t upper_right;
+} raw_box_t;
+
+/* bezier curve */
+typedef struct se_bezier {
+  raw_point_t p1;
+  raw_point_t p2;
+  raw_point_t p3;
+  raw_point_t p4;
+} bezier_t;
+
+/* arc */
+typedef struct se_arc {
+  raw_point_t p1;
+  raw_point_t p2;
+  raw_point_t p3;
+} arc_t;
+
+/* triangle */
+typedef struct se_triangle {
+  raw_point_t p1;
+  raw_point_t p2;
+  raw_point_t p3;
+} triangle_t;
+
+/* line */
+typedef struct se_line {
+  raw_point_t p1;
+  raw_point_t p2;
+} line_t;
+
 /* Returns whether the coordinates of two points are within the tolerance range
  * Include:
  * 0: Points are equal within tolerance
@@ -511,25 +546,14 @@ int compare_raw_point(const raw_point_t a, const raw_point_t b);
 /* Returns the midpoint of two points. */
 raw_point_t mid_point(const raw_point_t a, const raw_point_t b);
 
-/* rectangle row structure*/
-typedef struct se_raw_box {
-  raw_point_t lower_left;
-  raw_point_t upper_right;
-} raw_box_t;
+/* Returns the centroid of a triangle. */
+raw_point_t triangle_in_centre(const triangle_t t);
 
-/* simple bezier curve */
-typedef struct se_bezier {
-  raw_point_t p1;
-  raw_point_t p2;
-  raw_point_t p3;
-  raw_point_t p4;
-} bezier_t;
+/* Returns the circum centre of a triangle. */
+raw_point_t triangle_circum_centre(const triangle_t t);
 
-typedef struct se_arc {
-  raw_point_t p1;
-  raw_point_t p2;
-  raw_point_t p3;
-} arc_t;
+/* Returns whether the triangle is acute. */
+int triangle_is_acute(const triangle_t t);
 
 /* -------------------------------------------------------------------------- */
 /*                             Coordinate factory                             */
