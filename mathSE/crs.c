@@ -1,6 +1,11 @@
 #include "mathse.h"
 #include <proj.h>
 
+struct se_crs_transform {
+  PJ *from;
+  PJ *to;
+};
+
 crs_transformation_t *create_trans(int epsg_from, int epsg_to) { return NULL; }
 
 crs_transformation_t *create_wellknown_trans(int wellknown) { return NULL; }

@@ -175,6 +175,23 @@ typedef struct se_interpret_tuple {
   int Pre;    // interpretation
 } interpret_tuple_t;
 
+/* coordinate iterator */
+typedef struct se_coordinate_iterator coordinate_iterator_t;
+
+/* Convert to simple elements, it is suitable for geometric operations,
+ * processing the non-polyline part of the geometry, the calculation of this
+ * part is more complex, and in actual geographical operations, special curves
+ * rarely appear */
+coordinate_blob_t *coord_to_se(const coordinate_blob_t *c);
+
+coordinate_iterator_t *create_coord_iterator(const coordinate_blob_t *c);
+void destroy_coord_iterator(const coordinate_iterator_t *it);
+void reset_coord_iterator(const coordinate_iterator_t *it);
+/* get next interpret infomation and coordinate */
+int coord_iterator_next(const coordinate_iterator_t *it, interpret_tuple_t **ip,
+                        int *in, double **cp, int *cn);
+
+
 #define INIT_INTERPRET_POINT                                                   \
   {.Offset = 1, .Type = INTERPRET_TYPE_POINT, .Pre = 1};
 

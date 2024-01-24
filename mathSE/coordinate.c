@@ -4,6 +4,12 @@
 #include "mathse.h"
 #include <float.h>
 
+struct se_coordinate_iterator {
+  coordinate_blob_t *geo;
+  int inter_cur;
+  int coord_cur;
+};
+
 int compare_raw_point(const raw_point_t a, const raw_point_t b) {
   return a.x == b.x && a.y == b.y;
 }
@@ -207,4 +213,18 @@ int coordinate_sub_n(const coordinate_blob_t *c) { return 0; }
 
 coordinate_blob_t *coordinate_sub_at(coordinate_blob_t *c, int index) {
   return NULL;
+}
+
+coordinate_blob_t *coord_to_se(const coordinate_blob_t *c) { return NULL; }
+
+coordinate_iterator_t *create_coord_iterator(const coordinate_blob_t *c) {
+  return NULL;
+}
+void destroy_coord_iterator(const coordinate_iterator_t *it) {}
+
+void reset_coord_iterator(const coordinate_iterator_t *it) {}
+
+int coord_iterator_next(const coordinate_iterator_t *it, interpret_tuple_t **ip,
+                        int *in, double **cp, int *cn) {
+  return 0;
 }
