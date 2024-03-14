@@ -21,6 +21,7 @@
     "JEMALLOC",
     "linearring",
     "linestring",
+    "linestrings",
     "longlat",
     "MATHSE",
     "mcalloc",
@@ -36,6 +37,7 @@
     "quatratic",
     "rawpoint",
     "saveout",
+    "sbufhdr",
     "SRID",
     "THREADPOOL"
   ],

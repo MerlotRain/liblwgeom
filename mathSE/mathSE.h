@@ -62,54 +62,40 @@ extern "C" {
 
 /* ------------------------------ Geometry Type ----------------------------- */
 
-/* Invalid geometry type */
-#define GEOMETRY_TYPE_NONE 0
-/* single point geometry */
-#define GEOMETRY_TYPE_POINT 1
-/* Path usually consists of one or a group of line segments connected end to
- * end. It can be a straight line segment, an arc segment or a bezier curve. */
-#define GEOMETRY_TYPE_PATH 2
-/* Polygon is usually composed of a group of closed Rings, and there is at
- * least one outer ring in these Rings. If there is only one outer ring, then
- * the other rings are inner rings of the outer ring. */
-#define GEOMETRY_TYPE_POLYGON 3
-/* Collection is the parent type of Polygon and Polyline, but we usually use
- * collection to represent it. The geometric types of elements in collection are
- * inconsistent. If the geometry type is the same, it is usually represented by
- * polygon or polyline. */
-#define GEOMETRY_TYPE_COLLECTION 4
-/* A collection of points. */
-#define GEOMETRY_TYPE_MULTIPOINT 5
-/* Multi-segment polyline. It is a geometric collection type, and each
- * sub-element is a continuous polyline。 */
-#define GEOMETRY_TYPE_POLYLINE 6
-/* Rectangular structure, usually it only needs to be described by two points:
- * the upper left corner and the lower right corner. */
-#define GEOMETRY_TYPE_ENVELOPE 7
-/* Two point line segment. This is the most basic element that makes up a
- * polyline. */
-#define GEOMETRY_TYPE_LINE 8
-/* Three points that are not in a straight line must form an arc. The
- * coordinates of a set of consecutive arcs are described as the last point of
- * the first arc is the first point of the next arc. That is, the nodes at the
- * connections are reused. */
-#define GEOMETRY_TYPE_CIRCLEARC 9
-/* Represents a polyline segment connected end to end. Because they are
- * connected end to end, the line segments divide the space into interior,
- * exterior, and boundary. It is the most basic element that makes up
- * polygons. */
-#define GEOMETRY_TYPE_RING 10
+typedef enum {
+    /* Invalid geometry type */
+    GEOMETRY_TYPE_NONE = -1,
+    /// a point
+    GEOMETRY_TYPE_POINT,
+    /// a linestring
+    GEOMETRY_TYPE_LINESTRING,
+    /// a linear ring (linestring with 1st point == last point)
+    GEOMETRY_TYPE_LINEARRING,
+    /// a polygon
+    GEOMETRY_TYPE_POLYGON,
+    /// a collection of points
+    GEOMETRY_TYPE_MULTIPOINT,
+    /// a collection of linestrings
+    GEOMETRY_TYPE_MULTI_LINESTRING,
+    /// a collection of polygons
+    GEOMETRY_TYPE_MULTI_POLYGON,
+    /// a collection of heterogenous geometries
+    GEOMETRY_TYPE_GEOMETRY_COLLECTION
+} GeometryType;
 
-/* Dimension value of non-empty geometries (= {P, L, A}) */
-#define GEOMETRY_DIMENSION_TRUE -2
-/* Dimension value of empty geometry (-1) */
-#define GEOMETRY_DIMENSION_FALSE -1
-/* Dimension value of point geometry (0) */
-#define GEOMETRY_DIMENSION_P 0
-/* Dimension value of line geometry (1) */
-#define GEOMETRY_DIMENSION_L 1
-/* Dimension value of area geometry (2) */
-#define GEOMETRY_DIMENSION_A 2
+typedef enum {
+    DONTCARE = -3,
+    /* Dimension value of non-empty geometries (= {P, L, A}) */
+    TRUE = -2,
+    /* Dimension value of empty geometry (-1) */
+    FALSE = -1,
+    /* Dimension value of point geometry (0) */
+    P = 0,
+    /* Dimension value of line geometry (1) */
+    L = 1,
+    /* Dimension value of area geometry (2) */
+    A = 2,
+} GeometryDimension;
 
 /* --------------------------- Geometry Algorithm --------------------------- */
 
