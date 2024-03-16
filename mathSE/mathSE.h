@@ -268,7 +268,7 @@ const RGB            RGB_MASK = 0x00ffffff;
 /* https://www.w3schools.com/colors/ A color selection list suitable for HTML.
  * The color value is in standard ARGB format. The specified component of the
  * color can be obtained through RED, GREEN, BLUE, and ALPHA macros. */
-enum COLOR {
+typedef enum {
     AliceBlue            = 0xFFF0F8FF,
     AntiqueWhite         = 0xFFFAEBD7,
     Aqua                 = 0xFF00FFFF,
@@ -414,7 +414,7 @@ enum COLOR {
     WhiteSmoke           = 0xFFF5F5F5,
     Yellow               = 0xFFFFFF00,
     YellowGreen          = 0xFF9ACD32,
-};
+} COLOR;
 
 /**
  * context_format_t:
@@ -428,59 +428,61 @@ enum COLOR {
  * @FORMAT_A8: A8 each pixel is an 8-bit quantity holding an alpha value.
  *
  */
-typedef enum se_context_format {
+typedef enum {
     FORMAT_INVALID = -1,
     FORMAT_ARGB32  = 0,
     FORMAT_RGB32   = 1,
     FORMAT_A8      = 2
-} context_format_t;
+} ContextFormat;
 
-/* Circle point */
-#define SYMBOL_POINT_CIRCLE 0
-/* Square point */
-#define SYMBOL_POINT_SQUARE 1
+typedef enum {
+    /* A plain line. */
+    PEN_STYLE_SOLID_LINE,
+    /* Dashes separated by a few pixels. */
+    PEN_STYLE_DASH_LINE,
+    /* Dots separated by a few pixels. */
+    PEN_STYLE_DOT_LINE,
+    /* Alternate dots and dashes. */
+    PEN_STYLE_DASH_DOT_LINE,
+    /* One dash, two dots, one dash, two dots. */
+    PEN_STYLE_DASH_DOT_DOT_LINE
+} PenStyle;
 
-/* A plain line. */
-#define PEN_STYLE_SOLID_LINE 100
-/* Dashes separated by a few pixels. */
-#define PEN_STYLE_DASH_LINE 101
-/* Dots separated by a few pixels. */
-#define PEN_STYLE_DOT_LINE 102
-/* Alternate dots and dashes. */
-#define PEN_STYLE_DASH_DOT_LINE 103
-/* One dash, two dots, one dash, two dots. */
-#define PEN_STYLE_DASH_DOT_DOT_LINE 104
+typedef enum {
+    /* a square line end that does not cover the end point of the line. */
+    PEN_CAP_FLAT_STYLE,
+    /* a square line end that covers the end point and extends beyond it by half
+     * the line width. */
+    PEN_CAP_ROUND_STYLE,
+    /* a rounded line end. */
+    PEN_CAP_SQUARE_STYLE
+} PenCapStyle;
 
-/* a square line end that does not cover the end point of the line. */
-#define PEN_CAP_FLAT_STYLE 110
-/* a square line end that covers the end point and extends beyond it by half the
- * line width. */
-#define PEN_CAP_ROUND_STYLE 111
-/* a rounded line end. */
-#define PEN_CAP_SQUARE_STYLE 112
+typedef enum {
+    /* A triangular line join. */
+    PEN_JOIN_MITER_STYLE,
+    /* A triangular line join. */
+    PEN_JOIN_BEVEL_STYLE,
+    /* A circular line join. */
+    PEN_JOIN_ROUND_STYLE
+} PenJoinStyle;
 
-/* The outer edges of the lines are extended to meet at an angle, and this area
- * is filled. */
-#define PEN_JOIN_MITER_STYLE 120
-/* The triangular notch between the two lines is filled. */
-#define PEN_JOIN_BEVEL_STYLE 121
-/* A circular arc between the two lines is filled. */
-#define PEN_JOIN_ROUND_STYLE 122
-
-/* Uniform color. */
-#define BRUSH_SOLID_STYLE 130
-/* Horizontal lines. */
-#define BRUSH_HORIZONTAL_STYLE 131
-/* Vertical lines. */
-#define BRUSH_VERTICAL_STYLE 132
-/* Backward diagonal lines. */
-#define BRUSH_FDIAG_STYLE 133
-/* Forward diagonal lines.*/
-#define BRUSH_BDIAG_STYLE 134
-/* Crossing horizontal and vertical lines. */
-#define BRUSH_CROSS_STYLE 135
-/* Crossing diagonal lines. */
-#define BRUSH_DIAGCROSS_STYLE 136
+typedef enum {
+    /* A plain line. */
+    BRUSH_SOLID_STYLE,
+    /* Horizontal lines. */
+    BRUSH_HORIZONTAL_STYLE,
+    /* Vertical lines. */
+    BRUSH_VERTICAL_STYLE,
+    /* Backward diagonal lines. */
+    BRUSH_FDIAG_STYLE,
+    /* Forward diagonal lines.*/
+    BRUSH_BDIAG_STYLE,
+    /* Crossing horizontal and vertical lines. */
+    BRUSH_CROSS_STYLE,
+    /* Crossing diagonal lines. */
+    BRUSH_DIAGCROSS_STYLE
+} BrushStyle;
 
 /* --------------------------------- Matrix --------------------------------- */
 #define MATRIX_INIT                                                            \
@@ -513,205 +515,206 @@ typedef enum se_context_format {
 /*                             Geometry Structures                            */
 /* -------------------------------------------------------------------------- */
 
-/* ----------------------------- Simple geometry ---------------------------- */
+/* --------------------------- Simple OGRGeometry --------------------------- */
 
-/* A simple two-dimensional point coordinate structure. */
-typedef struct se_rawpoint_t {
+/* point */
+typedef struct geom_point_t {
     double x;
     double y;
-} se_rawpoint_t;
-
-/* bezier curve */
-typedef struct se_bezier_t {
-    se_rawpoint_t p1;
-    se_rawpoint_t p2;
-    se_rawpoint_t p3;
-    se_rawpoint_t p4;
-} se_bezier_t;
+    double z;
+} geom_point_t;
 
 /* arc */
-typedef struct se_arc_t {
-    se_rawpoint_t begin;
-    se_rawpoint_t mid;
-    se_rawpoint_t end;
-} se_arc_t;
-
-/* triangle */
-typedef struct se_triangle_t {
-    se_rawpoint_t p1;
-    se_rawpoint_t p2;
-    se_rawpoint_t p3;
-} se_triangle_t;
-
-/* line */
-typedef struct se_line_t {
-    se_rawpoint_t p1;
-    se_rawpoint_t p2;
-} se_line_t;
+typedef struct geom_arc_t {
+    geom_point_t begin;
+    geom_point_t mid;
+    geom_point_t end;
+} geom_arc_t;
 
 /* rectangle */
-typedef struct se_envelope_t {
+typedef struct geom_envelope_t {
     double minx;
     double maxx;
     double miny;
     double maxy;
-} se_envelope_t;
+} geom_envelope_t;
 
-typedef struct se_point_t {
-    double x;
-    double y;
-    double z;
-} se_point_t;
-
-typedef struct se_mpoint_t {
+/* multi point */
+typedef struct geom_mpoint_t {
     int     num;
     double *coord;
-} se_mpoint_t;
+} geom_mpoint_t;
 
-typedef struct se_linestring_t {
+/* linestring */
+typedef struct geom_linestring_t {
     int     num;
     double *coord;
-} se_linestring_t;
+} geom_linestring_t;
 
-typedef struct se_linearring_t {
+/* linearring */
+typedef struct geom_linearring_t {
     int     num;
     double *coord;
-} se_linearring_t;
+} geom_linearring_t;
 
-typedef struct se_mlinestring_t {
-    int               num;
-    se_linestring_t **geometries;
-} se_mlinestring_t;
+/* multi linestring */
+typedef struct geom_mlinestring_t {
+    int                 num;
+    geom_linestring_t **geometries;
+} geom_mlinestring_t;
 
-typedef struct se_polygon_t {
-    se_linearring_t  *shell;
-    int               hole_num;
-    se_linearring_t **holes;
-} se_polygon_t;
+/* polygon */
+typedef struct geom_polygon_t {
+    geom_linearring_t  *shell;
+    int                 hole_num;
+    geom_linearring_t **holes;
+} geom_polygon_t;
 
-typedef struct se_mpolygon_t {
-    int            num;
-    se_polygon_t **geometries;
-} se_mpolygon_t;
+/* multi polygon */
+typedef struct geom_mpolygon_t {
+    int              num;
+    geom_polygon_t **geometries;
+} geom_mpolygon_t;
 
-typedef struct se_coordinate_t {
+/* coordinate */
+typedef struct geom_coordinate_t {
     int geom_id;
     int SRID;
     union {
-        se_point_t       *point;
-        se_linestring_t  *linestring;
-        se_linearring_t  *linearring;
-        se_polygon_t     *polygon;
-        se_mpoint_t      *mpoint;
-        se_mlinestring_t *mlinestring;
-        se_mpolygon_t    *mpolygon;
-        se_bezier_t      *bezier;
-        se_arc_t         *arc;
-        se_triangle_t    *triangle;
-        se_line_t        *line;
-        se_envelope_t    *envelope;
+        geom_point_t       *point;
+        geom_linestring_t  *linestring;
+        geom_linearring_t  *linearring;
+        geom_polygon_t     *polygon;
+        geom_mpoint_t      *mpoint;
+        geom_mlinestring_t *mlinestring;
+        geom_mpolygon_t    *mpolygon;
+        geom_arc_t         *arc;
+        geom_envelope_t    *envelope;
     } oti;
     int geom_dim;
-} se_coordinate_t;
+} geom_coordinate_t;
+
+/* -------------------------- Simple Math Geometry -------------------------- */
+/* bezier curve */
+typedef struct geom_bezier_t {
+    double x1;
+    double y1;
+    double x2;
+    double y2;
+    double x3;
+    double y3;
+    double x4;
+    double y4;
+} geom_bezier_t;
+
+/* line */
+typedef struct geom_line_t {
+    double x1;
+    double y1;
+    double x2;
+    double y2;
+} geom_line_t;
+
+typedef struct geom_ellipse_t {
+    geom_point_t center;
+    double       semiMajorAxis;
+    double       semiMinorAxis;
+    double       azimuth;
+} geom_ellipse_t;
+
+/* triangle */
+typedef struct geom_triangle_t {
+    geom_point_t p1;
+    geom_point_t p2;
+    geom_point_t p3;
+} geom_triangle_t;
 
 /* -------------------------------------------------------------------------- */
 /*                                Coordinate IO                               */
 /* -------------------------------------------------------------------------- */
 
 /* read wkt string */
-SE_API se_coordinate_t *se_wkt_reader(const char *wkt);
+SE_API geom_coordinate_t *se_wkt_reader(const char *wkt);
 
 /* read wkb buffer */
-SE_API se_coordinate_t *se_wkb_reader(const char *buffer, int length);
+SE_API geom_coordinate_t *se_wkb_reader(const char *buffer, int length);
 
 /* read ewkt string */
-SE_API se_coordinate_t *se_ewkt_reader(const char *ewkt);
+SE_API geom_coordinate_t *se_ewkt_reader(const char *ewkt);
 
 /* read ewkb buffer */
-SE_API se_coordinate_t *se_ewkb_reader(const char *buffer, int length);
+SE_API geom_coordinate_t *se_ewkb_reader(const char *buffer, int length);
 
 /* read kml string */
-SE_API se_coordinate_t *se_kml_reader(const char *kml);
+SE_API geom_coordinate_t *se_kml_reader(const char *kml);
 
 /* read gml string */
-SE_API se_coordinate_t *se_gml_reader(const char *gml, int version);
+SE_API geom_coordinate_t *se_gml_reader(const char *gml, int version);
 
 /* read geojson string */
-SE_API se_coordinate_t *se_geojson_reader(const char *filename);
+SE_API geom_coordinate_t *se_geojson_reader(const char *filename);
 
 /* write wkt string */
-SE_API int se_wkt_writer(const se_coordinate_t *c, char **wkt);
+SE_API int se_wkt_writer(const geom_coordinate_t *c, char **wkt);
 
 /* write wkb buffer */
-SE_API int se_wkb_writer(const se_coordinate_t *c,
-                         char                 **buffer,
-                         size_t                *size,
-                         int                    endian_type);
+SE_API int se_wkb_writer(const geom_coordinate_t *c,
+                         char                   **buffer,
+                         size_t                  *size,
+                         int                      endian_type);
 
 /* write ewkt string */
-SE_API int se_ewkt_writer(const se_coordinate_t *c, char **ewkt);
+SE_API int se_ewkt_writer(const geom_coordinate_t *c, char **ewkt);
 
 /* write ewkb buffer */
-SE_API int se_ewkb_writer(const se_coordinate_t *c,
-                          char                 **buffer,
-                          size_t                *size,
-                          int                    endian_type);
+SE_API int se_ewkb_writer(const geom_coordinate_t *c,
+                          char                   **buffer,
+                          size_t                  *size,
+                          int                      endian_type);
 
 /* write kml string */
-SE_API int se_kml_writer(const se_coordinate_t *c, char **kml);
+SE_API int se_kml_writer(const geom_coordinate_t *c, char **kml);
 
 /* write gml string */
-SE_API int se_gml_writer(const se_coordinate_t *c, char **gml);
+SE_API int se_gml_writer(const geom_coordinate_t *c, char **gml);
 
 /* write geojson string */
-SE_API int se_gml2_writer(const se_coordinate_t *c, char **gml);
+SE_API int se_gml2_writer(const geom_coordinate_t *c, char **gml);
 
 /* write geojson string */
-SE_API int se_geojson_writer(const se_coordinate_t *c, const char *filename);
+SE_API int se_geojson_writer(const geom_coordinate_t *c, const char *filename);
 
 /* create point. p is the first address of a two-dimensional point coordinate */
-SE_API se_coordinate_t *create_point(const double *p);
+SE_API geom_coordinate_t *create_point(const double *p);
 
 /* create two point line. p is the first address of two two-dimensional point
  * coordinate arrays */
-SE_API se_coordinate_t *create_line1(const double *p);
+SE_API geom_coordinate_t *create_line1(const double *p);
 
 /* create line by one point and angle with length */
-SE_API se_coordinate_t *
+SE_API geom_coordinate_t *
 create_line2(const double *p, const double angle, const double length);
 
 /* create arc line by three point */
-SE_API se_coordinate_t *create_arc1(const double *p);
+SE_API geom_coordinate_t *create_arc1(const double *p);
 
 /* create arc by circle and sweep angle */
-SE_API se_coordinate_t *create_arc2(const double *c,
-                                    const double  radius,
-                                    const double  angle1,
-                                    const double  angle2);
+SE_API geom_coordinate_t *create_arc2(const double *c,
+                                      const double  radius,
+                                      const double  angle1,
+                                      const double  angle2);
 
 /* create arc by begin and end point, chord */
-SE_API se_coordinate_t *create_arc3(const double *p, const double chord);
+SE_API geom_coordinate_t *create_arc3(const double *p, const double chord);
 
 /* create single path */
-SE_API se_coordinate_t *create_linestring(const double *p, const int num);
+SE_API geom_coordinate_t *create_linestring(const double *p, const int num);
 
 /* create envelope */
-SE_API se_coordinate_t *create_envelope(const double *p);
-
-/* Compare two raw points */
-SE_API int compare_raw_point(const se_rawpoint_t a, const se_rawpoint_t b);
-
-/* Returns the midpoint of two points. */
-SE_API se_rawpoint_t mid_point(const se_rawpoint_t a, const se_rawpoint_t b);
-
-/* Returns the centroid of a triangle. */
-SE_API se_rawpoint_t triangle_in_centre(const se_triangle_t t);
-
-/* Returns the circum centre of a triangle. */
-SE_API se_rawpoint_t triangle_circum_centre(const se_triangle_t t);
+SE_API geom_coordinate_t *create_envelope(const double *p);
 
 /* Returns whether the triangle is acute. */
-SE_API int triangle_is_acute(const se_triangle_t t);
+SE_API int triangle_is_acute(const geom_triangle_t t);
 
 /* -------------------------------------------------------------------------- */
 /*                                     i4                                     */
@@ -754,37 +757,39 @@ SE_API int i4_prop_size(se_i4_t *p);
 SE_API double tolerance(double tol);
 
 /* Compute numerical properties of geometry */
-SE_API double geometry_prop_value(const se_coordinate_t *c, int mode);
+SE_API double geometry_prop_value(const geom_coordinate_t *c, int mode);
 
 /* Get the geometric properties of a geometry */
-SE_API se_coordinate_t *geometry_prop_geo(const se_coordinate_t *c, int mode);
+SE_API geom_coordinate_t *geometry_prop_geo(const geom_coordinate_t *c,
+                                            int                      mode);
 
 /* Obtain simple geometric properties of the geometry. These properties usually
  * only require a fixed number of point coordinates to describe, such as center,
  * center of gravity, label point, circumscribed rectangle, inscribed circle,
  * circumscribed circle, inscribed circle*/
 SE_API int
-geometry_prop_geo2(const se_coordinate_t *c, int mode, double **result);
+geometry_prop_geo2(const geom_coordinate_t *c, int mode, double **result);
 
 /* Modify geometry properties */
-SE_API int geometry_modify(se_coordinate_t *c, int mode, void *para);
+SE_API int geometry_modify(geom_coordinate_t *c, int mode, void *para);
 /* Computes the result of two geometric combination operations */
-SE_API se_coordinate_t *
-geometry_combine(const se_coordinate_t *a, const se_coordinate_t *b, int mode);
+SE_API geom_coordinate_t *geometry_combine(const geom_coordinate_t *a,
+                                           const geom_coordinate_t *b,
+                                           int                      mode);
 
 /* Query whether two geometric relationships satisfy the specified spatial
  * relationship */
-SE_API int geometry_spr_query_is(const se_coordinate_t *a,
-                                 const se_coordinate_t *b,
-                                 int                    mode);
+SE_API int geometry_spr_query_is(const geom_coordinate_t *a,
+                                 const geom_coordinate_t *b,
+                                 int                      mode);
 /* Determine the spatial relationship between two geometries and obtain the
  * intersection matrix, The matrix is an integer array of length 9 */
-SE_API int geometry_spr_query(const se_coordinate_t *a,
-                              const se_coordinate_t *b,
-                              int                   *matrix);
+SE_API int geometry_spr_query(const geom_coordinate_t *a,
+                              const geom_coordinate_t *b,
+                              int                     *matrix);
 
 /* Check individual geometric correctness */
-SE_API int geometry_check_1(const se_coordinate_t *c, int mode);
+SE_API int geometry_check_1(const geom_coordinate_t *c, int mode);
 
 /* Checks a set of geometries for correctness and writes error messages to the
  * stream */
@@ -865,7 +870,7 @@ SE_API void  reset_cursor(se_mem_table_t *tab);
 SE_API char *table_next(se_mem_table_t *tab);
 SE_API char *get_row(se_mem_table_t *tab, int64_t id);
 
-SE_API se_coordinate_t *read_coordinate(se_mem_table_t *tab, int64_t id);
+SE_API geom_coordinate_t *read_coordinate(se_mem_table_t *tab, int64_t id);
 
 SE_API int8_t   read_cell_i8(se_mem_table_t *tab, int64_t id, int32_t column);
 SE_API uint8_t  read_cell_u8(se_mem_table_t *tab, int64_t id, int32_t column);
@@ -992,25 +997,25 @@ int16_t bswap_int16(int16_t src);
 float  bswap_float(float src);
 double bswap_double(double src);
 
-se_coordinate_t *read_from_wkt(const char *wkt);
-se_coordinate_t *read_from_wkb(const char *b, size_t cs, int endian_type);
-se_coordinate_t *read_from_geojson(const char *filename);
-se_coordinate_t *read_from_kml2(const char *kml);
-se_coordinate_t *read_from_kml3(const char *kml);
-se_coordinate_t *read_from_ewkt(const char *wkt);
-se_coordinate_t *read_from_ewkb(const char *b, size_t cs, int endian_type);
-se_coordinate_t *read_from_gml2(const char *kml);
-se_coordinate_t *read_from_gml3(const char *kml);
+geom_coordinate_t *read_from_wkt(const char *wkt);
+geom_coordinate_t *read_from_wkb(const char *b, size_t cs, int endian_type);
+geom_coordinate_t *read_from_geojson(const char *filename);
+geom_coordinate_t *read_from_kml2(const char *kml);
+geom_coordinate_t *read_from_kml3(const char *kml);
+geom_coordinate_t *read_from_ewkt(const char *wkt);
+geom_coordinate_t *read_from_ewkb(const char *b, size_t cs, int endian_type);
+geom_coordinate_t *read_from_gml2(const char *kml);
+geom_coordinate_t *read_from_gml3(const char *kml);
 
-int write_to_wkt(se_coordinate_t *c);
-int write_to_wkb(se_coordinate_t *c, char **b, size_t *cs, int endian_type);
-int write_to_geojson(se_coordinate_t *c, const char *filename);
-int write_to_kml2(se_coordinate_t *c, char **kml);
-int write_to_kml3(se_coordinate_t *c, char **kml);
-int write_to_ewkt(se_coordinate_t *c);
-int write_to_ewkb(se_coordinate_t *c, char **b, size_t *cs, int endian_type);
-int write_to_gml2(se_coordinate_t *c, char **kml);
-int write_to_gml3(se_coordinate_t *c, char **kml);
+int write_to_wkt(geom_coordinate_t *c);
+int write_to_wkb(geom_coordinate_t *c, char **b, size_t *cs, int endian_type);
+int write_to_geojson(geom_coordinate_t *c, const char *filename);
+int write_to_kml2(geom_coordinate_t *c, char **kml);
+int write_to_kml3(geom_coordinate_t *c, char **kml);
+int write_to_ewkt(geom_coordinate_t *c);
+int write_to_ewkb(geom_coordinate_t *c, char **b, size_t *cs, int endian_type);
+int write_to_gml2(geom_coordinate_t *c, char **kml);
+int write_to_gml3(geom_coordinate_t *c, char **kml);
 
 /* -------------------------------------------------------------------------- */
 /*                                  Graphics                                  */
@@ -1069,10 +1074,10 @@ typedef struct se_fill_symbol {
  * The width and height of the context are in pixels.
  * flags: 0: single thread drawing(default)
  *        1: Multithreaded drawing */
-graphics_context_t *create_graphics_context(const int        width,
-                                            const int        height,
-                                            context_format_t fmt,
-                                            int              flags);
+graphics_context_t *create_graphics_context(const int     width,
+                                            const int     height,
+                                            ContextFormat fmt,
+                                            int           flags);
 void                destroy_graphics_context(graphics_context_t *context);
 
 /* --------------------------------------------------------------------------
