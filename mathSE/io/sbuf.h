@@ -7,11 +7,16 @@ extern "C" {
 
 typedef char *sbuf;
 
-struct sbufhdr {
+typedef struct sbufhdr {
     int  capacity;
     int  length;
     char buf[];
-};
+} sbufhdr;
+
+sbuf sbufnew(const char *init);
+sbuf sbufnewlen(const void *init, int len);
+void sbuffree(sbuf s);
+
 
 #ifdef __cplusplus
 }

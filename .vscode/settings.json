@@ -37,7 +37,10 @@
     "quatratic",
     "rawpoint",
     "saveout",
+    "sbuffree",
     "sbufhdr",
+    "sbufnew",
+    "sbufnewlen",
     "SRID",
     "THREADPOOL"
   ],
