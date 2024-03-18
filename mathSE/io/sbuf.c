@@ -11,7 +11,7 @@ sbuf sbufnew(const char *init) {
     return sbufnewlen(init, strlen(init));
 }
 
-sbuf sbufnewlen(const void *init, int len) {
+sbuf sbufnewlen(const void *init, size_t len) {
     if (init == NULL)
         return NULL;
 
@@ -35,3 +35,21 @@ void sbuffree(sbuf s) {
     sbufhdr *sh = (sbufhdr *)s - SBUF_MASK;
     free(sh);
 }
+
+sbuf sbufcat(sbuf s, const char *t) { return NULL; }
+
+sbuf sbufcatlen(sbuf s, const void *t, size_t len) { return NULL; }
+
+sbuf sbufcpy(sbuf s, const char *t) { return NULL; }
+
+sbuf sbufcpylen(sbuf s, const void *t, size_t len) { return NULL; }
+
+sbuf sbufcatvprintf(sbuf s, const char *fmt, va_list ap) { return NULL; }
+
+sbuf sbufcatprintf(sbuf s, const char *fmt, ...) { return NULL; }
+
+sbuf sbufcatfmt(sbuf s, const char *fmt, ...) { return NULL; }
+
+sbuf sbuftrim(sbuf s, const char *cset) { return NULL; }
+
+sbuf sbufsbustr(sbuf s, size_t start, size_t len) { return NULL; }

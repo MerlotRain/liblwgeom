@@ -630,8 +630,51 @@ typedef struct geom_triangle_t {
 } geom_triangle_t;
 
 /* -------------------------------------------------------------------------- */
+/*                             Coordinate Factory                             */
+/* -------------------------------------------------------------------------- */
+
+/* create point. */
+SE_API geom_coordinate_t *create_point(const double *p);
+
+/* create two point line. */
+SE_API geom_coordinate_t *create_line1(const double *p);
+
+/* create line by one point and angle with length */
+SE_API geom_coordinate_t *
+create_line2(const double *p, const double angle, const double length);
+
+/* create arc line by three point */
+SE_API geom_coordinate_t *create_arc1(const double *p);
+
+/* create arc by circle and sweep angle */
+SE_API geom_coordinate_t *create_arc2(const double *c,
+                                      const double  radius,
+                                      const double  angle1,
+                                      const double  angle2);
+
+/* create arc by begin and end point, chord */
+SE_API geom_coordinate_t *create_arc3(const double *p, const double chord);
+
+/* create single path */
+SE_API geom_coordinate_t *create_linestring(const double *p, const int num);
+
+/* create envelope */
+SE_API geom_coordinate_t *create_envelope(const double *p);
+
+/* -------------------------------------------------------------------------- */
 /*                                Coordinate IO                               */
 /* -------------------------------------------------------------------------- */
+
+uint64_t bswap_uint64(uint64_t src);
+uint32_t bswap_uint32(uint32_t src);
+uint16_t bswap_uint16(uint16_t src);
+
+int64_t bswap_int64(int64_t src);
+int32_t bswap_int32(int32_t src);
+int16_t bswap_int16(int16_t src);
+
+float  bswap_float(float src);
+double bswap_double(double src);
 
 /* read wkt string */
 SE_API geom_coordinate_t *se_wkt_reader(const char *wkt);
@@ -683,38 +726,6 @@ SE_API int se_gml2_writer(const geom_coordinate_t *c, char **gml);
 
 /* write geojson string */
 SE_API int se_geojson_writer(const geom_coordinate_t *c, const char *filename);
-
-/* create point. p is the first address of a two-dimensional point coordinate */
-SE_API geom_coordinate_t *create_point(const double *p);
-
-/* create two point line. p is the first address of two two-dimensional point
- * coordinate arrays */
-SE_API geom_coordinate_t *create_line1(const double *p);
-
-/* create line by one point and angle with length */
-SE_API geom_coordinate_t *
-create_line2(const double *p, const double angle, const double length);
-
-/* create arc line by three point */
-SE_API geom_coordinate_t *create_arc1(const double *p);
-
-/* create arc by circle and sweep angle */
-SE_API geom_coordinate_t *create_arc2(const double *c,
-                                      const double  radius,
-                                      const double  angle1,
-                                      const double  angle2);
-
-/* create arc by begin and end point, chord */
-SE_API geom_coordinate_t *create_arc3(const double *p, const double chord);
-
-/* create single path */
-SE_API geom_coordinate_t *create_linestring(const double *p, const int num);
-
-/* create envelope */
-SE_API geom_coordinate_t *create_envelope(const double *p);
-
-/* Returns whether the triangle is acute. */
-SE_API int triangle_is_acute(const geom_triangle_t t);
 
 /* -------------------------------------------------------------------------- */
 /*                                     i4                                     */
@@ -981,41 +992,6 @@ geohash_neighbors_t *geohash_query_neighbors(const geohash_bits_t *hash);
 /* -------------------------------------------------------------------------- */
 /*                                Spatial Index                               */
 /* -------------------------------------------------------------------------- */
-
-/* -------------------------------------------------------------------------- */
-/*                                 Read Write                                 */
-/* -------------------------------------------------------------------------- */
-
-uint64_t bswap_uint64(uint64_t src);
-uint32_t bswap_uint32(uint32_t src);
-uint16_t bswap_uint16(uint16_t src);
-
-int64_t bswap_int64(int64_t src);
-int32_t bswap_int32(int32_t src);
-int16_t bswap_int16(int16_t src);
-
-float  bswap_float(float src);
-double bswap_double(double src);
-
-geom_coordinate_t *read_from_wkt(const char *wkt);
-geom_coordinate_t *read_from_wkb(const char *b, size_t cs, int endian_type);
-geom_coordinate_t *read_from_geojson(const char *filename);
-geom_coordinate_t *read_from_kml2(const char *kml);
-geom_coordinate_t *read_from_kml3(const char *kml);
-geom_coordinate_t *read_from_ewkt(const char *wkt);
-geom_coordinate_t *read_from_ewkb(const char *b, size_t cs, int endian_type);
-geom_coordinate_t *read_from_gml2(const char *kml);
-geom_coordinate_t *read_from_gml3(const char *kml);
-
-int write_to_wkt(geom_coordinate_t *c);
-int write_to_wkb(geom_coordinate_t *c, char **b, size_t *cs, int endian_type);
-int write_to_geojson(geom_coordinate_t *c, const char *filename);
-int write_to_kml2(geom_coordinate_t *c, char **kml);
-int write_to_kml3(geom_coordinate_t *c, char **kml);
-int write_to_ewkt(geom_coordinate_t *c);
-int write_to_ewkb(geom_coordinate_t *c, char **b, size_t *cs, int endian_type);
-int write_to_gml2(geom_coordinate_t *c, char **kml);
-int write_to_gml3(geom_coordinate_t *c, char **kml);
 
 /* -------------------------------------------------------------------------- */
 /*                                  Graphics                                  */
