@@ -34,6 +34,7 @@ sbuf sbufcatfmt(sbuf s, const char *fmt, ...);
 sbuf sbuftrim(sbuf s, const char *cset);
 sbuf sbufsbustr(sbuf s, size_t start, size_t len);
 
+
 #ifdef __cplusplus
 }
 #endif
