@@ -54,6 +54,7 @@
     "THREADPOOL"
   ],
   "files.associations": {
+    ".fantomasignore": "ignore",
     "i4.h": "c",
     "proj.h": "c",
     "index.h": "c",
@@ -64,6 +65,7 @@
     "png.h": "c",
     "glib.h": "c",
     "string.h": "c",
-    "tcmalloc.h": "c"
+    "tcmalloc.h": "c",
+    "source_location": "c"
   }
 }

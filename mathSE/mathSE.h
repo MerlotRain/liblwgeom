@@ -521,7 +521,6 @@ typedef enum {
 typedef struct geom_point_t {
     double x;
     double y;
-    double z;
 } geom_point_t;
 
 /* arc */
