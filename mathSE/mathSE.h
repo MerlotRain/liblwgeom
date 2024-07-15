@@ -14,20 +14,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef _WIN32
-#    ifdef MATHSE_DYN_LINK
-#        ifdef MATHSE_SOURCE
-#            define SE_API __declspec(dllexport)
-#        else
-#            define SE_API __declspec(dllimport)
-#        endif
-#    else
-#        define SE_API
-#    endif
-#else
-#    define SE_API
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
