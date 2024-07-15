@@ -8,5 +8,5 @@ EXPORT_MACRO_NAME SE_API
 )
 
 target_sources(mathSE PRIVATE ${se_srcs})
-target_include_directories(mathSE PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(mathSE PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR})
 
