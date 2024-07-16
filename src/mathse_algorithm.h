@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+typedef struct geom_coordinate_t geom_coordinate_t;
+typedef struct se_i4_t se_i4_t;
 
 /* Calculate the length of a geometry */
 #define GEOMETRY_PROP_VALUE_LENGTH 0
@@ -106,36 +108,6 @@ extern "C" {
 #define GEOMETRY_CHECK_2_ISOLATE_POINT 0x02
 /* Check geometry pseudo endpoints */
 #define GEOMETRY_CHECK_2_PSEUDO_ENDPOINT 0x04
-
-
-/* create point. */
-SE_API geom_coordinate_t *create_point(const double *p);
-
-/* create two point line. */
-SE_API geom_coordinate_t *create_line1(const double *p);
-
-/* create line by one point and angle with length */
-SE_API geom_coordinate_t *
-create_line2(const double *p, const double angle, const double length);
-
-/* create arc line by three point */
-SE_API geom_coordinate_t *create_arc1(const double *p);
-
-/* create arc by circle and sweep angle */
-SE_API geom_coordinate_t *create_arc2(const double *c,
-                                      const double  radius,
-                                      const double  angle1,
-                                      const double  angle2);
-
-/* create arc by begin and end point, chord */
-SE_API geom_coordinate_t *create_arc3(const double *p, const double chord);
-
-/* create single path */
-SE_API geom_coordinate_t *create_linestring(const double *p, const int num);
-
-/* create envelope */
-SE_API geom_coordinate_t *create_envelope(const double *p);
-
 
 /* Set global tolerance
  * tol: new tolerance
