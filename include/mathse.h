@@ -6,27 +6,26 @@ extern "C" {
 #endif
 
 #ifndef EXTERN
-#ifdef _WIN32
-  /* Windows - set up dll import/export decorators. */
-# if defined(BUILDING_MATHSE_SHARED)
-    /* Building shared library. */
-#   define EXTERN __declspec(dllexport)
-# elif defined(USING_UV_SHARED)
-    /* Using shared library. */
-#   define EXTERN __declspec(dllimport)
-# else
-    /* Building static library. */
-#   define EXTERN /* nothing */
-# endif
-#elif __GNUC__ >= 4
-# define EXTERN __attribute__((visibility("default")))
-#elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550) /* Sun Studio >= 8 */
-# define EXTERN __global
-#else
-# define EXTERN /* nothing */
-#endif
+#    ifdef _WIN32
+/* Windows - set up dll import/export decorators. */
+#        if defined(BUILDING_MATHSE_SHARED)
+/* Building shared library. */
+#            define EXTERN __declspec(dllexport)
+#        elif defined(USING_UV_SHARED)
+/* Using shared library. */
+#            define EXTERN __declspec(dllimport)
+#        else
+/* Building static library. */
+#            define EXTERN /* nothing */
+#        endif
+#    elif __GNUC__ >= 4
+#        define EXTERN __attribute__((visibility("default")))
+#    elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550) /* Sun Studio >= 8 */
+#        define EXTERN __global
+#    else
+#        define EXTERN /* nothing */
+#    endif
 #endif /* EXTERN */
-
 
 #ifndef MAX
 #    define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -56,9 +55,20 @@ extern "C" {
 
 #endif
 
-
+/**
+ * Geometric models, supporting common geometric models such as point, path,
+ * ring, polyline, polygon, multipoint, etc.
+ */
 typedef struct SEGeom_t se_geom;
 
+#define GEOMETRY_IO_TYPE_WKT     0
+#define GEOMETRY_IO_TYPE_WKB     1
+#define GEOMETRY_IO_TYPE_GEOJSON 2
+#define GEOMETRY_IO_TYPE_EWKT    3
+#define GEOMETRY_IO_TYPE_EWKB    4
+#define GEOMETRY_IO_TYPE_KML     5
+#define GEOMETRY_IO_TYPE_GML     6
+#define GEOMETRY_IO_TYPE_GML2    7
 
 /* Calculate the length of a geometry */
 #define GEOMETRY_PROP_VALUE_LENGTH 0
@@ -161,30 +171,36 @@ typedef struct SEGeom_t se_geom;
 /* Check geometry pseudo endpoints */
 #define GEOMETRY_CHECK_2_PSEUDO_ENDPOINT 0x04
 
-EXTERN se_geom * geom_create(int i_n, const int* i_p, int c_n, const double* c_p, int flag);
+/**
+ * read the geometry from the data
+ * @brief data the data of the geometry
+ * @brief len If it is binary data, \a len represents the length of the data. If
+ * it is text data, \a len can be 0.
+ * @brief flag type of data
+ */
+EXTERN se_geom *geom_read(const char *data, int len, int flag);
 
-EXTERN void geom_free(se_geom* geom);
+EXTERN se_geom *geom_read_ora(
+    int i_n, const int *i_p, int c_n, int c_dim, const double *c_p, int flag);
 
-EXTERN void geom_info(const se_geom* geom, int* i_n, int **i_p, int *c_n, double** c_p);
+EXTERN void geome_write(const se_geom *geom, char **data, int *len, int flag);
 
-EXTERN se_geom* geom_read_from(const char* data, int len, int flag);
+EXTERN void geom_write_ora(
+    const se_geom *geom, int *i_n, int **i_p, int *c_n, double **c_p);
 
-EXTERN void geome_write_to(const se_geom * geom, char** data, int& len, int flag);
+EXTERN void geom_free(se_geom *geom);
 
 EXTERN double geom_tolerance(double tol);
 
-EXTERN double geom_prop_value(const se_geom * geom, int mode);
+EXTERN double geom_prop_value(const se_geom *geom, int mode);
 
-EXTERN se_geom* geom_prop_geo(const se_geom *geom, int mode);
+EXTERN se_geom *geom_prop_geo(const se_geom *geom, int mode);
 
-EXTERN void geom_prop_geo2(const se_geom* geom, int mode, double* paras);
+EXTERN void geom_prop_geo2(const se_geom *geom, int mode, double *paras);
 
+typedef void *se_spatialindex;
 
-
-
-typedef struct SESpatialIndex_t SESpatialIndex;
-
-#define SPATIALINDEX_RTREE 0
+#define SPATIALINDEX_RTREE   0
 #define SPAITALINDEX_MVRTREE 1
 #define SPATIALINDEX_TPRTREE 2
 #define SPATIALINDEX_ENCODE_BG_GRID_CODE
@@ -199,34 +215,35 @@ typedef struct SESpatialIndex_t SESpatialIndex;
 /* Inverse */
 #define TRANS_INVERSE -1
 
-typedef struct SESpatialReference_t se_spatailreference;
+typedef void *se_spatailreference;
 
-EXTERN se_spatailreference* create_spatialreference_WKT(const char* wkt);
+EXTERN se_spatailreference create_spatialreference_WKT(const char *wkt);
 
-EXTERN se_spatailreference* create_spatialreference_EPSG(int code);
+EXTERN se_spatailreference create_spatialreference_EPSG(int code);
 
-EXTERN void trans_coordinates(const se_spatailreference* crc1, const se_spatailreference* crs2, double* p, int pn, int flag);
+EXTERN void trans_coordinates(const se_spatailreference crc1,
+                              const se_spatailreference crs2,
+                              double                   *p,
+                              int                       pn,
+                              int                       flag);
 
-typedef struct SEObject_t se_object;
+typedef void *se_i4;
 
-typedef struct SEDataStream_t se_datastream;
+typedef void *se_datastream;
 
-typedef struct SEDataTable_t se_table;
+typedef void *se_table;
 
-typedef struct SECanvas_t se_canvas;
-
+typedef void *se_canvas;
 
 #define CANVAS_OPERATION_DEFAULT 0
 
 #ifdef HAVE_LIBPNG
-#define CANVAS_LIBPNG 1
-#endif//HAVE_LIBPNG
+#    define CANVAS_LIBPNG 1
+#endif // HAVE_LIBPNG
 
 #ifdef HAVE_QT
-#define CANVAS_QIMAGE 2
-#endif//HAVE_QT
-
-typedef struct SEColor_t se_color;
+#    define CANVAS_QIMAGE 2
+#endif // HAVE_QT
 
 #ifdef __cplusplus
 }
