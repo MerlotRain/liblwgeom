@@ -1,12 +1,22 @@
-set(se_hdrs mathSE.h)
-set(se_srcs coordinate.cpp)
+set(se_srcs 
+    mathse.c
 
-add_library(mathSE SHARED)
-
-GENERATE_EXPORT_HEADER(mathSE
-EXPORT_MACRO_NAME SE_API
+    io/ewkb.cpp
+    io/ewkt.cpp
+    io/geojson.cpp
+    io/gml.cpp
+    io/kml.cpp
+    io/ora.cpp
+    io/wkb.cpp
+    io/wkt.cpp
 )
 
-target_sources(mathSE PRIVATE ${se_srcs})
-target_include_directories(mathSE PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR})
+add_library(mathse STATIC)
 
+
+target_sources(mathse PRIVATE ${se_srcs})
+target_include_directories(mathse PRIVATE 
+    ${CMAKE_CURRENT_BINARY_DIR} 
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${CMAKE_SOURCE_DIR}/include
+)
