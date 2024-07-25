@@ -57,36 +57,7 @@ extern "C" {
 #endif
 
 
-typedef struct SEGeom_t SEGeom;
-
-enum GeometryType {
-    /* Invalid geometry type */
-    GEOMETRY_TYPE_NONE = -1,
-    /// a point
-    GEOMETRY_TYPE_POINT,
-    /// a linestring
-    GEOMETRY_TYPE_LINESTRING,
-    /// a linear ring (linestring with 1st point == last point)
-    GEOMETRY_TYPE_LINEARRING,
-    /// a polygon
-    GEOMETRY_TYPE_POLYGON,
-    /// a collection of points
-    GEOMETRY_TYPE_MULTIPOINT,
-    /// a collection of linestrings
-    GEOMETRY_TYPE_MULTI_LINESTRING,
-    /// a collection of polygons
-    GEOMETRY_TYPE_MULTI_POLYGON,
-    /// a collection of heterogenous geometries
-    GEOMETRY_TYPE_GEOMETRY_COLLECTION
-};
-
-EXTERN SEGeom * ora_create(int i_n, const int* i_p, int c_n, const double* c_p);
-EXTERN SEGeom * SE_create_point(const double *p);
-EXTERN SEGeom * SE_create_linestring(const double *p, int pn);
-EXTERN SEGeom * SE_create_linearring(const double *p, int pn);
-EXTERN SEGeom * SE_create_polygon(const double** pp, int* ppn, int pn);
-EXTERN SEGeom * SE_create_multipoint(const double *p, int pn);
-EXTERN SEGeom * SE_create_geometrycollection(int t, const SEGeom** geoms, int gn);
+typedef struct SEGeom_t se_geom;
 
 
 /* Calculate the length of a geometry */
@@ -189,6 +160,73 @@ EXTERN SEGeom * SE_create_geometrycollection(int t, const SEGeom** geoms, int gn
 #define GEOMETRY_CHECK_2_ISOLATE_POINT 0x02
 /* Check geometry pseudo endpoints */
 #define GEOMETRY_CHECK_2_PSEUDO_ENDPOINT 0x04
+
+EXTERN se_geom * geom_create(int i_n, const int* i_p, int c_n, const double* c_p, int flag);
+
+EXTERN void geom_free(se_geom* geom);
+
+EXTERN void geom_info(const se_geom* geom, int* i_n, int **i_p, int *c_n, double** c_p);
+
+EXTERN se_geom* geom_read_from(const char* data, int len, int flag);
+
+EXTERN void geome_write_to(const se_geom * geom, char** data, int& len, int flag);
+
+EXTERN double geom_tolerance(double tol);
+
+EXTERN double geom_prop_value(const se_geom * geom, int mode);
+
+EXTERN se_geom* geom_prop_geo(const se_geom *geom, int mode);
+
+EXTERN void geom_prop_geo2(const se_geom* geom, int mode, double* paras);
+
+
+
+
+typedef struct SESpatialIndex_t SESpatialIndex;
+
+#define SPATIALINDEX_RTREE 0
+#define SPAITALINDEX_MVRTREE 1
+#define SPATIALINDEX_TPRTREE 2
+#define SPATIALINDEX_ENCODE_BG_GRID_CODE
+#define SPATIALINDEX_ENCODE_GEOHASH_CODE
+#define SPATIALINDEX_PLUS_CODE
+
+/* Apply transformation to observation - in forward or inverse direction */
+/* Forward */
+#define TRANS_FORWARD 1
+/* do nothing */
+#define TRANS_NONE 0
+/* Inverse */
+#define TRANS_INVERSE -1
+
+typedef struct SESpatialReference_t se_spatailreference;
+
+EXTERN se_spatailreference* create_spatialreference_WKT(const char* wkt);
+
+EXTERN se_spatailreference* create_spatialreference_EPSG(int code);
+
+EXTERN void trans_coordinates(const se_spatailreference* crc1, const se_spatailreference* crs2, double* p, int pn, int flag);
+
+typedef struct SEObject_t se_object;
+
+typedef struct SEDataStream_t se_datastream;
+
+typedef struct SEDataTable_t se_table;
+
+typedef struct SECanvas_t se_canvas;
+
+
+#define CANVAS_OPERATION_DEFAULT 0
+
+#ifdef HAVE_LIBPNG
+#define CANVAS_LIBPNG 1
+#endif//HAVE_LIBPNG
+
+#ifdef HAVE_QT
+#define CANVAS_QIMAGE 2
+#endif//HAVE_QT
+
+typedef struct SEColor_t se_color;
 
 #ifdef __cplusplus
 }
