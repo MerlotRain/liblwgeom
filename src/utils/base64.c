@@ -1,50 +1,65 @@
-#include "base64.h"
+/*****************************************************************************/
+/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
+/*                                                                           */
+/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
+/*                                                                           */
+/*  This library is free software, licensed under the terms of the GNU       */
+/*  General Public License as published by the Free Software Foundation,     */
+/*  either version 3 of the License, or (at your option) any later version.  */
+/*  You should have received a copy of the GNU General Public License        */
+/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
+/*****************************************************************************/
+
+#include "encode.h"
 #include <assert.h>
 #include <limits.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define RETURN_VAL_IF_FAIL(expr, ret)                                          \
-  do {                                                                         \
-    if (!(expr))                                                               \
-      return ret;                                                              \
-  } while (0)
+#define RETURN_VAL_IF_FAIL(expr, ret)                                         \
+  do                                                                          \
+    {                                                                         \
+      if (!(expr))                                                            \
+        return ret;                                                           \
+    }                                                                         \
+  while (0)
 
-static const char base64_alphabet[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char base64_alphabet[]
+    = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 static const unsigned char mime_base64_rank[256] = {
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 62,  255,
-    255, 255, 63,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  255, 255,
-    255, 0,   255, 255, 255, 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
-    10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,
-    25,  255, 255, 255, 255, 255, 255, 26,  27,  28,  29,  30,  31,  32,  33,
-    34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,  48,
-    49,  50,  51,  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-    255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 62,  255,
+  255, 255, 63,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  255, 255,
+  255, 0,   255, 255, 255, 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
+  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,
+  25,  255, 255, 255, 255, 255, 255, 26,  27,  28,  29,  30,  31,  32,  33,
+  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,  48,
+  49,  50,  51,  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+  255,
 };
 
-static size_t base64_encode_step(const unsigned char *in, size_t len,
-                                 int break_lines, char *out, int *state,
-                                 int *save) {
+static size_t
+base64_encode_step (const unsigned char *in, size_t len, int break_lines,
+                    char *out, int *state, int *save)
+{
   char *outptr;
   const unsigned char *inptr;
 
-  RETURN_VAL_IF_FAIL(in != NULL || len == 0, 0);
-  RETURN_VAL_IF_FAIL(out != NULL, 0);
-  RETURN_VAL_IF_FAIL(state != NULL, 0);
-  RETURN_VAL_IF_FAIL(save != NULL, 0);
+  RETURN_VAL_IF_FAIL (in != NULL || len == 0, 0);
+  RETURN_VAL_IF_FAIL (out != NULL, 0);
+  RETURN_VAL_IF_FAIL (state != NULL, 0);
+  RETURN_VAL_IF_FAIL (save != NULL, 0);
 
   if (len == 0)
     return 0;
@@ -52,50 +67,54 @@ static size_t base64_encode_step(const unsigned char *in, size_t len,
   inptr = in;
   outptr = out;
 
-  if (len + ((char *)save)[0] > 2) {
-    const unsigned char *inend = in + len - 2;
-    int c1, c2, c3;
-    int already;
+  if (len + ((char *)save)[0] > 2)
+    {
+      const unsigned char *inend = in + len - 2;
+      int c1, c2, c3;
+      int already;
 
-    already = *state;
+      already = *state;
 
-    switch (((char *)save)[0]) {
-    case 1:
-      c1 = ((unsigned char *)save)[1];
-      goto skip1;
-    case 2:
-      c1 = ((unsigned char *)save)[1];
-      c2 = ((unsigned char *)save)[2];
-      goto skip2;
+      switch (((char *)save)[0])
+        {
+        case 1:
+          c1 = ((unsigned char *)save)[1];
+          goto skip1;
+        case 2:
+          c1 = ((unsigned char *)save)[1];
+          c2 = ((unsigned char *)save)[2];
+          goto skip2;
+        }
+
+      /*
+       * yes, we jump into the loop, no i'm not going to change it,
+       * it's beautiful!
+       */
+      while (inptr < inend)
+        {
+          c1 = *inptr++;
+        skip1:
+          c2 = *inptr++;
+        skip2:
+          c3 = *inptr++;
+          *outptr++ = base64_alphabet[c1 >> 2];
+          *outptr++ = base64_alphabet[c2 >> 4 | ((c1 & 0x3) << 4)];
+          *outptr++ = base64_alphabet[((c2 & 0x0f) << 2) | (c3 >> 6)];
+          *outptr++ = base64_alphabet[c3 & 0x3f];
+          /* this is a bit ugly ... */
+          if (break_lines && (++already) >= 19)
+            {
+              *outptr++ = '\n';
+              already = 0;
+            }
+        }
+
+      ((char *)save)[0] = 0;
+      len = 2 - (inptr - inend);
+      *state = already;
     }
 
-    /*
-     * yes, we jump into the loop, no i'm not going to change it,
-     * it's beautiful!
-     */
-    while (inptr < inend) {
-      c1 = *inptr++;
-    skip1:
-      c2 = *inptr++;
-    skip2:
-      c3 = *inptr++;
-      *outptr++ = base64_alphabet[c1 >> 2];
-      *outptr++ = base64_alphabet[c2 >> 4 | ((c1 & 0x3) << 4)];
-      *outptr++ = base64_alphabet[((c2 & 0x0f) << 2) | (c3 >> 6)];
-      *outptr++ = base64_alphabet[c3 & 0x3f];
-      /* this is a bit ugly ... */
-      if (break_lines && (++already) >= 19) {
-        *outptr++ = '\n';
-        already = 0;
-      }
-    }
-
-    ((char *)save)[0] = 0;
-    len = 2 - (inptr - inend);
-    *state = already;
-  }
-
-  assert(len == 0 || len == 1 || len == 2);
+  assert (len == 0 || len == 1 || len == 2);
 
   {
     char *saveout;
@@ -104,46 +123,53 @@ static size_t base64_encode_step(const unsigned char *in, size_t len,
     saveout = &(((char *)save)[1]) + ((char *)save)[0];
 
     /* len can only be 0 1 or 2 */
-    switch (len) {
-    case 2:
-      *saveout++ = *inptr++;
-      __attribute__((fallthrough));
-    case 1:
-      *saveout++ = *inptr++;
-    }
+    switch (len)
+      {
+      case 2:
+        *saveout++ = *inptr++;
+#ifdef _WIN32
+        [[fallthrough]];
+#else
+        __attribute__ ((fallthrough));
+#endif
+      case 1:
+        *saveout++ = *inptr++;
+      }
     ((char *)save)[0] += len;
   }
 
   return outptr - out;
 }
 
-static size_t base64_encode_close(int break_lines, char *out, int *state,
-                                  int *save) {
+static size_t
+base64_encode_close (int break_lines, char *out, int *state, int *save)
+{
   int c1, c2;
   char *outptr = out;
 
-  RETURN_VAL_IF_FAIL(out != NULL, 0);
-  RETURN_VAL_IF_FAIL(state != NULL, 0);
-  RETURN_VAL_IF_FAIL(save != NULL, 0);
+  RETURN_VAL_IF_FAIL (out != NULL, 0);
+  RETURN_VAL_IF_FAIL (state != NULL, 0);
+  RETURN_VAL_IF_FAIL (save != NULL, 0);
 
   c1 = ((unsigned char *)save)[1];
   c2 = ((unsigned char *)save)[2];
 
-  switch (((char *)save)[0]) {
-  case 2:
-    outptr[2] = base64_alphabet[((c2 & 0x0f) << 2)];
-    assert(outptr[2] != 0);
-    goto skip;
-  case 1:
-    outptr[2] = '=';
-    c2 = 0; /* saved state here is not relevant */
-  skip:
-    outptr[0] = base64_alphabet[c1 >> 2];
-    outptr[1] = base64_alphabet[c2 >> 4 | ((c1 & 0x3) << 4)];
-    outptr[3] = '=';
-    outptr += 4;
-    break;
-  }
+  switch (((char *)save)[0])
+    {
+    case 2:
+      outptr[2] = base64_alphabet[((c2 & 0x0f) << 2)];
+      assert (outptr[2] != 0);
+      goto skip;
+    case 1:
+      outptr[2] = '=';
+      c2 = 0; /* saved state here is not relevant */
+    skip:
+      outptr[0] = base64_alphabet[c1 >> 2];
+      outptr[1] = base64_alphabet[c2 >> 4 | ((c1 & 0x3) << 4)];
+      outptr[3] = '=';
+      outptr += 4;
+      break;
+    }
   if (break_lines)
     *outptr++ = '\n';
 
@@ -153,8 +179,10 @@ static size_t base64_encode_close(int break_lines, char *out, int *state,
   return outptr - out;
 }
 
-static size_t base64_decode_step(const char *in, size_t len, unsigned char *out,
-                                 int *state, unsigned int *save) {
+static size_t
+base64_decode_step (const char *in, size_t len, unsigned char *out, int *state,
+                    unsigned int *save)
+{
   const unsigned char *inptr;
   unsigned char *outptr;
   const unsigned char *inend;
@@ -163,10 +191,10 @@ static size_t base64_decode_step(const char *in, size_t len, unsigned char *out,
   unsigned int v;
   int i;
 
-  RETURN_VAL_IF_FAIL(in != NULL || len == 0, 0);
-  RETURN_VAL_IF_FAIL(out != NULL, 0);
-  RETURN_VAL_IF_FAIL(state != NULL, 0);
-  RETURN_VAL_IF_FAIL(save != NULL, 0);
+  RETURN_VAL_IF_FAIL (in != NULL || len == 0, 0);
+  RETURN_VAL_IF_FAIL (out != NULL, 0);
+  RETURN_VAL_IF_FAIL (state != NULL, 0);
+  RETURN_VAL_IF_FAIL (save != NULL, 0);
 
   if (len == 0)
     return 0;
@@ -182,30 +210,34 @@ static size_t base64_decode_step(const char *in, size_t len, unsigned char *out,
 
   /* we use the sign in the state to determine if we got a padding character
      in the previous sequence */
-  if (i < 0) {
-    i = -i;
-    last[0] = '=';
-  }
+  if (i < 0)
+    {
+      i = -i;
+      last[0] = '=';
+    }
 
   inptr = (const unsigned char *)in;
-  while (inptr < inend) {
-    c = *inptr++;
-    rank = mime_base64_rank[c];
-    if (rank != 0xff) {
-      last[1] = last[0];
-      last[0] = c;
-      v = (v << 6) | rank;
-      i++;
-      if (i == 4) {
-        *outptr++ = v >> 16;
-        if (last[1] != '=')
-          *outptr++ = v >> 8;
-        if (last[0] != '=')
-          *outptr++ = v;
-        i = 0;
-      }
+  while (inptr < inend)
+    {
+      c = *inptr++;
+      rank = mime_base64_rank[c];
+      if (rank != 0xff)
+        {
+          last[1] = last[0];
+          last[0] = c;
+          v = (v << 6) | rank;
+          i++;
+          if (i == 4)
+            {
+              *outptr++ = v >> 16;
+              if (last[1] != '=')
+                *outptr++ = v >> 8;
+              if (last[0] != '=')
+                *outptr++ = v;
+              i = 0;
+            }
+        }
     }
-  }
 
   *save = v;
   *state = last[0] == '=' ? -i : i;
@@ -213,59 +245,65 @@ static size_t base64_decode_step(const char *in, size_t len, unsigned char *out,
   return outptr - out;
 }
 
-static unsigned char *base64_decode_inplace(char *text, size_t *out_len) {
+static unsigned char *
+base64_decode_inplace (char *text, size_t *out_len)
+{
   int input_length, state = 0;
   unsigned int save = 0;
 
-  RETURN_VAL_IF_FAIL(text != NULL, NULL);
-  RETURN_VAL_IF_FAIL(out_len != NULL, NULL);
+  RETURN_VAL_IF_FAIL (text != NULL, NULL);
+  RETURN_VAL_IF_FAIL (out_len != NULL, NULL);
 
-  input_length = strlen(text);
+  input_length = strlen (text);
 
-  RETURN_VAL_IF_FAIL(input_length > 1, NULL);
+  RETURN_VAL_IF_FAIL (input_length > 1, NULL);
 
-  *out_len = base64_decode_step(text, input_length, (unsigned char *)text,
-                                &state, &save);
+  *out_len = base64_decode_step (text, input_length, (unsigned char *)text,
+                                 &state, &save);
 
   return (unsigned char *)text;
 }
 
-char *base64_encode(const unsigned char *data, size_t len) {
+char *
+base64_encode (const unsigned char *data, size_t len)
+{
   char *out;
   int state = 0, outlen;
   int save = 0;
 
-  RETURN_VAL_IF_FAIL(data != NULL || len == 0, NULL);
+  RETURN_VAL_IF_FAIL (data != NULL || len == 0, NULL);
 
   /* We can use a smaller limit here, since we know the saved state is 0,
      +1 is needed for trailing \0, also check for unlikely integer overflow */
-  RETURN_VAL_IF_FAIL(len < ((ULONG_MAX - 1) / 4 - 1) * 3, NULL);
+  RETURN_VAL_IF_FAIL (len < ((ULONG_MAX - 1) / 4 - 1) * 3, NULL);
 
-  out = (char *)malloc((len / 3 + 1) * 4 + 1);
+  out = (char *)malloc ((len / 3 + 1) * 4 + 1);
 
-  outlen = base64_encode_step(data, len, false, out, &state, &save);
-  outlen += base64_encode_close(false, out + outlen, &state, &save);
+  outlen = base64_encode_step (data, len, false, out, &state, &save);
+  outlen += base64_encode_close (false, out + outlen, &state, &save);
   out[outlen] = '\0';
 
   return (char *)out;
 }
 
-unsigned char *base64_decode(const char *text, size_t *out_len) {
+unsigned char *
+base64_decode (const char *text, size_t *out_len)
+{
   unsigned char *ret;
   size_t input_length;
   int state = 0;
   unsigned int save = 0;
 
-  RETURN_VAL_IF_FAIL(text != NULL, NULL);
-  RETURN_VAL_IF_FAIL(out_len != NULL, NULL);
+  RETURN_VAL_IF_FAIL (text != NULL, NULL);
+  RETURN_VAL_IF_FAIL (out_len != NULL, NULL);
 
-  input_length = strlen(text);
+  input_length = strlen (text);
 
   /* We can use a smaller limit here, since we know the saved state is 0,
      +1 used to avoid calling g_malloc0(0), and hence returning NULL */
-  ret = (unsigned char *)malloc((input_length / 4) * 3 + 1);
+  ret = (unsigned char *)malloc ((input_length / 4) * 3 + 1);
 
-  *out_len = base64_decode_step(text, input_length, ret, &state, &save);
+  *out_len = base64_decode_step (text, input_length, ret, &state, &save);
 
   return ret;
 }

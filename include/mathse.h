@@ -1,74 +1,122 @@
-#ifndef __MATHSE_H__
-#define __MATHSE_H__
+/*****************************************************************************/
+/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
+/*                                                                           */
+/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
+/*                                                                           */
+/*  This library is free software, licensed under the terms of the GNU       */
+/*  General Public License as published by the Free Software Foundation,     */
+/*  either version 3 of the License, or (at your option) any later version.  */
+/*  You should have received a copy of the GNU General Public License        */
+/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
+/*****************************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef MATHSE_H
+#define MATHSE_H
+
+#define MATHSE_VERSION_MAJOR 1
+#define MATHSE_VERSION_MINOR 0
+#define MATHSE_VERSION ((MATHSE_VERSION_MAJOR * 100) + MATHSE_VERSION_MINOR)
+// clang-format off
+#define MATHSE_SO_VERSION 1:0:0
+// clang-format on
 
 #ifndef EXTERN
-#    ifdef _WIN32
+#  ifdef _WIN32
 /* Windows - set up dll import/export decorators. */
-#        if defined(BUILDING_MATHSE_SHARED)
+#    if defined(DLL_EXPORT)
 /* Building shared library. */
-#            define EXTERN __declspec(dllexport)
-#        elif defined(USING_UV_SHARED)
+#      define EXTERN __declspec (dllexport)
+#    elif defined(USING_UV_SHARED)
 /* Using shared library. */
-#            define EXTERN __declspec(dllimport)
-#        else
-/* Building static library. */
-#            define EXTERN /* nothing */
-#        endif
-#    elif __GNUC__ >= 4
-#        define EXTERN __attribute__((visibility("default")))
-#    elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550) /* Sun Studio >= 8 */
-#        define EXTERN __global
+#      define EXTERN __declspec (dllimport)
 #    else
-#        define EXTERN /* nothing */
+/* Building static library. */
+#      define EXTERN /* nothing */
 #    endif
+#  elif __GNUC__ >= 4
+#    define EXTERN __attribute__ ((visibility ("default")))
+#  elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550) /* Sun Studio >= 8 */
+#    define EXTERN __global
+#  else
+#    define EXTERN /* nothing */
+#  endif
 #endif /* EXTERN */
 
+/* The __nonnull function attribute marks pointer arguments which
+   must not be NULL.  */
+#if (defined(__GNUC__) && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 303)         \
+    && !defined(__cplusplus)
+#  undef __nonnull
+#  define __nonnull(params) __attribute__ ((__nonnull__ params))
+// cygwin/newlib has this
+#  ifndef __nonnull_all
+#    define __nonnull_all __attribute__ ((__nonnull__))
+#  endif
+#  define HAVE_NONNULL
+#else
+#  undef __nonnull
+#  undef HAVE_NONNULL
+#  define __nonnull(params)
+#  define __nonnull_all
+#endif
+
 #ifndef MAX
-#    define MAX(a, b) ((a) > (b) ? (a) : (b))
+#  define MAX(a, b) ((a) > (b) ? (a) : (b))
 #endif
 
 #ifndef MIN
-#    define MIN(a, b) ((a) < (b) ? (a) : (b))
+#  define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
+#ifdef __cplusplus
+extern "C"
+{
 #endif
 
 #if defined(USE_TCMALLOC)
 
-#    include <google/tcmalloc.h>
+#  include <google/tcmalloc.h>
 
-#    define malloc(size)        tc_malloc(size)
-#    define calloc(count, size) tc_calloc(count, size)
-#    define realloc(ptr, size)  tc_realloc(ptr, size)
-#    define free(ptr)           tc_free(ptr)
+#  define malloc(size) tc_malloc (size)
+#  define calloc(count, size) tc_calloc (count, size)
+#  define realloc(ptr, size) tc_realloc (ptr, size)
+#  define free(ptr) tc_free (ptr)
 
 #elif defined(USE_JEMALLOC)
 
-#    include <jemalloc/jemalloc.h>
+#  include <jemalloc/jemalloc.h>
 
-#    define malloc(size)        je_malloc(size)
-#    define calloc(count, size) je_calloc(count, size)
-#    define realloc(ptr, size)  je_realloc(ptr, size)
-#    define free(ptr)           je_free(ptr)
+#  define malloc(size) je_malloc (size)
+#  define calloc(count, size) je_calloc (count, size)
+#  define realloc(ptr, size) je_realloc (ptr, size)
+#  define free(ptr) je_free (ptr)
 
 #endif
 
-/**
- * Geometric models, supporting common geometric models such as point, path,
- * ring, polyline, polygon, multipoint, etc.
- */
-typedef struct SEGeom_t se_geom;
+  /**
+   * Geometric models, supporting common geometric models such as point, path,
+   * ring, polyline, polygon, multipoint, etc.
+   */
+  typedef struct SEGeom_t se_geom;
 
-#define GEOMETRY_IO_TYPE_WKT     0
-#define GEOMETRY_IO_TYPE_WKB     1
+  typedef struct SESpatialReference_t se_spatailReference;
+
+  typedef struct SEi4_t se_i4;
+
+  typedef struct SEDatastream_t se_datastream;
+
+  typedef struct SETable_t se_table;
+
+  typedef struct SECanvas_t se_canvas;
+
+#define GEOMETRY_IO_TYPE_WKT 0
+#define GEOMETRY_IO_TYPE_WKB 1
 #define GEOMETRY_IO_TYPE_GEOJSON 2
-#define GEOMETRY_IO_TYPE_EWKT    3
-#define GEOMETRY_IO_TYPE_EWKB    4
-#define GEOMETRY_IO_TYPE_KML     5
-#define GEOMETRY_IO_TYPE_GML     6
-#define GEOMETRY_IO_TYPE_GML2    7
+#define GEOMETRY_IO_TYPE_EWKT 3
+#define GEOMETRY_IO_TYPE_EWKB 4
+#define GEOMETRY_IO_TYPE_KML 5
+#define GEOMETRY_IO_TYPE_GML 6
+#define GEOMETRY_IO_TYPE_GML2 7
 
 /* Calculate the length of a geometry */
 #define GEOMETRY_PROP_VALUE_LENGTH 0
@@ -99,7 +147,8 @@ typedef struct SEGeom_t se_geom;
 #define GEOMETRY_PROP_GEO_INNER_SQUARE 18
 /* Get the inner minimum circle of the geometry */
 #define GEOMETRY_PROP_GEO_INNER_CIRCLE 19
-/* Get the smallest convex polygon that contains all the points int the geometry
+/* Get the smallest convex polygon that contains all the points int the
+ * geometry
  */
 #define GEOMETRY_PROP_GEO_CONVEX_HULL 20
 /* Get the simplified geometry */
@@ -171,36 +220,35 @@ typedef struct SEGeom_t se_geom;
 /* Check geometry pseudo endpoints */
 #define GEOMETRY_CHECK_2_PSEUDO_ENDPOINT 0x04
 
-/**
- * read the geometry from the data
- * @brief data the data of the geometry
- * @brief len If it is binary data, \a len represents the length of the data. If
- * it is text data, \a len can be 0.
- * @brief flag type of data
- */
-EXTERN se_geom *geom_read(const char *data, int len, int flag);
+  /**
+   * @brief read the geometry from the data
+   * @param data the data of the geometry
+   * @param len If it is binary data, \a len represents the length of the data.
+   * If it is text data, \a len can be 0.
+   * @param type type of data
+   */
+  EXTERN se_geom *geom_read (const char *data, int len, int type)
+      __nonnull ((1));
 
-EXTERN se_geom *geom_read_ora(
-    int i_n, const int *i_p, int c_n, int c_dim, const double *c_p, int flag);
+  EXTERN void geome_write (const se_geom *geom, char **data, int *len,
+                           int type, int flag) __nonnull ((1, 3));
 
-EXTERN void geome_write(const se_geom *geom, char **data, int *len, int flag);
+  EXTERN void geom_free (se_geom *geom) __nonnull ((1));
 
-EXTERN void geom_write_ora(
-    const se_geom *geom, int *i_n, int **i_p, int *c_n, double **c_p);
+  EXTERN double geom_tolerance (double tol);
 
-EXTERN void geom_free(se_geom *geom);
+  EXTERN double geom_prop_value (const se_geom *geom, int mode)
+      __nonnull ((1));
 
-EXTERN double geom_tolerance(double tol);
+  EXTERN se_geom *geom_prop_geo (const se_geom *geom, int mode)
+      __nonnull ((1));
 
-EXTERN double geom_prop_value(const se_geom *geom, int mode);
+  EXTERN void geom_prop_geo2 (const se_geom *geom, int mode, double *paras)
+      __nonnull ((1, 3));
 
-EXTERN se_geom *geom_prop_geo(const se_geom *geom, int mode);
+  typedef struct SESpatialIndex_t se_spatialindex;
 
-EXTERN void geom_prop_geo2(const se_geom *geom, int mode, double *paras);
-
-typedef void *se_spatialindex;
-
-#define SPATIALINDEX_RTREE   0
+#define SPATIALINDEX_RTREE 0
 #define SPAITALINDEX_MVRTREE 1
 #define SPATIALINDEX_TPRTREE 2
 #define SPATIALINDEX_ENCODE_BG_GRID_CODE
@@ -215,38 +263,26 @@ typedef void *se_spatialindex;
 /* Inverse */
 #define TRANS_INVERSE -1
 
-typedef void *se_spatailreference;
+  EXTERN se_spatailReference *create_spatialreference_WKT (const char *wkt);
 
-EXTERN se_spatailreference create_spatialreference_WKT(const char *wkt);
+  EXTERN se_spatailReference *create_spatialreference_EPSG (int code);
 
-EXTERN se_spatailreference create_spatialreference_EPSG(int code);
-
-EXTERN void trans_coordinates(const se_spatailreference crc1,
-                              const se_spatailreference crs2,
-                              double                   *p,
-                              int                       pn,
-                              int                       flag);
-
-typedef void *se_i4;
-
-typedef void *se_datastream;
-
-typedef void *se_table;
-
-typedef void *se_canvas;
+  EXTERN void trans_coordinates (const se_spatailReference *crc1,
+                                 const se_spatailReference *crs2, double *p,
+                                 int pn, int flag);
 
 #define CANVAS_OPERATION_DEFAULT 0
 
 #ifdef HAVE_LIBPNG
-#    define CANVAS_LIBPNG 1
+#  define CANVAS_LIBPNG 1
 #endif // HAVE_LIBPNG
 
 #ifdef HAVE_QT
-#    define CANVAS_QIMAGE 2
+#  define CANVAS_QIMAGE 2
 #endif // HAVE_QT
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //__MATHSE_H__
+#endif

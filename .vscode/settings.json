@@ -66,6 +66,12 @@
     "glib.h": "c",
     "string.h": "c",
     "tcmalloc.h": "c",
-    "source_location": "c"
-  }
+    "source_location": "c",
+    "geom.h": "c"
+  },
+  "cmake.configureArgs": [
+    "-DBUILD_TESTS=ON",
+    "-DCUNIT_DISABLE_TESTS=TRUE",
+    "-DCUNIT_DISABLE_EXAMPLES=TRUE"
+  ]
 }
