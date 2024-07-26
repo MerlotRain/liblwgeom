@@ -1,9 +1,19 @@
-#ifndef __MATHSE_MATRIX_H__
-#define __MATHSE_MATRIX_H__
+/*****************************************************************************/
+/*  MathSE - Open source 2D geometry algorithm library                       */
+/*                                                                           */
+/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
+/*                                                                           */
+/*  This library is free software, licensed under the terms of the GNU       */
+/*  General Public License as published by the Free Software Foundation,     */
+/*  either version 3 of the License, or (at your option) any later version.  */
+/*  You should have received a copy of the GNU General Public License        */
+/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
+/*****************************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
+#ifndef MATRIX_H
+#define MATRIX_H
+
 
 #define MATRIX_INIT                                                            \
     { 1, 0, 0, 1, 0, 0 }
@@ -78,8 +88,5 @@ bool matrix_identity(const matrix_t *m);
 /* Transform point coordinates using a matrix */
 void matrix_trans_points(const matrix_t *m, double *points, int count);
 
-#ifdef __cplusplus
-}
-#endif
 
-#endif//__MATHSE_MATRIX_H__
+#endif

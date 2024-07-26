@@ -11,8 +11,8 @@
 /*****************************************************************************/
 
 
-#ifndef __MATHSE_H__
-#define __MATHSE_H__
+#ifndef MATHSE_H
+#define MATHSE_H
 
 #define MATHSE_VERSION_MAJOR 1
 #define MATHSE_VERSION_MINOR 0
@@ -217,7 +217,7 @@ typedef struct SEGeom_t se_geom;
  * it is text data, \a len can be 0.
  * @param flag type of data
  */
-EXTERN se_geom *geom_read(const char *data, int len, int flag);
+EXTERN se_geom *geom_read(const char *data, int len, int flag) __nonnull((1));
 
 /**
  * @brief read geometry from oracle spatial SDO_GEOMETRY
@@ -228,22 +228,22 @@ EXTERN se_geom *geom_read(const char *data, int len, int flag);
  * @param c_p coordinate pointer
  */
 EXTERN se_geom *geom_read_ora(
-    int i_n, const int *i_p, int c_n, int c_dim, const double *c_p);
+    int i_n, const int *i_p, int c_n, int c_dim, const double *c_p) __nonnull((2, 5));
 
-EXTERN void geome_write(const se_geom *geom, char **data, int *len, int flag);
+EXTERN void geome_write(const se_geom *geom, char **data, int *len, int flag) __nonnull((1, 3));
 
 EXTERN void geom_write_ora(
-    const se_geom *geom, int *i_n, int **i_p, int *c_n, double **c_p);
+    const se_geom *geom, int *i_n, int **i_p, int *c_n, double **c_p) __nonnull((1, 2, 4));
 
-EXTERN void geom_free(se_geom *geom);
+EXTERN void geom_free(se_geom *geom)__nonnull((1));
 
 EXTERN double geom_tolerance(double tol);
 
-EXTERN double geom_prop_value(const se_geom *geom, int mode);
+EXTERN double geom_prop_value(const se_geom *geom, int mode)__nonnull((1));
 
-EXTERN se_geom *geom_prop_geo(const se_geom *geom, int mode);
+EXTERN se_geom *geom_prop_geo(const se_geom *geom, int mode)__nonnull((1));
 
-EXTERN void geom_prop_geo2(const se_geom *geom, int mode, double *paras);
+EXTERN void geom_prop_geo2(const se_geom *geom, int mode, double *paras)__nonnull((1,3));
 
 typedef void *se_spatialindex;
 
@@ -296,4 +296,4 @@ typedef void *se_canvas;
 }
 #endif
 
-#endif //__MATHSE_H__
+#endif

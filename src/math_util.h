@@ -1,9 +1,19 @@
-#ifndef __MATH_PRIVATE_H__
-#define __MATH_PRIVATE_H__
+/*****************************************************************************/
+/*  MathSE - Open source 2D geometry algorithm library                       */
+/*                                                                           */
+/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
+/*                                                                           */
+/*  This library is free software, licensed under the terms of the GNU       */
+/*  General Public License as published by the Free Software Foundation,     */
+/*  either version 3 of the License, or (at your option) any later version.  */
+/*  You should have received a copy of the GNU General Public License        */
+/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
+/*****************************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
+#ifndef MATH_UTIL_H
+#define MATH_UTIL_H
+
 
 /* Converts from radians to degrees. */
 double math_to_degrees(double radians);
@@ -37,8 +47,4 @@ double math_circle_length(double x1, double y1, double x2, double y2, double x3,
 double math_bezier_length(double x1, double y1, double x2, double y2, double x3,
                           double y3, double x4, double y4);
 
-#ifdef __cplusplus
-}
 #endif
-
-#endif //__MATH_PRIVATE_H__

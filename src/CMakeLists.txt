@@ -1,14 +1,14 @@
 set(se_srcs 
-    mathse.c
+    io.c
 
-    io/ewkb.cpp
-    io/ewkt.cpp
-    io/geojson.cpp
-    io/gml.cpp
-    io/kml.cpp
-    io/ora.cpp
-    io/wkb.cpp
-    io/wkt.cpp
+    io/ewkb.c
+    io/ewkt.c
+    io/geojson.c
+    io/gml.c
+    io/kml.c
+    io/ora.c
+    io/wkb.c
+    io/wkt.c
 )
 
 add_library(mathse STATIC)

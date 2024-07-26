@@ -1,9 +1,18 @@
-#ifndef __MATHSE_GEOHASH_H__
-#define __MATHSE_GEOHASH_H__
+/*****************************************************************************/
+/*  MathSE - Open source 2D geometry algorithm library                       */
+/*                                                                           */
+/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
+/*                                                                           */
+/*  This library is free software, licensed under the terms of the GNU       */
+/*  General Public License as published by the Free Software Foundation,     */
+/*  either version 3 of the License, or (at your option) any later version.  */
+/*  You should have received a copy of the GNU General Public License        */
+/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
+/*****************************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
+#ifndef MATHSE_GEOHASH_H
+#define MATHSE_GEOHASH_H
 
 
 /* Direction north */
@@ -94,8 +103,5 @@ bool geohash_decode_longlat_WGS84(const geohash_area_t *area, double *xy);
 
 geohash_neighbors_t *geohash_query_neighbors(const geohash_bits_t *hash);
 
-#ifdef __cplusplus
-}
-#endif
 
-#endif//__MATHSE_GEOHASH_H__
+#endif
