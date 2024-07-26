@@ -15,6 +15,8 @@
 #define GEOM_H
 
 #include <stddef.h>
+#include <stdbool.h>
+#include "coordinatesequence.h"
 
 /* --------------------------- Simple OGRGeometry --------------------------- */
 
@@ -22,34 +24,46 @@
 typedef struct geom_point_t {
     double x;
     double y;
+    double z;
+    double m;
 } geom_point_t;
 
 /* multi point */
 typedef struct geom_mpoint_t {
     int     num;
+    bool    hasZ;
+    bool    hasM;
     double *coord;
 } geom_mpoint_t;
 
 /* linestring */
 typedef struct geom_linestring_t {
     int     num;
+    bool    hasZ;
+    bool    hasM;
     double *coord;
 } geom_linestring_t;
 
 /* linearring */
 typedef struct geom_linearring_t {
     int     num;
+    bool    hasZ;
+    bool    hasM;
     double *coord;
 } geom_linearring_t;
 
 /* multi linestring */
 typedef struct geom_mlinestring_t {
     int                 num;
+    bool                hasZ;
+    bool                hasM;
     geom_linestring_t **geometries;
 } geom_mlinestring_t;
 
 /* polygon */
 typedef struct geom_polygon_t {
+    bool                hasZ;
+    bool                hasM;
     geom_linearring_t  *shell;
     int                 hole_num;
     geom_linearring_t **holes;
@@ -57,6 +71,8 @@ typedef struct geom_polygon_t {
 
 /* multi polygon */
 typedef struct geom_mpolygon_t {
+    bool             hasZ;
+    bool             hasM;
     int              num;
     geom_polygon_t **geometries;
 } geom_mpolygon_t;
@@ -83,7 +99,7 @@ typedef struct geom_circle_t {
 /* ------------------------------ Geometry Base ----------------------------- */
 
 /* coordinate */
-typedef struct SEGeom_t {
+struct SEGeom_t {
     int geom_id;
     int SRID;
     union {
@@ -95,7 +111,7 @@ typedef struct SEGeom_t {
         geom_mlinestring_t *mlinestring;
         geom_mpolygon_t    *mpolygon;
     } tio;
-} se_geom;
+};
 
 
 #endif

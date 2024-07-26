@@ -1,5 +1,5 @@
 /*****************************************************************************/
-/*  MathSE - Open source 2D geometry algorithm library                       */
+/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
 /*                                                                           */
 /*  Copyright (C) 2013-2024 Merlot.Rain                                      */
 /*                                                                           */
@@ -24,7 +24,7 @@
 #ifndef EXTERN
 #    ifdef _WIN32
 /* Windows - set up dll import/export decorators. */
-#        if defined(BUILDING_MATHSE_SHARED)
+#        if defined(DLL_EXPORT)
 /* Building shared library. */
 #            define EXTERN __declspec(dllexport)
 #        elif defined(USING_UV_SHARED)
@@ -99,6 +99,18 @@ extern "C" {
  * ring, polyline, polygon, multipoint, etc.
  */
 typedef struct SEGeom_t se_geom;
+
+typedef struct SESpatialReference_t se_spatailReference;
+
+typedef struct SEi4_t se_i4;
+
+typedef struct SEDatastream_t se_datastream;
+
+typedef struct SETable_t se_table;
+
+typedef struct SECanvas_t se_canvas;
+
+
 
 #define GEOMETRY_IO_TYPE_WKT     0
 #define GEOMETRY_IO_TYPE_WKB     1
@@ -215,25 +227,11 @@ typedef struct SEGeom_t se_geom;
  * @param data the data of the geometry
  * @param len If it is binary data, \a len represents the length of the data. If
  * it is text data, \a len can be 0.
- * @param flag type of data
+ * @param type type of data
  */
-EXTERN se_geom *geom_read(const char *data, int len, int flag) __nonnull((1));
+EXTERN se_geom *geom_read(const char *data, int len, int type) __nonnull((1));
 
-/**
- * @brief read geometry from oracle spatial SDO_GEOMETRY
- * @param i_n interprete number
- * @param i_p interprete pointer
- * @param c_n coordinates number
- * @param c_dim coordinate dim: 2 / 3
- * @param c_p coordinate pointer
- */
-EXTERN se_geom *geom_read_ora(
-    int i_n, const int *i_p, int c_n, int c_dim, const double *c_p) __nonnull((2, 5));
-
-EXTERN void geome_write(const se_geom *geom, char **data, int *len, int flag) __nonnull((1, 3));
-
-EXTERN void geom_write_ora(
-    const se_geom *geom, int *i_n, int **i_p, int *c_n, double **c_p) __nonnull((1, 2, 4));
+EXTERN void geome_write(const se_geom *geom, char **data, int *len, int type, int flag) __nonnull((1, 3));
 
 EXTERN void geom_free(se_geom *geom)__nonnull((1));
 
@@ -245,7 +243,7 @@ EXTERN se_geom *geom_prop_geo(const se_geom *geom, int mode)__nonnull((1));
 
 EXTERN void geom_prop_geo2(const se_geom *geom, int mode, double *paras)__nonnull((1,3));
 
-typedef void *se_spatialindex;
+typedef struct SESpatialIndex_t se_spatialindex;
 
 #define SPATIALINDEX_RTREE   0
 #define SPAITALINDEX_MVRTREE 1
@@ -262,25 +260,17 @@ typedef void *se_spatialindex;
 /* Inverse */
 #define TRANS_INVERSE -1
 
-typedef void *se_spatailreference;
 
-EXTERN se_spatailreference create_spatialreference_WKT(const char *wkt);
+EXTERN se_spatailReference *create_spatialreference_WKT(const char *wkt);
 
-EXTERN se_spatailreference create_spatialreference_EPSG(int code);
+EXTERN se_spatailReference *create_spatialreference_EPSG(int code);
 
-EXTERN void trans_coordinates(const se_spatailreference crc1,
-                              const se_spatailreference crs2,
+EXTERN void trans_coordinates(const mse_spatailReference *crc1,
+                              const mse_spatailReference *crs2,
                               double                   *p,
                               int                       pn,
                               int                       flag);
 
-typedef void *se_i4;
-
-typedef void *se_datastream;
-
-typedef void *se_table;
-
-typedef void *se_canvas;
 
 #define CANVAS_OPERATION_DEFAULT 0
 
