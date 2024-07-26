@@ -1,9 +1,25 @@
+/*****************************************************************************/
+/*  MathSE - Open source 2D geometry algorithm library                       */
+/*                                                                           */
+/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
+/*                                                                           */
+/*  This library is free software, licensed under the terms of the GNU       */
+/*  General Public License as published by the Free Software Foundation,     */
+/*  either version 3 of the License, or (at your option) any later version.  */
+/*  You should have received a copy of the GNU General Public License        */
+/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
+/*****************************************************************************/
+
+
 #ifndef __MATHSE_H__
 #define __MATHSE_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define MATHSE_VERSION_MAJOR 1
+#define MATHSE_VERSION_MINOR 0
+#define MATHSE_VERSION       ((MATHSE_VERSION_MAJOR * 100) + MATHSE_VERSION_MINOR)
+// clang-format off
+#define MATHSE_SO_VERSION 1:0:0
+// clang-format on
 
 #ifndef EXTERN
 #    ifdef _WIN32
@@ -27,12 +43,35 @@ extern "C" {
 #    endif
 #endif /* EXTERN */
 
+/* The __nonnull function attribute marks pointer arguments which
+   must not be NULL.  */
+#if (defined(__GNUC__) && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 303)         \
+    && !defined(__cplusplus)
+#  undef __nonnull
+#  define __nonnull(params) __attribute__ ((__nonnull__ params))
+// cygwin/newlib has this
+#  ifndef __nonnull_all
+#    define __nonnull_all __attribute__ ((__nonnull__))
+#  endif
+#  define HAVE_NONNULL
+#else
+#  undef __nonnull
+#  undef HAVE_NONNULL
+#  define __nonnull(params)
+#  define __nonnull_all
+#endif
+
+
 #ifndef MAX
 #    define MAX(a, b) ((a) > (b) ? (a) : (b))
 #endif
 
 #ifndef MIN
 #    define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #if defined(USE_TCMALLOC)
@@ -172,16 +211,24 @@ typedef struct SEGeom_t se_geom;
 #define GEOMETRY_CHECK_2_PSEUDO_ENDPOINT 0x04
 
 /**
- * read the geometry from the data
- * @brief data the data of the geometry
- * @brief len If it is binary data, \a len represents the length of the data. If
+ * @brief read the geometry from the data
+ * @param data the data of the geometry
+ * @param len If it is binary data, \a len represents the length of the data. If
  * it is text data, \a len can be 0.
- * @brief flag type of data
+ * @param flag type of data
  */
 EXTERN se_geom *geom_read(const char *data, int len, int flag);
 
+/**
+ * @brief read geometry from oracle spatial SDO_GEOMETRY
+ * @param i_n interprete number
+ * @param i_p interprete pointer
+ * @param c_n coordinates number
+ * @param c_dim coordinate dim: 2 / 3
+ * @param c_p coordinate pointer
+ */
 EXTERN se_geom *geom_read_ora(
-    int i_n, const int *i_p, int c_n, int c_dim, const double *c_p, int flag);
+    int i_n, const int *i_p, int c_n, int c_dim, const double *c_p);
 
 EXTERN void geome_write(const se_geom *geom, char **data, int *len, int flag);
 

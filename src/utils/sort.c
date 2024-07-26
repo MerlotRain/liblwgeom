@@ -2,6 +2,10 @@
 #include <alloca.h>
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct qsort_param {
   size_t s;
   size_t var;
@@ -35,3 +39,8 @@ void quick_sort(const void *p, size_t ele_count, size_t ele_size,
                 int (*compare)(const void *, const void *), void *user_data) {
   quick_sort_r((void *)p, ele_count, ele_size, compare, user_data);
 }
+
+
+#ifdef __cplusplus
+}
+#endif

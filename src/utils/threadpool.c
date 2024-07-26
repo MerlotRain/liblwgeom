@@ -1,3 +1,16 @@
+/*****************************************************************************/
+/*  MathSE - Open source 2D geometry algorithm library                       */
+/*                                                                           */
+/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
+/*                                                                           */
+/*  This library is free software, licensed under the terms of the GNU       */
+/*  General Public License as published by the Free Software Foundation,     */
+/*  either version 3 of the License, or (at your option) any later version.  */
+/*  You should have received a copy of the GNU General Public License        */
+/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
+/*****************************************************************************/
+
+
 #include "threadpool.h"
 #include <assert.h>
 #include <errno.h>
@@ -7,15 +20,16 @@
 #include <string.h>
 #include <unistd.h>
 
+
 const int THREAD_POOL_NUMBER = 2;
 
-typedef struct se_task {
+struct _singletask {
   void (*function)(void *arg);
   void *arg;
-} task_t;
+};
 
-struct se_thread_pool {
-  task_t *task_queue;         /* task queue */
+struct _intthreadpool {
+  struct _singletask *task_queue;  /* task queue */
   int queue_capacity;         /* task queue capacity */
   int queue_size;             /* task queue size */
   int queue_front;            /* task queue front */
@@ -37,7 +51,7 @@ struct se_thread_pool {
 };
 
 static void *worker(void *arg) {
-  thread_pool_t *pool = (thread_pool_t *)arg;
+  se_intthreadpool *pool = (se_intthreadpool *)arg;
 
   while (1) {
     pthread_mutex_lock(&pool->mutex_pool);
@@ -58,7 +72,7 @@ static void *worker(void *arg) {
       thread_pool_exit(pool);
     }
 
-    task_t task;
+    struct _singletask task;
     task.function = pool->task_queue[pool->queue_front].function;
     task.arg = pool->task_queue[pool->queue_front].arg;
 
@@ -83,7 +97,7 @@ static void *worker(void *arg) {
 }
 
 static void *manager(void *arg) {
-  thread_pool_t *pool = (thread_pool_t *)arg;
+  se_intthreadpool *pool = (se_intthreadpool *)arg;
   while (!pool->shutdown) {
     sleep(3);
 
@@ -123,11 +137,11 @@ static void *manager(void *arg) {
   return NULL;
 }
 
-thread_pool_t *create_thread_pool(int min, int max, int queueSize) {
-  thread_pool_t *pool = (thread_pool_t *)malloc(sizeof(thread_pool_t));
+se_intthreadpool *create_threadpool(int min, int max, int queueSize) {
+  se_intthreadpool *pool = (se_intthreadpool *)malloc(sizeof(se_intthreadpool));
   do {
     if (pool == NULL) {
-      printf("malloc thread_pool_t fail...\n");
+      printf("malloc se_intthreadpool fail...\n");
       break;
     }
 
@@ -151,7 +165,7 @@ thread_pool_t *create_thread_pool(int min, int max, int queueSize) {
       break;
     }
 
-    pool->task_queue = (task_t *)malloc(sizeof(task_t) * queueSize);
+    pool->task_queue = (struct _singletask *)malloc(sizeof(struct _singletask) * queueSize);
     pool->queue_capacity = queueSize;
     pool->queue_size = 0;
     pool->queue_front = 0;
@@ -175,7 +189,7 @@ thread_pool_t *create_thread_pool(int min, int max, int queueSize) {
   return NULL;
 }
 
-int destroy_thread_pool(thread_pool_t *pool) {
+int destroy_threadpool(se_intthreadpool *pool) {
   if (pool == NULL) {
     return -1;
   }
@@ -205,7 +219,7 @@ int destroy_thread_pool(thread_pool_t *pool) {
   return 0;
 }
 
-void thread_pool_add_task(thread_pool_t *pool, void (*func)(void *),
+void threadpool_add_task(se_intthreadpool *pool, void (*func)(void *),
                           void *arg) {
   pthread_mutex_lock(&pool->mutex_pool);
   while (pool->queue_size == pool->queue_capacity && !pool->shutdown) {
@@ -225,21 +239,21 @@ void thread_pool_add_task(thread_pool_t *pool, void (*func)(void *),
   pthread_mutex_unlock(&pool->mutex_pool);
 }
 
-int thread_pool_busy_count(thread_pool_t *pool) {
+int threadpool_busy_count(se_intthreadpool *pool) {
   pthread_mutex_lock(&pool->mutex_busy);
   int busyNum = pool->busy_num;
   pthread_mutex_unlock(&pool->mutex_busy);
   return busyNum;
 }
 
-int thread_pool_alive_count(thread_pool_t *pool) {
+int threadpool_alive_count(se_intthreadpool *pool) {
   pthread_mutex_lock(&pool->mutex_pool);
   int aliveNum = pool->live_num;
   pthread_mutex_unlock(&pool->mutex_pool);
   return aliveNum;
 }
 
-void thread_pool_exit(thread_pool_t *pool) {
+void threadpool_exit(se_intthreadpool *pool) {
   pthread_t tid = pthread_self();
   for (int i = 0; i < pool->max_num; ++i) {
     if (pool->thread_ids[i] == tid) {

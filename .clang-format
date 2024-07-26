@@ -1,24 +1,27 @@
-# Generated from CLion C/C++ Code Style settings
-BasedOnStyle: LLVM
-AlignConsecutiveAssignments: true
-AlignConsecutiveMacros: true
-AlignConsecutiveDeclarations: true
-ColumnLimit: 80
-IndentWidth: 4
+---
+Language:      Cpp
+BasedOnStyle:  GNU
 IndentPPDirectives: AfterHash
-BinPackParameters: false
-AllowAllArgumentsOnNextLine: false
-# AllowAllParametersOfDeclarationOnNextLine: false
-IncludeBlocks: Regroup
-IncludeCategories:
-  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
-    Priority:        2
-    SortPriority:    2
-    CaseSensitive:   true
-  - Regex:           '^((<|")(gtest|gmock|isl|json)/)'
-    Priority:        3
-  - Regex:           '<[[:alnum:].]+>'
-    Priority:        4
-  - Regex:           '.*'
-    Priority:        1
-    SortPriority:    0
+SortIncludes:    false
+SortUsingDeclarations: false
+StatementMacros: ['SET_ENT',
+                 'dwg_get_OBJECT',
+                 'DWG_GETALL_ENTITY',
+                 'DWG_GETALL_OBJECT',
+                 'CAST_DWG_OBJECT_TO_ENTITY',
+                 'CAST_DWG_OBJECT_TO_ENTITY_BYNAME',
+                 'CAST_DWG_OBJECT_TO_OBJECT',
+                 'DISABLE_NODSTYLE',
+                 'ENCODE_CTRL_TO_TABLE',
+                 'DECODER_OR_ENCODER',
+                 'FIELD_TFv',
+                 'PRE',
+                 'LATER_VERSIONS',
+                 'SINCE',
+                 'UNTIL',
+                 'VERSION',
+                 'VERSIONS'
+                 ]
+WhitespaceSensitiveMacros: ['STRINGIZE', 'SZ']
+...
+
