@@ -1,5 +1,5 @@
 /*****************************************************************************/
-/*  MathSE - Open source 2D geometry algorithm library                       */
+/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
 /*                                                                           */
 /*  Copyright (C) 2013-2024 Merlot.Rain                                      */
 /*                                                                           */
@@ -10,13 +10,12 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include <stdbool.h>
 
-#define MATRIX_INIT                                                            \
-    { 1, 0, 0, 1, 0, 0 }
+#define MATRIX_INIT { 1, 0, 0, 1, 0, 0 }
 /* Return matrix m11 element */
 #define MATRIX_M11(m) ((m)->m_m11)
 /* Return matrix m12 element */
@@ -35,7 +34,7 @@
 /* Return matrix scale int y direction */
 #define MATRIX_SCALE_Y(m) ((m)->m_m22)
 /* Return matrix rotate angle */
-#define MATRIX_ROTATE_ANGLE(m) (asin((m)->m_m12))
+#define MATRIX_ROTATE_ANGLE(m) (asin ((m)->m_m12))
 /* Return matrix offset x */
 #define MATRIX_OFFSET_X(m) ((m)->m_dx)
 /* Return matrix offset y */
@@ -50,43 +49,43 @@
  * transformation is nx = m11 * x + m21 * y + dx; ny = m12 * x + m22 * y +
  * dy;
  */
-typedef struct se_matrix {
-    union {
-        float m_m[6];
-        struct {
-            float m_m11, m_m12, m_m21, m_m22, m_dx, m_dy;
-        };
+typedef struct se_matrix
+{
+  union
+  {
+    float m_m[6];
+    struct
+    {
+      float m_m11, m_m12, m_m21, m_m22, m_dx, m_dy;
     };
+  };
 } matrix_t;
 
 /* Matrix left multiplication */
-void matrix_left_multiply(matrix_t *m, const matrix_t *mat);
+void matrix_left_multiply (matrix_t *m, const matrix_t *mat);
 /* Matrix (right) multiplication */
-void matrix_multiply(matrix_t *m, const matrix_t *mat);
+void matrix_multiply (matrix_t *m, const matrix_t *mat);
 /* Matrix translation transformation */
-void matrix_translate(matrix_t *m, const float x, const float y);
+void matrix_translate (matrix_t *m, const float x, const float y);
 /* Matrix scaling transformation */
-void matrix_scale(matrix_t *m, const float x, const float y);
+void matrix_scale (matrix_t *m, const float x, const float y);
 /* Matrix rotation transformation */
-void matrix_rotate(matrix_t *m, const float angle);
+void matrix_rotate (matrix_t *m, const float angle);
 /* Matrix rotation transformation based on a certain center point */
-void matrix_rotate2(matrix_t   *m,
-                    const float angle,
-                    const float x,
-                    const float y);
+void matrix_rotate2 (matrix_t *m, const float angle, const float x,
+                     const float y);
 /* matrix shear transformation */
-void matrix_shear(matrix_t *m, const float x, const float y);
+void matrix_shear (matrix_t *m, const float x, const float y);
 /* Matrix mirror transformation */
-void matrix_mirror(matrix_t *m, const float x, const float y);
+void matrix_mirror (matrix_t *m, const float x, const float y);
 /* Matrix inversion matrix */
-void matrix_invert(matrix_t *m);
+void matrix_invert (matrix_t *m);
 /* Determine whether the matrix can be inverted */
-bool matrix_invertible(const matrix_t *m);
+bool matrix_invertible (const matrix_t *m);
 /* Determine whether the matrix can be an identity matrix */
-bool matrix_identity(const matrix_t *m);
+bool matrix_identity (const matrix_t *m);
 
 /* Transform point coordinates using a matrix */
-void matrix_trans_points(const matrix_t *m, double *points, int count);
-
+void matrix_trans_points (const matrix_t *m, double *points, int count);
 
 #endif

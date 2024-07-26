@@ -91,6 +91,12 @@ set(mathse_HEADERS
 
 set(mathse_SOURCES
     src/io.c
+
+    src/utils/stok.c
+    src/utils/hash.c
+    src/utils/base64.c
+    src/utils/md5.c
+    src/utils/sort.c
 )
 
 
@@ -99,6 +105,18 @@ add_library(${mathse}
     ${mathse_SOURCES}
 )
 
+target_include_directories(${mathse} PRIVATE 
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
 if (BUILD_SHARD_LIBRARY)
   target_compile_definitions(${mathse} PUBLIC DLL_EXPORT;ENABLE_SHARED)
+endif()
+
+
+if(BUILD_TESTS)
+  include(CTest)
+  add_subdirectory(cunit)
+  add_subdirectory(tests)
 endif()

@@ -1,5 +1,5 @@
 /*****************************************************************************/
-/*  MathSE - Open source 2D geometry algorithm library                       */
+/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
 /*                                                                           */
 /*  Copyright (C) 2013-2024 Merlot.Rain                                      */
 /*                                                                           */
@@ -10,10 +10,8 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-
 #ifndef HASH_H
 #define HASH_H
-
 
 #include <stdint.h>
 #include <inttypes.h>

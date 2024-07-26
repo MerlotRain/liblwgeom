@@ -1,5 +1,5 @@
 /*****************************************************************************/
-/*  MathSE - Open source 2D geometry algorithm library                       */
+/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
 /*                                                                           */
 /*  Copyright (C) 2013-2024 Merlot.Rain                                      */
 /*                                                                           */

@@ -1,5 +1,5 @@
 /*****************************************************************************/
-/*  MathSE - Open source 2D geometry algorithm library                       */
+/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
 /*                                                                           */
 /*  Copyright (C) 2013-2024 Merlot.Rain                                      */
 /*                                                                           */
@@ -10,27 +10,26 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-
 #ifndef STOK_H
 #define STOK_H
 
-
-#define STOK_EOF  0 // end of string stream
-#define STOK_EOL  1 // end of line
-#define STOK_NUM  2 // token a number value
+#define STOK_EOF 0  // end of string stream
+#define STOK_EOL 1  // end of line
+#define STOK_NUM 2  // token a number value
 #define STOK_WORD 3 // token a string value
 
-typedef struct _intstok {
-    double ntok;
-    char   stok[255];
-    int    len;
-    int    offset; // current stream offset
-    char  *buf; // string stream current pointer
-    char  *end; // string stream end pointer
-} se_intstok;
+typedef struct _intstok
+{
+  double ntok;
+  char stok[255];
+  int len;
+  char *head; // string stream head pointer
+  char *pos;  // string stream current pointer
+  char *end;  // string stream end pointer
+} stok;
 
-void stok_new(se_intstok *tok, char *t);
-int stok_next(se_intstok *tok);
-int stok_peek_next(se_intstok* tok);
+void stok_init (stok *tok, char *t);
+int next_token (stok *tok);
+int peek_next_token (stok *tok);
 
 #endif

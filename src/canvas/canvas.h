@@ -1,9 +1,6 @@
 #ifndef __MATHSE_CANVAS_H__
 #define __MATHSE_CANVAS_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 
 typedef unsigned int RGB;
@@ -301,9 +298,5 @@ graphics_context_t *create_graphics_context(const int     width,
                                             ContextFormat fmt,
                                             int           flags);
 void                destroy_graphics_context(graphics_context_t *context);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif//__MATHSE_CANVAS_H__
