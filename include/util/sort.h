@@ -13,7 +13,11 @@
 #ifndef SORT_H
 #define SORT_H
 
-#include <stddef.h>
+#ifdef __cpluscplus
+extern "C" {
+#endif
+
+#include "mathse.h"
 
 /**
  * @brief Use quick sort algorithm to implement array sorting function。
@@ -24,7 +28,11 @@
  * @param compare compare function to compare elements
  * @param user_data user data
  */
-void quick_sort (const void *p, size_t ele_count, size_t ele_size,
-                 int (*compare) (const void *, const void *), void *user_data);
+void quick_sort(const void *p, size_t ele_count, size_t ele_size,
+                int (*compare)(const void *, const void *), void *user_data);
+
+#ifdef __cpluscplus
+}
+#endif
 
 #endif

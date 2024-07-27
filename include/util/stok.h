@@ -10,34 +10,35 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#ifndef THREADPOOL_H
-#define THREADPOOL_H
+#ifndef STOK_H
+#define STOK_H
 
-#include <pthread.h>
+#ifdef __cpluscplus
+extern "C" {
+#endif
 
-typedef struct _intthreadpool se_intthreadpool;
+#include "mathse.h"
 
-/* create thread pool
- * min: min thread count
- * max: max thread count
- * queue_size: task queue size
- */
-se_intthreadpool *create_threadpool (int min, int max, int queue_size);
+#define STOK_EOF  0 // end of string stream
+#define STOK_EOL  1 // end of line
+#define STOK_NUM  2 // token a number value
+#define STOK_WORD 3 // token a string value
 
-/* destroy thread pool */
-int destroy_threadpool (se_intthreadpool *pool);
+typedef struct _intstok {
+    double ntok;
+    char stok[255];
+    int len;
+    char *head; // string stream head pointer
+    char *pos;  // string stream current pointer
+    char *end;  // string stream end pointer
+} stok;
 
-/* add task to thread pool */
-void threadpool_add_task (se_intthreadpool *pool, void (*func) (void *),
-                          void *arg);
+void stok_init(stok *tok, char *t);
+int stok_next_token(stok *tok);
+int stok_peek_next_token(stok *tok);
 
-/* exit thread pool */
-void threadpool_exit (se_intthreadpool *pool);
-
-/* get busy count */
-int threadpool_busy_count (se_intthreadpool *pool);
-
-/* get alive count */
-int threadpool_alive_count (se_intthreadpool *pool);
+#ifdef __cpluscplus
+}
+#endif
 
 #endif

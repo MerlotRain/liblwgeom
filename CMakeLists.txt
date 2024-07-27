@@ -8,6 +8,7 @@ else()
     set(mathse mathse)
 endif()
 
+find_package(Threads REQUIRED)
 find_package(Git)
 set(PACKAGE_VERSION "")
 execute_process(COMMAND ${GIT_EXECUTABLE} describe --long --tags --always
@@ -87,32 +88,57 @@ check_symbol_exists("wcsnlen" "wchar.h" HAVE_WCSNLEN)
 
 set(mathse_HEADERS
     include/mathse.h
+
+    include/factory.h
+    include/algorithms.h
+    include/index/rtree.h
+    include/index/btree.h
+
+    include/util/encode.h
+    include/util/hash.h
+    include/util/logging.h
+    include/util/sort.h
+    include/util/stok.h
 )
 
 set(mathse_SOURCES
     src/io.c
 
-    src/utils/stok.c
-    src/utils/hash.c
-    src/utils/base64.c
-    src/utils/md5.c
-    src/utils/sort.c
+    src/index/rtree.c
+    src/index/btree.c
+
+    src/util/stok.c
+    src/util/hash.c
+    src/util/base64.c
+    src/util/md5.c
+    src/util/sort.c
 )
 
-
-add_library(${mathse}
+if(BUILD_SHARD_LIBRARY)
+  add_library(${mathse} SHARED
+      ${mathse_HEADERS}
+      ${mathse_SOURCES}
+  )
+  target_compile_definitions(${mathse} PUBLIC DLL_EXPORT)
+else()
+  add_library(${mathse} STATIC
     ${mathse_HEADERS}
     ${mathse_SOURCES}
-)
+  )
+endif()
 
-target_include_directories(${mathse} PRIVATE 
+target_include_directories(${mathse} PUBLIC 
   ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/index
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/util
   ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-if (BUILD_SHARD_LIBRARY)
-  target_compile_definitions(${mathse} PUBLIC DLL_EXPORT;ENABLE_SHARED)
-endif()
+target_include_directories(${mathse} PRIVATE 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+target_link_libraries(${mathse} PRIVATE Threads::Threads)
+
 
 
 if(BUILD_TESTS)
