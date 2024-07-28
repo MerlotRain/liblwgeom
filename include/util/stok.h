@@ -10,21 +10,35 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#ifndef SORT_H
-#define SORT_H
+#ifndef STOK_H
+#define STOK_H
 
-#include <stddef.h>
+#include <mathse.h>
 
-/**
- * @brief Use quick sort algorithm to implement array sorting function。
- *
- * @param p the array begin pointer
- * @param ele_count number of elements
- * @param ele_size  size of one element
- * @param compare compare function to compare elements
- * @param user_data user data
- */
-void quick_sort (const void *p, size_t ele_count, size_t ele_size,
-                 int (*compare) (const void *, const void *), void *user_data);
+#ifdef __cpluscplus
+extern "C" {
+#endif
+
+#define STOK_EOF  0 // end of string stream
+#define STOK_EOL  1 // end of line
+#define STOK_NUM  2 // token a number value
+#define STOK_WORD 3 // token a string value
+
+typedef struct intstok {
+    double ntok;
+    char stok[255];
+    size_t len;
+    char *head; // string stream head pointer
+    char *pos;  // string stream current pointer
+    char *end;  // string stream end pointer
+} stok;
+
+void stok_init(stok *tok, char *t);
+int stok_next_token(stok *tok);
+int stok_peek_next_token(stok *tok);
+
+#ifdef __cpluscplus
+}
+#endif
 
 #endif

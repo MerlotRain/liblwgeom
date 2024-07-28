@@ -67,7 +67,20 @@
     "string.h": "c",
     "tcmalloc.h": "c",
     "source_location": "c",
-    "geom.h": "c"
+    "geom.h": "c",
+    "mathse.h": "c",
+    "testdb.h": "c",
+    "cunit.h": "c",
+    "stdatomic.h": "c",
+    "vcruntime_c11_stdatomic.h": "c",
+    "atomic": "c",
+    "stdbool.h": "c",
+    "stdlib.h": "c",
+    "stdio.h": "c",
+    "factory.h": "c",
+    "buf.h": "c",
+    "stok.h": "c",
+    "mathsetestutil.h": "c"
   },
   "cmake.configureArgs": [
     "-DBUILD_TESTS=ON",

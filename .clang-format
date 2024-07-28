@@ -1,27 +1,24 @@
 ---
-Language:      Cpp
-BasedOnStyle:  GNU
-IndentPPDirectives: AfterHash
-SortIncludes:    false
-SortUsingDeclarations: false
-StatementMacros: ['SET_ENT',
-                 'dwg_get_OBJECT',
-                 'DWG_GETALL_ENTITY',
-                 'DWG_GETALL_OBJECT',
-                 'CAST_DWG_OBJECT_TO_ENTITY',
-                 'CAST_DWG_OBJECT_TO_ENTITY_BYNAME',
-                 'CAST_DWG_OBJECT_TO_OBJECT',
-                 'DISABLE_NODSTYLE',
-                 'ENCODE_CTRL_TO_TABLE',
-                 'DECODER_OR_ENCODER',
-                 'FIELD_TFv',
-                 'PRE',
-                 'LATER_VERSIONS',
-                 'SINCE',
-                 'UNTIL',
-                 'VERSION',
-                 'VERSIONS'
-                 ]
-WhitespaceSensitiveMacros: ['STRINGIZE', 'SZ']
-...
-
+BasedOnStyle: LLVM
+IndentWidth: 4
+---
+Language: Cpp
+AccessModifierOffset: -4
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+  PadOperators: true
+AlignEscapedNewlines: Left
+AllowShortFunctionsOnASingleLine: InlineOnly
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeBraces: Stroustrup
+ForEachMacros:
+  - DGL_FOREACH_NODE
+  - DGL_FOREACH_EDGE
+  - BOOST_FOREACH
+IfMacros:
+  - SORT_DEBUG
+MacroBlockBegin: GNO_BEGIN
+MacroBlockEnd: GNO_END
+SortIncludes: Never

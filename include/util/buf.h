@@ -10,34 +10,32 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#ifndef THREADPOOL_H
-#define THREADPOOL_H
+#ifndef BUF_H
+#define BUF_H
 
-#include <pthread.h>
+#include <mathse.h>
+#include <sys/types.h>
 
-typedef struct _intthreadpool se_intthreadpool;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/* create thread pool
- * min: min thread count
- * max: max thread count
- * queue_size: task queue size
- */
-se_intthreadpool *create_threadpool (int min, int max, int queue_size);
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
 
-/* destroy thread pool */
-int destroy_threadpool (se_intthreadpool *pool);
+struct buf {
+    char *data;
+    size_t len, cap;
+};
 
-/* add task to thread pool */
-void threadpool_add_task (se_intthreadpool *pool, void (*func) (void *),
-                          void *arg);
+EXTERN bool buf_append(struct buf *buf, const char *data, ssize_t len);
+EXTERN bool buf_append_byte(struct buf *buf, char ch);
+EXTERN void buf_clear(struct buf *buf);
 
-/* exit thread pool */
-void threadpool_exit (se_intthreadpool *pool);
-
-/* get busy count */
-int threadpool_busy_count (se_intthreadpool *pool);
-
-/* get alive count */
-int threadpool_alive_count (se_intthreadpool *pool);
+#ifdef __cplusplus
+}
+#endif
 
 #endif
