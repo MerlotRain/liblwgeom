@@ -13,19 +13,17 @@
 #ifndef ENCODE_H
 #define ENCODE_H
 
+#include <mathse.h>
+
 #ifdef __cpluscplus
 extern "C" {
 #endif
 
-#include <mathse.h>
-
 /// base64
-
 EXTERN char *base64_encode(const unsigned char *data, size_t len);
 EXTERN unsigned char *base64_decode(const char *text, size_t *out_len);
 
 /// md5
-
 struct MD5_CTX {
     unsigned int lo, hi;
     unsigned int a, b, c, d;

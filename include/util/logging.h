@@ -13,25 +13,25 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
+#include <mathse.h>
+
 #ifdef __cpluscplus
 extern "C" {
 #endif
 
-#include <mathse.h>
-
-#define SE_LOGLEVEL_ALL   -99999 // print all log message
-#define SE_LOGLEVEL_NONE  99999  // no log
-#define SE_LOGLEVEL_TRACE 1      // eg for each field value parsed
-#define SE_LOGLEVEL_DEBUG 2      // only debug level
-#define SE_LOGLEVEL_INFO  3      // only general info and object codes/names
-#define SE_LOGLEVEL_WARN  4      // only warning messages
-#define SE_LOGLEVEL_ERROR 5      // only error message
-#define SE_LOGLEVEL_FATAL 6      // fatal error, the programe will abort
+#define MG_LOGLEVEL_ALL   (-99999) // print all log message
+#define MG_LOGLEVEL_NONE  99999    // no log
+#define MG_LOGLEVEL_TRACE 1        // eg for each field value parsed
+#define MG_LOGLEVEL_DEBUG 2        // only debug level
+#define MG_LOGLEVEL_INFO  3        // only general info and object codes/names
+#define MG_LOGLEVEL_WARN  4        // only warning messages
+#define MG_LOGLEVEL_ERROR 5        // only error message
+#define MG_LOGLEVEL_FATAL 6        // fatal error, the programe will abort
 
 #ifdef _DEBUG
-#define SE_LOGLEVEL SE_LOGLEVEL_DEBUG
+#define MG_LOGLEVEL MG_LOGLEVEL_DEBUG
 #else
-#define SE_LOGLEVEL SE_LOGLEVEL_ERROR
+#define MG_LOGLEVEL MG_LOGLEVEL_ERROR
 #endif
 
 #define HANDLER fprintf
@@ -39,14 +39,14 @@ extern "C" {
 
 #define LOG(level, ...)                           \
     {                                             \
-        if (SE_LOGLEVEL_##level >= SE_LOGLEVEL) { \
+        if (MG_LOGLEVEL_##level >= MG_LOGLEVEL) { \
             HANDLER(OUTPUT, __VA_ARGS__);         \
         }                                         \
     }
 
 #define LOG_FATAL(...)                          \
     {                                           \
-        if (SE_LOGLEVEL_FATAL >= SE_LOGLEVEL) { \
+        if (MG_LOGLEVEL_FATAL >= MG_LOGLEVEL) { \
             HANDLER(OUTPUT, "FATAL: ");         \
             LOG(FATAL, __VA_ARGS__)             \
             HANDLER(OUTPUT, "\n");              \
@@ -56,7 +56,7 @@ extern "C" {
 
 #define LOG_ERROR(...)                          \
     {                                           \
-        if (SE_LOGLEVEL_ERROR >= SE_LOGLEVEL) { \
+        if (MG_LOGLEVEL_ERROR >= MG_LOGLEVEL) { \
             HANDLER(OUTPUT, "ERROR: ");         \
             LOG(ERROR, __VA_ARGS__)             \
             HANDLER(OUTPUT, "\n");              \
@@ -66,7 +66,7 @@ extern "C" {
 
 #define LOG_WARN(...)                          \
     {                                          \
-        if (SE_LOGLEVEL_WARN >= SE_LOGLEVEL) { \
+        if (MG_LOGLEVEL_WARN >= MG_LOGLEVEL) { \
             HANDLER(OUTPUT, "WARN: ");         \
             LOG(WARN, __VA_ARGS__)             \
             HANDLER(OUTPUT, "\n");             \

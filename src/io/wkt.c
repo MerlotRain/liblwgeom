@@ -1,4 +1,4 @@
-#include "geom.h"
+#include "mg.h"
 
 #include <string.h>
 #include <locale.h>
@@ -20,7 +20,7 @@ static void wkt_get_coordinates(stok *token, double **coordinates, int *num);
 
 static char *wkt_get_next_empty_or_opener(stok *token);
 
-se_geom *geom_read_wkt(const char *data, int len)
+struct tg_geom *geom_read_wkt(const char *data, int len)
 {
 #ifdef _MSC_VER
     // Avoid multithreading issues caused by setlocale
@@ -142,4 +142,9 @@ char *wkt_get_next_empty_or_opener(stok *token)
         return nextword;
     }
     return "";
+}
+
+int geom_write_wkt(const struct tg_geom *g, char **data, int len)
+{
+    return 0;
 }

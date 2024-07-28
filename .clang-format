@@ -22,9 +22,3 @@ IfMacros:
 MacroBlockBegin: GNO_BEGIN
 MacroBlockEnd: GNO_END
 SortIncludes: Never
----
-Language: ObjC
----
-Language: JavaScript
----
-Language: Json

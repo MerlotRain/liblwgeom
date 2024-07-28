@@ -13,11 +13,11 @@
 #ifndef STOK_H
 #define STOK_H
 
+#include <mathse.h>
+
 #ifdef __cpluscplus
 extern "C" {
 #endif
-
-#include <mathse.h>
 
 #define STOK_EOF  0 // end of string stream
 #define STOK_EOL  1 // end of line

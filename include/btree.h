@@ -12,11 +12,11 @@
 #ifndef BTREE_H
 #define BTREE_H
 
+#include <mathse.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <mathse.h>
 
 struct btree;
 

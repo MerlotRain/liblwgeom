@@ -13,12 +13,12 @@
 #ifndef BUF_H
 #define BUF_H
 
+#include <mathse.h>
+#include <sys/types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <mathse.h>
-#include <sys/types.h>
 
 #if defined(_MSC_VER)
 #include <BaseTsd.h>

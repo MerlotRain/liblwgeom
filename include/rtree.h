@@ -13,11 +13,11 @@
 #ifndef RTREE_H
 #define RTREE_H
 
+#include <mathse.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <mathse.h>
 
 // rtree_new returns a new rtree
 //

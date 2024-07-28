@@ -13,11 +13,11 @@
 #ifndef GEOHASH_H
 #define GEOHASH_H
 
+#include <mathse.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <mathse.h>
 
 /* Direction north */
 #define GEOHASH_DIRECTION_NORTH      0

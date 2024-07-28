@@ -88,15 +88,12 @@ check_symbol_exists("wcsnlen" "wchar.h" HAVE_WCSNLEN)
 
 set(mathse_HEADERS
     include/mathse.h
-    include/factory.h
+    include/geom.h
     include/algorithms.h
 
-    include/index/btree.h
-    include/index/geohash.h
-    include/index/rtree.h
-
-    include/stream/i4.h
-    include/stream/table.h
+    include/btree.h
+    include/geohash.h
+    include/rtree.h
 
     include/util/buf.h
     include/util/encode.h
@@ -107,7 +104,7 @@ set(mathse_HEADERS
 )
 
 set(mathse_SOURCES
-    src/factory.c
+    src/geom.c
 
     src/index/rtree.c
     src/index/geohash.c
@@ -117,7 +114,6 @@ set(mathse_SOURCES
     src/io/ewkt.c
     src/io/geojson.c
     src/io/gml.c
-    src/io/io.c
     src/io/kml.c
     src/io/wkb.c
     src/io/wkt.c
@@ -154,8 +150,6 @@ target_include_directories(${mathse} SYSTEM PUBLIC
 
 target_include_directories(${mathse} PUBLIC 
   ${MATHSE_INCLUDE_DIR}
-  ${MATHSE_INCLUDE_DIR}/index
-  ${MATHSE_INCLUDE_DIR}/stream
   ${MATHSE_INCLUDE_DIR}/util
 )
 

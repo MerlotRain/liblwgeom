@@ -13,11 +13,12 @@
 #ifndef ALGORITHMS_H
 #define ALGORITHMS_H
 
+#include <mathse.h>
+
 #ifdef __cpluscplus
 extern "C" {
 #endif
 
-#include <mathse.h>
 /**
  * Geometric models, supporting common geometric models such as point, path,
  * ring, polyline, polygon, multipoint, etc.
