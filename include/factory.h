@@ -19,10 +19,8 @@ extern "C" {
 
 #include <mathse.h>
 
-/**
- * Geometric models, supporting common geometric models such as point, path,
- * ring, polyline, polygon, multipoint, etc.
- */
+/// @brief Geometric models, supporting common geometric models such as point,
+/// path, ring, polyline, polygon, multipoint, etc.
 typedef struct SEGeom_t se_geom;
 
 #define GEOMETRY_IO_TYPE_WKT     0 /// Well-Known Text
@@ -34,18 +32,27 @@ typedef struct SEGeom_t se_geom;
 #define GEOMETRY_IO_TYPE_GML     6 /// Geography Markup Language
 #define GEOMETRY_IO_TYPE_GML2    7 /// Geography Markup Language 2.0
 
-/**
- * @brief read the geometry from the data
- * @param data the data of the geometry
- * @param len If it is binary data, \a len represents the length of the data.
- * If it is text data, \a len can be 0.
- * @param type type of data
- */
+/// @brief read the geometry from the data
+/// @param data the data of the geometry
+/// @param len If it is binary data, \a len represents the length of the data.
+///        If it is text data, \a len can be 0.
+/// @param type type of data
+/// @return
 EXTERN se_geom *geom_read(const char *data, int len, int type);
 
+/// @brief write the geometry to the data
+/// @param geom the geometry
+/// @param data
+/// @param len
+/// @param type
+/// @param flag
+/// @return
 EXTERN void geom_write(const se_geom *geom, char **data, int *len, int type,
                        int flag);
 
+/// @brief free geometry
+/// @param geom
+/// @return
 EXTERN void geom_free(se_geom *geom);
 
 EXTERN se_geom *geom_create_point(const double *coord, int flag);

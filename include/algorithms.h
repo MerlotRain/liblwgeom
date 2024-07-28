@@ -83,7 +83,7 @@ typedef struct SEGeom_t se_geom;
 #define GEOMETRY_COMBINE_SYM_DIFFERENCE                53
 
 /* Two geometries do not fit this relationship */
-#define GEOMETRY_RELATION_RESULT_UNFIT                 -1
+#define GEOMETRY_RELATION_RESULT_UNFIT                 (-1)
 /* The two geometries do not satisfy this relationship */
 #define GEOMETRY_RELATION_RESULT_FALSE                 0
 /* Two geometries satisfy this relationship */

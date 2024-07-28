@@ -36,73 +36,54 @@ extern "C" {
 /* Direction north east */
 #define GEOHASH_DIRECTION_NORTH_EAST 7
 
-/*
- * Hashing works like this:
- * Divide the world into 4 buckets.  Label each one as such:
- *  -----------------
- *  |       |       |
- *  |       |       |
- *  | 0,1   | 1,1   |
- *  -----------------
- *  |       |       |
- *  |       |       |
- *  | 0,0   | 1,0   |
- *  -----------------
- */
-
 typedef struct geohash_bits {
     uint64_t bits;
     uint8_t step;
-} geohash_bits_t;
+} geohash_bits;
 
 typedef struct geohash_neighbors {
-    geohash_bits_t north;
-    geohash_bits_t east;
-    geohash_bits_t west;
-    geohash_bits_t south;
-    geohash_bits_t south_west;
-    geohash_bits_t south_east;
-    geohash_bits_t north_west;
-    geohash_bits_t north_east;
-} geohash_neighbors_t;
+    geohash_bits north;
+    geohash_bits east;
+    geohash_bits west;
+    geohash_bits south;
+    geohash_bits south_west;
+    geohash_bits south_east;
+    geohash_bits north_west;
+    geohash_bits north_east;
+} geohash_neighbors;
 
 typedef struct geohash_range {
     double max;
     double min;
-} geohash_range_t;
+} geohash_range;
 
-typedef struct se_geohash_area {
-    geohash_bits_t hash;
-    geohash_range_t longitude;
-    geohash_range_t latitude;
-} geohash_area_t;
+typedef struct geohash_area {
+    geohash_bits hash;
+    geohash_range longitude;
+    geohash_range latitude;
+} geohash_area;
 
-EXTERN void get_geohash_range(geohash_range_t *long_range,
-                              geohash_range_t *lat_range);
-EXTERN geohash_bits_t *geohash_encode(const geohash_range_t *long_range,
-                                      const geohash_range_t *lat_range,
-                                      double longitude, double latitude,
-                                      uint8_t step);
-EXTERN geohash_bits_t *geohash_encode_type(double longitude, double latitude,
-                                           uint8_t step);
-EXTERN geohash_bits_t *geohash_encode_WGS84(double longitude, double latitude,
-                                            uint8_t step);
-EXTERN geohash_area_t *geohash_decode(const geohash_range_t long_range,
-                                      const geohash_range_t lat_range,
-                                      const geohash_bits_t hash);
-EXTERN geohash_area_t *geohash_decode_type(const geohash_range_t long_range,
-                                           const geohash_range_t lat_range,
-                                           const geohash_bits_t hash);
-EXTERN geohash_area_t *geohash_decode_WGS84(const geohash_range_t long_range,
-                                            const geohash_range_t lat_range,
-                                            const geohash_bits_t hash);
+EXTERN void get_geohash_range(geohash_range *long_range,
+                              geohash_range *lat_range);
+EXTERN int geohash_encode(const geohash_range *long_range,
+                          const geohash_range *lat_range, double longitude,
+                          double latitude, uint8_t step, geohash_bits *hash);
+EXTERN int geohash_encode_type(double longitude, double latitude, uint8_t step,
+                               geohash_bits *hash);
+EXTERN int geohash_encode_WGS84(double longitude, double latitude, uint8_t step,
+                                geohash_bits *hash);
 
-EXTERN bool geohash_decode_area_longlat(const geohash_area_t *area, double *xy);
-EXTERN bool geohash_decode_longlat_type(const geohash_area_t *area, double *xy);
-EXTERN bool geohash_decode_longlat_WGS84(const geohash_area_t *area,
-                                         double *xy);
+EXTERN int geohash_decode(const geohash_range long_range,
+                          const geohash_range lat_range,
+                          const geohash_bits hash, geohash_area *area);
+EXTERN int geohash_decode_type(const geohash_bits hash, geohash_area *area);
+EXTERN int geohash_decode_WGS84(const geohash_bits hash, geohash_area *area);
+EXTERN int geohash_decode_area_longlat(const geohash_area *area, double *xy);
+EXTERN int geohash_decode_longlat_type(const geohash_bits hash, double *xy);
+EXTERN int geohash_decode_longlat_WGS84(const geohash_bits hash, double *xy);
 
-EXTERN geohash_neighbors_t *geohash_query_neighbors(const geohash_bits_t *hash);
+EXTERN void geohash_query_neighbors(const geohash_bits *hash,
+                                    geohash_neighbors *neighbors);
 
 #ifdef __cplusplus
 }

@@ -70,7 +70,7 @@ static double clamp_load_factor(double factor, double default_factor)
 void hashmap_set_load_factor(struct hashmap *map, double factor)
 {
     factor = clamp_load_factor(factor, map->loadfactor / 100.0);
-    map->loadfactor = factor * 100;
+    map->loadfactor = (uint8_t)(factor * 100.0);
     map->growat = map->nbuckets * (map->loadfactor / 100.0);
 }
 
@@ -139,7 +139,7 @@ hashmap_new(size_t elsize, size_t cap, uint64_t seed0, uint64_t seed1,
     }
     // hashmap + spare + edata
     size_t size = sizeof(struct hashmap) + bucketsz * 2;
-    struct hashmap *map = _malloc(size);
+    struct hashmap *map = (struct hashmap *)malloc(size);
     if (!map) {
         return NULL;
     }
@@ -157,9 +157,9 @@ hashmap_new(size_t elsize, size_t cap, uint64_t seed0, uint64_t seed1,
     map->cap = cap;
     map->nbuckets = cap;
     map->mask = map->nbuckets - 1;
-    map->buckets = _malloc(map->bucketsz * map->nbuckets);
+    map->buckets = malloc(map->bucketsz * map->nbuckets);
     if (!map->buckets) {
-        _free(map);
+        free(map);
         return NULL;
     }
     memset(map->buckets, 0, map->bucketsz * map->nbuckets);
@@ -587,13 +587,13 @@ static uint64_t SIP64(const uint8_t *in, const size_t inlen, uint64_t seed0,
 //-----------------------------------------------------------------------------
 static uint64_t MM86128(const void *key, const int len, uint32_t seed)
 {
-#define ROTL32(x, r) ((x << r) | (x >> (32 - r)))
-#define FMIX32(h)    \
-    h ^= h >> 16;    \
-    h *= 0x85ebca6b; \
-    h ^= h >> 13;    \
-    h *= 0xc2b2ae35; \
-    h ^= h >> 16;
+#define ROTL32(x, r) (((x) << (r)) | ((x) >> (32 - (r))))
+#define FMIX32(h)      \
+    (h) ^= (h) >> 16;  \
+    (h) *= 0x85ebca6b; \
+    (h) ^= (h) >> 13;  \
+    (h) *= 0xc2b2ae35; \
+    (h) ^= (h) >> 16;
     const uint8_t *data = (const uint8_t *)key;
     const int nblocks = len / 16;
     uint32_t h1 = seed;
@@ -862,7 +862,7 @@ uint64_t hashmap_murmur(const void *data, size_t len, uint64_t seed0,
                         uint64_t seed1)
 {
     (void)seed1;
-    return MM86128(data, len, seed0);
+    return MM86128(data, (const int)len, seed0);
 }
 
 uint64_t hashmap_xxhash3(const void *data, size_t len, uint64_t seed0,

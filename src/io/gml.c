@@ -1,6 +1,4 @@
-#include "geom.h."
-
-#include <string>
+#include "geom.h"
 
 se_geom *geom_read_gml(const char *data, int len)
 {

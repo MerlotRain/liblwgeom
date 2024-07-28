@@ -113,7 +113,13 @@ set(mathse_SOURCES
     src/index/geohash.c
     src/index/btree.c
 
+    src/io/ewkb.c
+    src/io/ewkt.c
+    src/io/geojson.c
+    src/io/gml.c
     src/io/io.c
+    src/io/kml.c
+    src/io/wkb.c
     src/io/wkt.c
 
     src/util/buf.c

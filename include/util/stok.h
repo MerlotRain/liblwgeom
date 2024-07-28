@@ -24,10 +24,10 @@ extern "C" {
 #define STOK_NUM  2 // token a number value
 #define STOK_WORD 3 // token a string value
 
-typedef struct _intstok {
+typedef struct intstok {
     double ntok;
     char stok[255];
-    int len;
+    size_t len;
     char *head; // string stream head pointer
     char *pos;  // string stream current pointer
     char *end;  // string stream end pointer

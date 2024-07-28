@@ -78,7 +78,8 @@
     "stdlib.h": "c",
     "stdio.h": "c",
     "factory.h": "c",
-    "buf.h": "c"
+    "buf.h": "c",
+    "stok.h": "c"
   },
   "cmake.configureArgs": [
     "-DBUILD_TESTS=ON",

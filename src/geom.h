@@ -94,7 +94,7 @@ typedef struct geom_circle_t {
     double y2;
     double x3;
     double y3;
-};
+} geom_circle_t;
 
 /* ------------------------------ Geometry Base -----------------------------
  */
