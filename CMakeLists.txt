@@ -95,6 +95,9 @@ set(mathse_HEADERS
     include/index/geohash.h
     include/index/rtree.h
 
+    include/stream/i4.h
+    include/stream/table.h
+
     include/util/buf.h
     include/util/encode.h
     include/util/hash.h
@@ -104,11 +107,14 @@ set(mathse_HEADERS
 )
 
 set(mathse_SOURCES
-    src/io.c
+    src/factory.c
 
     src/index/rtree.c
     src/index/geohash.c
     src/index/btree.c
+
+    src/io/io.c
+    src/io/wkt.c
 
     src/util/buf.c
     src/util/stok.c
@@ -143,6 +149,7 @@ target_include_directories(${mathse} SYSTEM PUBLIC
 target_include_directories(${mathse} PUBLIC 
   ${MATHSE_INCLUDE_DIR}
   ${MATHSE_INCLUDE_DIR}/index
+  ${MATHSE_INCLUDE_DIR}/stream
   ${MATHSE_INCLUDE_DIR}/util
 )
 

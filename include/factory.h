@@ -25,14 +25,14 @@ extern "C" {
  */
 typedef struct SEGeom_t se_geom;
 
-#define GEOMETRY_IO_TYPE_WKT     0
-#define GEOMETRY_IO_TYPE_WKB     1
-#define GEOMETRY_IO_TYPE_GEOJSON 2
-#define GEOMETRY_IO_TYPE_EWKT    3
-#define GEOMETRY_IO_TYPE_EWKB    4
-#define GEOMETRY_IO_TYPE_KML     5
-#define GEOMETRY_IO_TYPE_GML     6
-#define GEOMETRY_IO_TYPE_GML2    7
+#define GEOMETRY_IO_TYPE_WKT     0 /// Well-Known Text
+#define GEOMETRY_IO_TYPE_WKB     1 /// Well-Known Binary
+#define GEOMETRY_IO_TYPE_GEOJSON 2 /// GeoJSON
+#define GEOMETRY_IO_TYPE_EWKT    3 /// Extended Well-Known Text
+#define GEOMETRY_IO_TYPE_EWKB    4 /// Extended Well-Known Binary
+#define GEOMETRY_IO_TYPE_KML     5 /// Keyhole Markup Language
+#define GEOMETRY_IO_TYPE_GML     6 /// Geography Markup Language
+#define GEOMETRY_IO_TYPE_GML2    7 /// Geography Markup Language 2.0
 
 /**
  * @brief read the geometry from the data
@@ -43,10 +43,21 @@ typedef struct SEGeom_t se_geom;
  */
 EXTERN se_geom *geom_read(const char *data, int len, int type);
 
-EXTERN void geome_write(const se_geom *geom, char **data, int *len, int type,
-                        int flag);
+EXTERN void geom_write(const se_geom *geom, char **data, int *len, int type,
+                       int flag);
 
 EXTERN void geom_free(se_geom *geom);
+
+EXTERN se_geom *geom_create_point(const double *coord, int flag);
+
+EXTERN se_geom *geom_create_linestring(const double *coord, int cn, int flag);
+
+EXTERN se_geom *geom_create_linearring(const double *coord, int cn, int flag);
+
+EXTERN se_geom *geom_create_polygon(se_geom *shell, se_geom **holes, int hn,
+                                    int flag);
+
+EXTERN se_geom *geom_createcollection(int t, se_geom **collection, int ng);
 
 #ifdef __cpluscplus
 }
