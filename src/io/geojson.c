@@ -2,8 +2,7 @@
 
 #include <string>
 
-se_geom *
-geom_read_geojson (const char *data, int len)
+se_geom *geom_read_geojson(const char *data, int len)
 {
-  return NULL;
+    return NULL;
 }

@@ -17,10 +17,25 @@
 extern "C" {
 #endif
 
-#include "mathse.h"
+#include <mathse.h>
+
+/// base64
 
 EXTERN char *base64_encode(const unsigned char *data, size_t len);
 EXTERN unsigned char *base64_decode(const char *text, size_t *out_len);
+
+/// md5
+
+struct MD5_CTX {
+    unsigned int lo, hi;
+    unsigned int a, b, c, d;
+    unsigned char buffer[64];
+    unsigned int block[16];
+};
+EXTERN void MD5_init(struct MD5_CTX *ctx);
+EXTERN void MD5_update(struct MD5_CTX *ctx, const void *data,
+                       unsigned long size);
+EXTERN void MD5_final(unsigned char *result, struct MD5_CTX *ctx);
 
 #ifdef __cpluscplus
 }

@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 
-#include "mathse.h"
+#include <mathse.h>
 
 /**
  * Geometric models, supporting common geometric models such as point, path,

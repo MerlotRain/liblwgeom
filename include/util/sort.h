@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 
-#include "mathse.h"
+#include <mathse.h>
 
 /**
  * @brief Use quick sort algorithm to implement array sorting function。

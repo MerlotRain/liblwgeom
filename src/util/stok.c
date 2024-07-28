@@ -18,151 +18,129 @@
 #include <math.h>
 #include <limits.h>
 
-static double
-strtod_with_vc_fix (const char *str, char **str_end)
+static double strtod_with_vc_fix(const char *str, char **str_end)
 {
-  double dbl = strtod (str, str_end);
+    double dbl = strtod(str, str_end);
 #if _MSC_VER && !__INTEL_COMPILER
-  if (*str_end[0] != '\0')
-    {
-      char sign = 0;
-      const char *pos = str;
-      if (*pos == '+' || *pos == '-')
-        {
-          sign = *pos++;
+    if (*str_end[0] != '\0') {
+        char sign = 0;
+        const char *pos = str;
+        if (*pos == '+' || *pos == '-') {
+            sign = *pos++;
         }
 
-      if (stricmp (pos, "inf") == 0)
-        {
-          if (!sign || sign == '+')
-            {
-              dbl = INFINITY;
+        if (stricmp(pos, "inf") == 0) {
+            if (!sign || sign == '+') {
+                dbl = INFINITY;
             }
-          else
-            {
-              dbl = INFINITY;
+            else {
+                dbl = INFINITY;
             }
-          *str_end[0] = '\0';
+            *str_end[0] = '\0';
         }
-      else if (stricmp (pos, "nan") == 0)
-        {
-          dbl = NAN;
-          *str_end[0] = '\0';
+        else if (stricmp(pos, "nan") == 0) {
+            dbl = NAN;
+            *str_end[0] = '\0';
         }
     }
 #endif
-  return dbl;
+    return dbl;
 }
 
-void
-stok_init (stok *tok, char *t)
+void stok_init(stok *tok, char *t)
 {
-  tok->head = t;                    // head of the string
-  tok->pos = t;                     // current position
-  tok->len = strlen (t);            // length of the string
-  tok->end = tok->pos + tok->len;   // end of the string
-  memset (tok->stok, 0, UCHAR_MAX); // current token
-  tok->ntok = 0.;                   // current token as a number
+    tok->head = t;                   // head of the string
+    tok->pos = t;                    // current position
+    tok->len = strlen(t);            // length of the string
+    tok->end = tok->pos + tok->len;  // end of the string
+    memset(tok->stok, 0, UCHAR_MAX); // current token
+    tok->ntok = 0.;                  // current token as a number
 }
 
-int
-stok_next_token (stok *tok)
+int stok_next_token(stok *tok)
 {
-  if (tok->pos == tok->end)
-    return STOK_EOF;
+    if (tok->pos == tok->end)
+        return STOK_EOF;
 
-  switch (*tok->pos)
-    {
+    switch (*tok->pos) {
     case '(':
     case ')':
     case ',':
-      return *tok->pos;
+        return *tok->pos;
     case '\n':
     case '\r':
     case '\t':
     case ' ':
-      int pos = strspn (tok->pos, " \n\r\t");
-      if (pos == strlen (tok->pos))
-        return STOK_EOF;
-      else
-        {
-          tok->pos = tok->head + pos;
-          return stok_next_token (tok);
+        int pos = strspn(tok->pos, " \n\r\t");
+        if (pos == strlen(tok->pos))
+            return STOK_EOF;
+        else {
+            tok->pos = tok->head + pos;
+            return stok_next_token(tok);
         }
     }
 
-  char *brk = strpbrk (tok->pos, "\n\r\t() ,");
-  if (brk == tok->end)
-    {
-      if (tok->pos != tok->end)
-        {
-          memcpy (tok->stok, tok->pos, strlen (tok->pos));
-          tok->pos = tok->end;
+    char *brk = strpbrk(tok->pos, "\n\r\t() ,");
+    if (brk == tok->end) {
+        if (tok->pos != tok->end) {
+            memcpy(tok->stok, tok->pos, strlen(tok->pos));
+            tok->pos = tok->end;
         }
-      else
-        {
-          return STOK_EOF;
+        else {
+            return STOK_EOF;
         }
     }
-  else
-    {
-      memcpy (tok->stok, tok->pos, brk - tok->pos);
-      tok->pos = brk;
+    else {
+        memcpy(tok->stok, tok->pos, brk - tok->pos);
+        tok->pos = brk;
     }
 
-  char *stopstring;
-  double dbl = strtod_with_vc_fix (tok->stok, &stopstring);
-  if (*stopstring == '\0')
-    {
-      tok->ntok = dbl;
-      memset (tok->stok, 0, UCHAR_MAX);
-      return STOK_NUM;
+    char *stopstring;
+    double dbl = strtod_with_vc_fix(tok->stok, &stopstring);
+    if (*stopstring == '\0') {
+        tok->ntok = dbl;
+        memset(tok->stok, 0, UCHAR_MAX);
+        return STOK_NUM;
     }
-  else
-    {
-      return STOK_WORD;
+    else {
+        return STOK_WORD;
     }
 }
 
-int
-stok_peek_next_token (stok *tok)
+int stok_peek_next_token(stok *tok)
 {
-  if (tok->pos == '\0')
-    return STOK_EOF;
-
-  int pos = strspn (tok->pos, " \n\r\t");
-  if (pos == 0)
-    return STOK_EOF;
-
-  switch (tok->pos[pos])
-  case '(':
-  case ')':
-  case ',':
-    return tok->pos[pos];
-
-  pos = strpbrk (tok->pos++, "\n\r\t() ,");
-  if (pos == 0)
-    {
-      if (tok->pos != tok->end)
-        memcpy (tok->stok, tok->pos, strlen (tok->pos));
-      else
+    if (tok->pos == '\0')
         return STOK_EOF;
+
+    int pos = strspn(tok->pos, " \n\r\t");
+    if (pos == 0)
+        return STOK_EOF;
+
+    switch (tok->pos[pos])
+    case '(':
+    case ')':
+    case ',':
+        return tok->pos[pos];
+
+    pos = strpbrk(tok->pos++, "\n\r\t() ,");
+    if (pos == 0) {
+        if (tok->pos != tok->end)
+            memcpy(tok->stok, tok->pos, strlen(tok->pos));
+        else
+            return STOK_EOF;
     }
-  else
-    {
-      memcpy (tok->stok, tok->pos, 0);
+    else {
+        memcpy(tok->stok, tok->pos, 0);
     }
 
-  char *stopstring;
-  double dbl = strtod_with_vc_fix (tok->stok, &stopstring);
-  if (*stopstring == '\0')
-    {
-      tok->ntok = dbl;
-      memset (tok->stok, 0, UCHAR_MAX);
-      return STOK_NUM;
+    char *stopstring;
+    double dbl = strtod_with_vc_fix(tok->stok, &stopstring);
+    if (*stopstring == '\0') {
+        tok->ntok = dbl;
+        memset(tok->stok, 0, UCHAR_MAX);
+        return STOK_NUM;
     }
-  else
-    {
-      return STOK_WORD;
+    else {
+        return STOK_WORD;
     }
 }

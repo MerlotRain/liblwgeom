@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 
-#include "mathse.h"
+#include <mathse.h>
 
 #define SE_LOGLEVEL_ALL   -99999 // print all log message
 #define SE_LOGLEVEL_NONE  99999  // no log

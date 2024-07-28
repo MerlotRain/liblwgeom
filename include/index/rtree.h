@@ -17,18 +17,12 @@
 extern "C" {
 #endif
 
-#include "mathse.h"
+#include <mathse.h>
 
 // rtree_new returns a new rtree
 //
 // Returns NULL if the system is out of memory.
 EXTERN struct rtree *rtree_new(void);
-
-// rtree_new returns a new rtree using a custom allocator
-//
-// Returns NULL if the system is out of memory.
-EXTERN struct rtree *rtree_new_with_allocator(void *(*malloc)(size_t),
-                                              void (*free)(void *));
 
 // rtree_free frees an rtree
 EXTERN void rtree_free(struct rtree *tr);

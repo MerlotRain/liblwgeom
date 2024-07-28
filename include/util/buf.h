@@ -10,34 +10,31 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#ifndef STOK_H
-#define STOK_H
+#ifndef BUF_H
+#define BUF_H
 
-#ifdef __cpluscplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <mathse.h>
+#include <sys/types.h>
 
-#define STOK_EOF  0 // end of string stream
-#define STOK_EOL  1 // end of line
-#define STOK_NUM  2 // token a number value
-#define STOK_WORD 3 // token a string value
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
 
-typedef struct _intstok {
-    double ntok;
-    char stok[255];
-    int len;
-    char *head; // string stream head pointer
-    char *pos;  // string stream current pointer
-    char *end;  // string stream end pointer
-} stok;
+struct buf {
+    char *data;
+    size_t len, cap;
+};
 
-void stok_init(stok *tok, char *t);
-int stok_next_token(stok *tok);
-int stok_peek_next_token(stok *tok);
+EXTERN bool buf_append(struct buf *buf, const char *data, ssize_t len);
+EXTERN bool buf_append_byte(struct buf *buf, char ch);
+EXTERN void buf_clear(struct buf *buf);
 
-#ifdef __cpluscplus
+#ifdef __cplusplus
 }
 #endif
 

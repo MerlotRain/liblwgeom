@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 
-#include "mathse.h"
+#include <mathse.h>
 
 struct btree;
 
@@ -36,14 +36,6 @@ EXTERN struct btree *btree_new(size_t elsize, size_t max_items,
                                int (*compare)(const void *a, const void *b,
                                               void *udata),
                                void *udata);
-
-// btree_new_with_allocator returns a new btree using a custom allocator.
-//
-// See btree_new for more information
-EXTERN struct btree *btree_new_with_allocator(
-    void *(*malloc)(size_t), void *(*realloc)(void *, size_t),
-    void (*free)(void *), size_t elsize, size_t max_items,
-    int (*compare)(const void *a, const void *b, void *udata), void *udata);
 
 // btree_set_item_callbacks sets the item clone and free callbacks that will be
 // called internally by the btree when items are inserted and removed.
@@ -208,9 +200,6 @@ EXTERN bool btree_iter_next(struct btree_iter *iter);
 EXTERN bool btree_iter_prev(struct btree_iter *iter);
 EXTERN bool btree_iter_seek(struct btree_iter *iter, const void *key);
 EXTERN const void *btree_iter_item(struct btree_iter *iter);
-
-// DEPRECATED: use `btree_new_with_allocator`
-EXTERN void btree_set_allocator(void *(malloc)(size_t), void (*free)(void *));
 
 #ifdef __cplusplus
 }

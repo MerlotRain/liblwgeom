@@ -8,7 +8,7 @@ else()
     set(mathse mathse)
 endif()
 
-find_package(Threads REQUIRED)
+find_package(PNG REQUIRED)
 find_package(Git)
 set(PACKAGE_VERSION "")
 execute_process(COMMAND ${GIT_EXECUTABLE} describe --long --tags --always
@@ -19,7 +19,7 @@ option(BUILD_SHARD_LIBRARY "build shared libmathse library" ON)
 option(BUILD_TESTS "build libmathse tests" OFF)
 option(BUILD_PROGRAMS "build program tools" OFF)
 
-option(MATHSE_DISABLE_LIBPNG_CANVAS "on libmathse libpng16 support" OFF)
+option(MATHSE_DISABLE_LIBPNG_CANVAS "on libmathse libpng support" OFF)
 option(MATHSE_DISABLE_QT_CANVAS "on libmathse qt canvas support" OFF)
 
 
@@ -88,12 +88,14 @@ check_symbol_exists("wcsnlen" "wchar.h" HAVE_WCSNLEN)
 
 set(mathse_HEADERS
     include/mathse.h
-
     include/factory.h
     include/algorithms.h
-    include/index/rtree.h
-    include/index/btree.h
 
+    include/index/btree.h
+    include/index/geohash.h
+    include/index/rtree.h
+
+    include/util/buf.h
     include/util/encode.h
     include/util/hash.h
     include/util/logging.h
@@ -105,14 +107,21 @@ set(mathse_SOURCES
     src/io.c
 
     src/index/rtree.c
+    src/index/geohash.c
     src/index/btree.c
 
+    src/util/buf.c
     src/util/stok.c
     src/util/hash.c
     src/util/base64.c
     src/util/md5.c
     src/util/sort.c
 )
+
+set(MATHSE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+
+find_package(PNG REQUIRED)
 
 if(BUILD_SHARD_LIBRARY)
   add_library(${mathse} SHARED
@@ -127,18 +136,21 @@ else()
   )
 endif()
 
+target_include_directories(${mathse} SYSTEM PUBLIC
+  ${PNG_INCLUDE_DIRS}
+)
+
 target_include_directories(${mathse} PUBLIC 
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/index
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/util
-  ${CMAKE_CURRENT_SOURCE_DIR}/src
+  ${MATHSE_INCLUDE_DIR}
+  ${MATHSE_INCLUDE_DIR}/index
+  ${MATHSE_INCLUDE_DIR}/util
 )
 
 target_include_directories(${mathse} PRIVATE 
   ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_libraries(${mathse} PRIVATE Threads::Threads)
 
+target_link_libraries(${mathse} PNG::PNG)
 
 
 if(BUILD_TESTS)

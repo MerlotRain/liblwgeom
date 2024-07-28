@@ -14,17 +14,6 @@
 #include <string.h>
 #include "btree.h"
 
-static void *(*_btree_malloc)(size_t) = NULL;
-static void (*_btree_free)(void *) = NULL;
-
-// DEPRECATED: use `btree_new_with_allocator`
-
-void btree_set_allocator(void *(malloc)(size_t), void (*free)(void *))
-{
-    _btree_malloc = malloc;
-    _btree_free = free;
-}
-
 enum btree_delact {
     BTREE_DELKEY,
     BTREE_POPFRONT,
@@ -67,9 +56,6 @@ struct btree_node {
 };
 
 struct btree {
-    void *(*malloc)(size_t);
-    void *(*realloc)(void *, size_t);
-    void (*free)(void *);
     int (*compare)(const void *a, const void *b, void *udata);
     int (*searcher)(const void *items, size_t nitems, const void *key,
                     bool *found, void *udata);
@@ -278,19 +264,15 @@ static size_t btree_memsize(size_t elsize, size_t *spare_elsize)
     return size;
 }
 
-struct btree *btree_new_with_allocator(
-    void *(*malloc_)(size_t), void *(*realloc_)(void *, size_t),
-    void (*free_)(void *), size_t elsize, size_t max_items,
-    int (*compare)(const void *a, const void *b, void *udata), void *udata)
+struct btree *btree_new(size_t elsize, size_t max_items,
+                        int (*compare)(const void *a, const void *b,
+                                       void *udata),
+                        void *udata)
 {
-    (void)realloc_; // realloc not used
-    malloc_ = malloc_ ? malloc_ : _btree_malloc ? _btree_malloc : malloc;
-    free_ = free_ ? free_ : _btree_free ? _btree_free : free;
-
     // normalize max_items
     size_t spare_elsize;
     size_t size = btree_memsize(elsize, &spare_elsize);
-    struct btree *btree = malloc_(size);
+    struct btree *btree = malloc(size);
     if (!btree) {
         return NULL;
     }
@@ -306,19 +288,8 @@ struct btree *btree_new_with_allocator(
     btree->compare = compare;
     btree->elsize = elsize;
     btree->udata = udata;
-    btree->malloc = malloc_;
-    btree->free = free_;
     btree->spare_elsize = spare_elsize;
     return btree;
-}
-
-struct btree *btree_new(size_t elsize, size_t max_items,
-                        int (*compare)(const void *a, const void *b,
-                                       void *udata),
-                        void *udata)
-{
-    return btree_new_with_allocator(NULL, NULL, NULL, elsize, max_items,
-                                    compare, udata);
 }
 
 static size_t btree_node_size(struct btree *btree, bool leaf,
@@ -340,7 +311,7 @@ static struct btree_node *btree_node_new(struct btree *btree, bool leaf)
 {
     size_t items_offset;
     size_t size = btree_node_size(btree, leaf, &items_offset);
-    struct btree_node *node = btree->malloc(size);
+    struct btree_node *node = (struct btree_node *)malloc(size);
     if (!node) {
         return NULL;
     }
@@ -366,7 +337,7 @@ static void btree_node_free(struct btree *btree, struct btree_node *node)
             btree->item_free(item, btree->udata);
         }
     }
-    btree->free(node);
+    free(node);
 }
 
 static struct btree_node *btree_node_copy(struct btree *btree,
@@ -413,7 +384,7 @@ failed:
             btree->item_free(item, btree->udata);
         }
     }
-    btree->free(node2);
+    free(node2);
     return NULL;
 }
 
@@ -443,7 +414,7 @@ void btree_clear(struct btree *btree)
 void btree_free(struct btree *btree)
 {
     btree_clear(btree);
-    btree->free(btree);
+    free(btree);
 }
 
 void btree_set_item_callbacks(struct btree *btree,
@@ -461,7 +432,7 @@ struct btree *btree_clone(struct btree *btree)
         return NULL;
     }
     size_t size = btree_memsize(btree->elsize, NULL);
-    struct btree *btree2 = btree->malloc(size);
+    struct btree *btree2 = (struct btree *)malloc(size);
     if (!btree2) {
         return NULL;
     }
@@ -608,7 +579,7 @@ set:
     void *median = NULL;
     btree_node_split(btree, old_root, &right, &median);
     if (!right) {
-        btree->free(new_root);
+        free(new_root);
         goto oom;
     }
     btree->root = new_root;
@@ -673,7 +644,7 @@ static void btree_node_rebalance(struct btree *btree, struct btree_node *node,
         btree_copy_item(btree, left, left->nitems, node, i);
         left->nitems++;
         btree_node_join(btree, left, right);
-        btree->free(right);
+        free(right);
         btree_node_shift_left(btree, node, i, true);
     }
     else if (left->nitems > right->nitems) {
@@ -820,7 +791,7 @@ static void *btree_delete0(struct btree *btree, enum btree_delact act,
         else {
             btree->root = NULL;
         }
-        btree->free(old_root);
+        free(old_root);
         btree->height--;
     }
     btree->count--;
@@ -1198,7 +1169,8 @@ struct btree_iter *btree_iter_new(const struct btree *btree)
     size_t vsize =
         btree_align_size(sizeof(struct btree_iter) +
                          sizeof(struct btree_iter_stack_item) * btree->height);
-    struct btree_iter *iter = btree->malloc(vsize + btree->elsize);
+    struct btree_iter *iter =
+        (struct btree_iter *)malloc(vsize + btree->elsize);
     if (iter) {
         memset(iter, 0, vsize + btree->elsize);
         iter->btree = (void *)btree;
@@ -1209,7 +1181,7 @@ struct btree_iter *btree_iter_new(const struct btree *btree)
 
 void btree_iter_free(struct btree_iter *iter)
 {
-    iter->btree->free(iter);
+    free(iter);
 }
 
 bool btree_iter_first(struct btree_iter *iter)
