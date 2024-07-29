@@ -13,7 +13,7 @@
 #ifndef MG_H
 #define MG_H
 
-#include "geom.h"
+#include "mg.h"
 
 #ifdef __cplusplus
 extern "C" {

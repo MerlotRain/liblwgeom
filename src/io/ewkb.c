@@ -1,4 +1,4 @@
-#include "mg.h"
+#include "mgp.h"
 
 struct tg_geom *geom_read_ewkb(const char *data, int len)
 {
