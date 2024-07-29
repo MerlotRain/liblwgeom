@@ -1,4 +1,4 @@
-#include "mg.h"
+#include "mgp.h"
 
 #include <string.h>
 #include <locale.h>

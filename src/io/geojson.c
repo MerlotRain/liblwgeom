@@ -1,4 +1,4 @@
-#include "mg.h"
+#include "mgp.h"
 
 struct tg_geom *geom_read_geojson(const char *data, int len)
 {
