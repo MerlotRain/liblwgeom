@@ -10,12 +10,10 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mg.h"
+#include "mgp.h"
 
-double geom_tolerance(double tol)
+/// calc geometry area
+double geom_prop_area_value(const mg_geom* geom)
 {
-    static double g_tolerance = 0.0001;
-    double tmp = g_tolerance;
-    g_tolerance = tol;
-    return tmp;
+    return false;
 }

@@ -25,6 +25,29 @@ struct mg_point {
     double y;
 };
 
+/// point angle with mg_point(0, 0)
+EXTERN double mg_angle(const struct mg_point p0);
+
+/// Returns the angle of the vector from p0 to p1, relative to the positive X-axis.
+EXTERN double mg_angle2(const struct mg_point p0, const struct mg_point p1);
+
+/// Tests whether the angle between p0-p1-p2 is acute.
+EXTERN bool mg_acute(const struct mg_point p0, const struct mg_point p1,
+    const struct mg_point p2);
+
+/// Tests whether the angle between p0-p1-p2 is obtuse.
+EXTERN bool mg_obtuse(const struct mg_point p0, const struct mg_point p1,
+    const struct mg_point p2);
+
+/// Returns the unoriented smallest angle between two vectors.
+EXTERN double mg_angle_between(const struct mg_point tip1, const struct mg_point tail,
+    const struct mg_point tip2);
+
+/// Computes the interior angle between two segments of a ring.
+EXTERN bool mg_interior_angle(const struct mg_point p0, const struct mg_point p1,
+    const struct mg_point p2);
+
+
 /// A rectangle defined by a minimum and maximum coordinates.
 struct mg_envelope {
     struct mg_point min;
@@ -52,7 +75,6 @@ enum geom_type {
 #define MG_COORDINATE_FLAG_XY   1 << 0 ///< base coordinate flag
 #define MG_COORDINATE_FLAG_Z    1 << 1 ///< coordinate ptr order by x, y, z
 #define MG_COORDINATE_FLAG_M    1 << 2 ///< coordinate ptr order by x, y, m
-#define MG_COORDINATE_FLAG_REF  1 << 3 ///< use input memory reference, else will alloc new memory block
 
 /// @brief create point geometry
 /// @param flag Extract and combine values from MG-COORDINATe_LAG series macros
@@ -108,7 +130,6 @@ EXTERN int geom_write_ewkb(const struct mg_geom *g, char **data, int len);
 EXTERN int geom_write_kml(const struct mg_geom *g, char **data, int len);
 EXTERN int geom_write_gml(const struct mg_geom *g, char **data, int len);
 EXTERN int geom_write_gml2(const struct mg_geom *g, char **data, int len);
-
 
 
 /* Calculate the length of a geometry */
@@ -215,11 +236,11 @@ EXTERN int geom_write_gml2(const struct mg_geom *g, char **data, int len);
 
 EXTERN double geom_tolerance(double tol);
 
-EXTERN double geom_prop_value(const se_geom *geom, int mode);
+EXTERN double geom_prop_value(const mg_geom *geom, int mode);
 
-EXTERN se_geom *geom_prop_geo(const se_geom *geom, int mode);
+EXTERN mg_geom *geom_prop_geo(const mg_geom *geom, int mode);
 
-EXTERN void geom_prop_geo2(const se_geom *geom, int mode, double *paras);
+EXTERN void geom_prop_geo2(const mg_geom *geom, int mode, double *paras);
 
 #ifdef __cplusplus
 }

@@ -19,53 +19,55 @@
 extern "C" {
 #endif
 
-struct tg_line {
-    int _; // unused
-    bool closed;
+union mg_upoint {
+    struct {            
+        double x;
+        double y;
+        double z;
+        double m;
+    };
+    struct mg_point pt;
+    double extend[2];
+};
+
+struct mg_path {
     bool clockwise;
     int npoints;
-    int nsegs;
-    struct tg_envelope rect;
-    struct tg_point points[];
+    struct mg_envelope rect;
+    union mg_upoint points[];
 };
 
-struct tg_ring {
-    int _; // unused
+struct mg_ring {
+    bool clockwise;
+    int npoints;
+    struct mg_envelope rect;
+    union mg_upoint points[];
 };
 
-struct tg_polygon {
-    struct tg_ring *exterior;
+struct mg_polygon {
+    struct mg_envelope rect;
+    struct mg_ring *exterior;
     int nholes;
-    struct tg_ring **holes;
+    struct mg_ring **holes;
 };
 
-struct tg_multi {
-    struct tg_geom **geoms;
+struct mg_multi {
+    struct mg_geom **geoms;
     int ngeoms;
-    struct tg_envelope rect; // unioned rect child geometries
-    struct index *index;     // geometry index, or NULL if not indexed
-    int *ixgeoms;            // indexed geometries, or NULL if not indexed
+    struct mg_envelope rect; // unioned rect child geometries
 };
 
-struct tg_geom {
-    int type;
+struct mg_geom {
+    int geomt;
     int flags;
     union {
-        struct tg_point point;
-        struct tg_line *line;
-        struct tg_polygon *polygon;
-        struct tg_multi *multi;
+        union mg_upoint point;
+        struct mg_path *path;
+        struct mg_polygon *polygon;
+        struct mg_multi *multi;
     };
-    union {
-        struct { // TG_POINT
-            double z;
-            double m;
-        };
-        struct {            // !TG_POINT
-            double *coords; // extra dimensinal coordinates
-            int ncoords;
-        };
-    };
+    double z;
+    double m;
 };
 
 #ifdef __cplusplus

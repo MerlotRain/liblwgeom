@@ -1,183 +1,191 @@
 #include "mg.h"
 #include "geom.h"
 
-struct tg_geom *geom_new_point(const struct tg_point p)
+static struct mg_path *p_geom_create_path(int flag, const double* pp, int np)
 {
-    return NULL;
+    struct mg_path* path = (struct mg_path *)malloc(sizeof(struct mg_path) 
+        + sizeof(struct mg_upoint) * np);
+    if(path == NULL)
+    {
+        free(path);
+        return NULL;
+    }
+    path->npoints = np;
+
+    // create mg_upoint
+    {
+        double min_x = pp[0];
+        double min_y = pp[1];
+        double max_x = pp[0];
+        double max_y = pp[1];
+        int step = 2;
+        step += (flag & MG_COORDINATE_FLAG_Z) : 1 ? 0;
+        step += (flag & MG_COORDINATE_FLAG_M) : 1 ? 0;
+        for(int i = 0; i < np; ++i)
+        {            
+            if (pp[i * step] < min_x) 
+                min_x = pp[i * step];  
+            if (pp[i * step] > max_x) 
+                max_x = pp[i * step];  
+            if (pp[i * step + 1] < min_y) 
+                min_y = pp[i * step + 1];  
+            if (pp[i * step + 1] > max_y) 
+                max_y = pp[i * step + 1];
+
+            path->points[i].x = pp[i * step];
+            path->points[i].y = pp[i * step + 1];
+            if (flag & MG_COORDINATE_FLAG_Z) {
+                path->points[i].z = pp[i * step + 2];
+                if (flag & MG_COORDINATE_FLAG_M) {
+                    path->points[i].z = pp[i * step + 3];
+                }
+            } 
+            else if (flag & MG_COORDINATE_FLAG_M) {
+                path->points[i].m = pp[i * step + 2];
+            }            
+        }
+    }
+    return path;
 }
 
-struct tg_geom *geom_new_point_z(const struct tg_point p, double z)
+static bool p_check_ring_close(struct mg_ring* r)
 {
-    return NULL;
+    assert(r);
+    union mg_upoint pt0 = r->points[0];
+    union mg_upoint ptn = r->points[r->npoints - 1];
+    if(DBL_NEAR(pt0.x, ptn.x) && DBL_NEAR(pt0.y, ptn.y))
+    {
+        return true;
+    }
+    return false;
 }
 
-struct tg_geom *geom_new_point_m(const struct tg_point p, double m)
+
+struct mg_geom *geom_new_point(int flag, const double*pp)
 {
-    return NULL;
+    assert(pp);
+    struct mg_geom *g = (struct mg_geom *)malloc(sizeof(struct mg_geom));
+    if (g == NULL)
+        return NULL;
+    memset(g, 0, sizeof(struct mg_geom));
+    struct mg_point p = {.x = pp[0], .y = pp[1]};
+    g->point.pt          = p;
+    if (flag & MG_COORDINATE_FLAG_Z) {
+        g->point.z = pp[2];
+        if (flag & MG_COORDINATE_FLAG_M) {
+            g->point.m = pp[3];
+        }
+    } 
+    else if (flag & MG_COORDINATE_FLAG_M) {
+        g->point.m = pp[2];
+    }
+
+    g->flag = flag;
+    g->geomt = MG_POINT;
+    return g;
 }
 
-struct tg_geom *geom_new_point_zm(const struct tg_point p, const double *zm)
+struct mg_geom *geom_new_path(int flag, const double* pp, int np)
 {
-    return NULL;
+    assert(pp);
+    struct mg_geom *g = (struct mg_geom *)malloc(sizeof(struct mg_geom));
+    if(g == NULL)
+        return NULL;
+    memset(g, 0, sizeof(struct mg_geom));
+    struct mg_path* path = p_geom_create_path(int flag, const double* pp, int np);
+    if(path == NULL)
+    {
+        free(g);
+        return NULL;
+    }
+    g->path = path;
+    g->flag = flag;
+    g->geomt = MG_PATH;
+    return p;
 }
 
-struct tg_geom *geom_new_point_empty()
+struct mg_geom *geom_new_ring(int flag, const double* rp, int np)
 {
-    return NULL;
+    assert(pp);
+    struct mg_geom *g = (struct mg_geom *)malloc(sizeof(struct mg_geom));
+    if(g == NULL)
+        return NULL;
+    memset(g, 0, sizeof(struct mg_geom));
+    struct mg_path* ring = p_geom_create_path(flag, rp, np)
+    if(ring == NULL)
+    {
+        free(g);
+        return NULL;
+    }
+    g->path = ring;
+    g->flag = flag;
+    g->geomt = MG_RING;
+    return p;
 }
 
-struct tg_geom *geom_new_path(const struct tg_path *path)
+struct mg_geom *geom_new_polygon(int flag, const double* sp, int spn, const double** hpp, 
+    int* hpn, int hppn)
 {
-    return NULL;
+    assert(sp);
+    struct mg_geom *g = (struct mg_geom *)malloc(sizeof(struct mg_geom));
+    if(g == NULL)
+        return NULL;
+    
+    struct mg_polygon* polygon = (struct mg_polygon*)malloc(sizeof(struct mg_polygon));
+    if(polygon == NULL)
+    {
+        free(g);
+        return NULL;
+    }
+    polygon->holes = (struct mg_ring**)malloc(sizeof(struct mg_ring*) * hppn);        
+    struct mg_ring* shell = (struct mg_ring *)p_geom_create_path(flag, sp, spn);
+    if(shell == NULL)
+    {
+        free(g);
+        return NULL;
+    }
+
+    polygon->exterior = shell;
+    polygon->nholes = hppn;
+    for(int i = 0; i < hppn; ++i)
+    {
+        struct mg_ring *hole = (struct mg_ring *)p_geom_create_path(flag, hpp[i], hpn[i]);
+        if(mg_ring)
+        {
+            polygon->holes[i] = hole;
+        }
+    }
+
+    return polygon;
 }
 
-struct tg_geom *geom_new_path_z(const struct tg_path *path,
-                                const double *extra_coords, int ncoords)
+struct mg_geom *geom_new_multigeom(int gt, const struct mg_geom **geoms, int ng)
 {
-    return NULL;
+    struct mg_geom *g = (struct mg_geom*)malloc(sizeof(struct mg_geom));
+    if(g == NULL)
+    {
+        return NULL;
+    }
+    if(gt == MG_POINT || gt == MG_MULTIPOINT)
+        g->geomt = MG_MULTIPOINT;
+    else if(gt == MG_PATH || gt == MG_MULTILINESTRING)
+        g->geomt = MG_MULTILINESTRING;
+    else if(gt == MG_POLYGON || gt == MG_MULTIPOLYGON)
+        g->geomt = MG_MULTIPOLYGON;
+    else
+    {
+        free(g);
+        return NULL;
+    }
+    g->geoms = geoms;
+    g->ngeoms = ng;
+
+    // calc rect
+    // flag?
+    return g;
 }
 
-struct tg_geom *geom_new_path_m(const struct tg_path *path,
-                                const double *extra_coords, int ncoords)
+void geom_free(struct mg_geom *geom)
 {
-    return NULL;
-}
-
-struct tg_geom *geom_new_path_zm(const struct tg_path *path,
-                                 const double *extra_coords, int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_path_empty()
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_polygon(const struct tg_polygon *poly)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_polygon_z(const struct tg_polygon *poly,
-                                   const double *extra_coords, int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_polygon_m(const struct tg_polygon *poly,
-                                   const double *extra_coords, int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_polygon_zm(const struct tg_polygon *poly,
-                                    const double *extra_coords, int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_polygon_empty()
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpoint(const struct tg_point *points, int npoints)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpoint_z(const struct tg_point *points, int npoints,
-                                  const double *extra_coords, int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpoint_m(const struct tg_point *points, int npoints,
-                                  const double *extra_coords, int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpoint_zm(const struct tg_point *points, int npoints,
-                                   const double *extra_coords, int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpoint_empty()
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpath(const struct tg_path **paths, int nlines)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpath_z(const struct tg_path **paths, int nlines,
-                                 const double *extra_coords, int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpath_m(const struct tg_path **paths, int nlines,
-                                 const double *extra_coords, int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpath_zm(const struct tg_path **paths, int nlines,
-                                  const double *extra_coords, int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpath_empty()
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpolygon(const struct tg_polygon **polys, int npolys)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpolygon_z(const struct tg_polygon **polys, int npolys,
-                                    const double *extra_coords, int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpolygon_m(const struct tg_polygon **polys, int npolys,
-                                    const double *extra_coords, int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpolygon_zm(const struct tg_polygon **polys,
-                                     int npolys, const double *extra_coords,
-                                     int ncoords)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_mpolygon_empty()
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_geometrycollection(const struct tg_geom *const geoms[],
-                                            int ngeoms)
-{
-    return NULL;
-}
-
-struct tg_geom *geom_new_geometrycollection_empty()
-{
-    return NULL;
-}
-
-void tg_geom_free(struct tg_geom *geom)
-{
+    
 }
