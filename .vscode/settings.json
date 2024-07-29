@@ -80,7 +80,8 @@
     "factory.h": "c",
     "buf.h": "c",
     "stok.h": "c",
-    "mathsetestutil.h": "c"
+    "mathsetestutil.h": "c",
+    "mg.h": "c"
   },
   "cmake.configureArgs": [
     "-DBUILD_TESTS=ON",

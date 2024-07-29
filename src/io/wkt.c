@@ -18,7 +18,7 @@ static void p_wkt_get_coordinates(stok *token, double **coordinates, int *num);
 
 static char *p_wkt_get_next_empty_or_opener(stok *token);
 
-struct tg_geom *geom_read_wkt(const char *data, int len)
+struct mg_geom *geom_read_wkt(const char *data, int len)
 {
 #ifdef _MSC_VER
     // Avoid multithreading issues caused by setlocale
@@ -142,7 +142,7 @@ char *p_wkt_get_next_empty_or_opener(stok *token)
     return "";
 }
 
-int geom_write_wkt(const struct tg_geom *g, char **data, int len)
+int geom_write_wkt(const struct mg_geom *g, char **data, int len)
 {
     return 0;
 }

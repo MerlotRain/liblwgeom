@@ -10,8 +10,8 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#ifndef MG_H
-#define MG_H
+#ifndef MGP_H
+#define MGP_H
 
 #include "mg.h"
 
