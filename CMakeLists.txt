@@ -103,6 +103,9 @@ set(mathse_HEADERS
 
 set(mathse_SOURCES
     src/mg.c
+    
+    src/algorithm/ellipse.c
+    src/algorithm/point.c
 
     src/index/rtree.c
     src/index/geohash.c
@@ -126,20 +129,21 @@ set(mathse_SOURCES
 
 set(MATHSE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-
-find_package(PNG REQUIRED)
-
 if(BUILD_SHARD_LIBRARY)
   add_library(${mathse} SHARED
       ${mathse_HEADERS}
       ${mathse_SOURCES}
   )
-  target_compile_definitions(${mathse} PUBLIC DLL_EXPORT)
+  target_compile_definitions(${mathse} PRIVATE DLL_EXPORT)
 else()
   add_library(${mathse} STATIC
     ${mathse_HEADERS}
     ${mathse_SOURCES}
   )
+endif()
+
+if(WIN32)
+  target_compile_definitions(${mathse} PUBLIC _USE_MATH_DEFINES)
 endif()
 
 target_include_directories(${mathse} SYSTEM PUBLIC
