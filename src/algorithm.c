@@ -13,38 +13,33 @@
 #include "mgp.h"
 
 /// calc geometry length
-extern double geom_prop_length_value(const struct mg_geom* geom);
+extern double geom_prop_length_value(const struct mg_geom *geom);
 /// calc geometry area
-extern double geom_prop_area_value(const struct mg_geom* geom);
+extern double geom_prop_area_value(const struct mg_geom *geom);
 
 double geom_prop_value(const struct mg_geom *geom, int mode)
 {
     assert(geom);
-    switch(mode)
-    {
-        case GEOMETRY_PROP_VALUE_LENGTH:
-            return geom_prop_length_value(geom);
-        case GEOMETRY_PROP_VALUE_WIDTH:
-        {
-            return 0.0;
-        }
-        case GEOMETRY_PROP_VALUE_HEIGHT:
-        {
-            return 0.0;
-        }
-        case GEOMETRY_PROP_VALUE_AREA:
-            return geom_prop_area_value(geom);
-        default:
-            return 0;
+    switch (mode) {
+    case GEOMETRY_PROP_VALUE_LENGTH:
+        return geom_prop_length_value(geom);
+    case GEOMETRY_PROP_VALUE_WIDTH: {
+        return 0.0;
+    }
+    case GEOMETRY_PROP_VALUE_HEIGHT: {
+        return 0.0;
+    }
+    case GEOMETRY_PROP_VALUE_AREA:
+        return geom_prop_area_value(geom);
+    default:
+        return 0;
     }
 }
 
 struct mg_geom *geom_prop_geo(const struct mg_geom *geom, int mode)
 {
-
 }
 
 void geom_prop_geo2(const struct mg_geom *geom, int mode, double *paras)
 {
-
 }

@@ -18,41 +18,40 @@ extern "C" {
 #endif
 
 struct mm_texture {
-    char* name;
+    char *name;
     char *path;
 };
 
 struct mm_material {
     /* Material name */
-    char*                       name;
+    char *name;
 
     /* Parameters */
-    float                       Ka[3];  /* Ambient */
-    float                       Kd[3];  /* Diffuse */
-    float                       Ks[3];  /* Specular */
-    float                       Ke[3];  /* Emission */
-    float                       Kt[3];  /* Transmittance */
-    float                       Ns;     /* Shininess */
-    float                       Ni;     /* Index of refraction */
-    float                       Tf[3];  /* Transmission filter */
-    float                       d;      /* Disolve (alpha) */
-    int                         illum;  /* Illumination model */
+    float Ka[3]; /* Ambient */
+    float Kd[3]; /* Diffuse */
+    float Ks[3]; /* Specular */
+    float Ke[3]; /* Emission */
+    float Kt[3]; /* Transmittance */
+    float Ns;    /* Shininess */
+    float Ni;    /* Index of refraction */
+    float Tf[3]; /* Transmission filter */
+    float d;     /* Disolve (alpha) */
+    int illum;   /* Illumination model */
 
     /* Set for materials that don't come from the associated mtllib */
-    int                         fallback;
+    int fallback;
 
     /* Texture map indices in fastObjMesh textures array */
-    unsigned int                map_Ka;
-    unsigned int                map_Kd;
-    unsigned int                map_Ks;
-    unsigned int                map_Ke;
-    unsigned int                map_Kt;
-    unsigned int                map_Ns;
-    unsigned int                map_Ni;
-    unsigned int                map_d;
-    unsigned int                map_bump;
+    unsigned int map_Ka;
+    unsigned int map_Kd;
+    unsigned int map_Ks;
+    unsigned int map_Ke;
+    unsigned int map_Kt;
+    unsigned int map_Ns;
+    unsigned int map_Ni;
+    unsigned int map_d;
+    unsigned int map_bump;
 };
-
 
 #ifdef __cplusplus
 }

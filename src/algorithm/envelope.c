@@ -10,7 +10,6 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-
 #include "mg.h"
 
 struct mg_envelope mg_env_intersection(const struct mg_envelope env1,
@@ -28,6 +27,6 @@ bool mg_env_contains(const struct mg_envelope env1,
 {
 }
 
-bool mg_env_contains_point(const struct mg_envelope env, double x, double y)
+bool mg_env_contains_point(const struct mg_envelope env, double *xy)
 {
 }

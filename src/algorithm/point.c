@@ -10,7 +10,6 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-
 #include "mg.h"
 
 static double p_normalize_positive(double angle)
@@ -76,7 +75,7 @@ double mg_angle(const struct mg_point p0)
 double mg_angle2(const struct mg_point p0, const struct mg_point p1)
 {
     double dx = p1.x - p0.x;
-    double dy = p1.y - p0.y;    
+    double dy = p1.y - p0.y;
     return atan2(dy, dx);
 }
 
@@ -99,7 +98,7 @@ bool mg_obtuse(const struct mg_point p0, const struct mg_point p1,
     double dx1 = p2.x - p1.x;
     double dy1 = p2.y - p1.y;
     double dotprod = dx0 * dx1 + dy0 * dy1;
-    return dotprod < 0; 
+    return dotprod < 0;
 }
 
 double mg_angle_between(const struct mg_point tip1, const struct mg_point tail,

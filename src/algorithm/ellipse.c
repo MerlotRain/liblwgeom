@@ -10,9 +10,7 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-
 #include "mg.h"
-
 
 void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
                            double *values)
@@ -54,7 +52,7 @@ void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
         struct mg_point p1 = mg_point_project(ell.center, dis, ell.azimuth);
         struct mg_point p2 = mg_point_project(ell.center, -dis, ell.azimuth);
         memcpy(values + pos, &p1, sizeof(struct mg_point));
-        memcpy(values + pos + 2, &p2, sizeof(struct mg_point));    
+        memcpy(values + pos + 2, &p2, sizeof(struct mg_point));
         pos += 4;
     }
 
