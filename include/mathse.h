@@ -42,6 +42,24 @@
 #endif
 #endif /* EXTERN */
 
+#if defined(__cplusplus)
+#if __has_cpp_attribute(clang::fallthrough)
+#define FALLTHROUGH() [[clang::fallthrough]]
+#elif __has_cpp_attribute(gnu::fallthrough)
+#define FALLTHROUGH() [[gnu::fallthrough]]
+#elif __has_cpp_attribute(fallthrough)
+#define FALLTHROUGH() [[fallthrough]]
+#endif
+#endif
+#ifndef FALLTHROUGH
+#if (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__) >= 700) && \
+    !defined(__INTEL_COMPILER)
+#define FALLTHROUGH() __attribute__((fallthrough))
+#else
+#define FALLTHROUGH() (void)0
+#endif
+#endif
+
 #ifndef MAX
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #endif

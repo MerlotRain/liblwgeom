@@ -1,3 +1,14 @@
+/*****************************************************************************/
+/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
+/*                                                                           */
+/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
+/*                                                                           */
+/*  This library is free software, licensed under the terms of the GNU       */
+/*  General Public License as published by the Free Software Foundation,     */
+/*  either version 3 of the License, or (at your option) any later version.  */
+/*  You should have received a copy of the GNU General Public License        */
+/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
+/*****************************************************************************/
 
 #include <CUnit/Basic.h>
 #include <CUnit/TestDB.h>
@@ -12,7 +23,7 @@ int main(int argc, char **argv)
     if (CUE_SUCCESS != CU_initialize_registry())
         return CU_get_error();
 
-    register_suite();
+    register_suites();
 
     if (argc == 1) {
         CU_basic_set_mode(CU_BRM_VERBOSE);

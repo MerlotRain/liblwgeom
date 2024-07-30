@@ -13,7 +13,7 @@
 #include "mgp.h"
 
 /// calc geometry length
-double geom_prop_length_value(const mg_geom* geom)
+double geom_prop_length_value(const struct mg_geom* geom)
 {
     return false;
 }

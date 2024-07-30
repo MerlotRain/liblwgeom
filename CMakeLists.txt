@@ -3,7 +3,7 @@ project(libmathse C CXX)
 
 if(MSVC)
     set(mathse libmathse)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -wd4244 -wd4800 -wd4805 -wd4101 -D_CRT_NONSTDC_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -wd4244 -wd4800 -wd4805 -wd4101 -D_CRT_NONSTDC_NO_WARNINGS")
 else()
     set(mathse mathse)
 endif()
@@ -85,6 +85,15 @@ check_symbol_exists("wcslen" "wchar.h" HAVE_WCSLEN)
 check_symbol_exists("wcsnlen" "wchar.h" HAVE_WCSNLEN)
 
 
+#-----------------------------------------------------------------------------
+# Setup build directories
+#-----------------------------------------------------------------------------
+# Place executables and shared libraries in the same location for
+# convenience of direct execution from common spot and for
+# convenience in environments without RPATH support.
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 set(mathse_HEADERS
     include/mathse.h
@@ -103,6 +112,9 @@ set(mathse_HEADERS
 
 set(mathse_SOURCES
     src/mg.c
+    
+    src/algorithm/ellipse.c
+    src/algorithm/point.c
 
     src/index/rtree.c
     src/index/geohash.c
@@ -126,20 +138,21 @@ set(mathse_SOURCES
 
 set(MATHSE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-
-find_package(PNG REQUIRED)
-
 if(BUILD_SHARD_LIBRARY)
   add_library(${mathse} SHARED
       ${mathse_HEADERS}
       ${mathse_SOURCES}
   )
-  target_compile_definitions(${mathse} PUBLIC DLL_EXPORT)
+  target_compile_definitions(${mathse} PRIVATE DLL_EXPORT)
 else()
   add_library(${mathse} STATIC
     ${mathse_HEADERS}
     ${mathse_SOURCES}
   )
+endif()
+
+if(WIN32)
+  target_compile_definitions(${mathse} PUBLIC _USE_MATH_DEFINES)
 endif()
 
 target_include_directories(${mathse} SYSTEM PUBLIC

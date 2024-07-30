@@ -10,41 +10,24 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mgp.h"
 
-/// calc geometry length
-extern double geom_prop_length_value(const struct mg_geom* geom);
-/// calc geometry area
-extern double geom_prop_area_value(const struct mg_geom* geom);
+#include "mg.h"
 
-double geom_prop_value(const struct mg_geom *geom, int mode)
+struct mg_envelope mg_env_intersection(const struct mg_envelope env1,
+                                       const struct mg_envelope env2)
 {
-    assert(geom);
-    switch(mode)
-    {
-        case GEOMETRY_PROP_VALUE_LENGTH:
-            return geom_prop_length_value(geom);
-        case GEOMETRY_PROP_VALUE_WIDTH:
-        {
-            return 0.0;
-        }
-        case GEOMETRY_PROP_VALUE_HEIGHT:
-        {
-            return 0.0;
-        }
-        case GEOMETRY_PROP_VALUE_AREA:
-            return geom_prop_area_value(geom);
-        default:
-            return 0;
-    }
 }
 
-struct mg_geom *geom_prop_geo(const struct mg_geom *geom, int mode)
+struct mg_envelope mg_env_union(const struct mg_envelope env1,
+                                const struct mg_envelope env2)
 {
-
 }
 
-void geom_prop_geo2(const struct mg_geom *geom, int mode, double *paras)
+bool mg_env_contains(const struct mg_envelope env1,
+                     const struct mg_envelope env2)
 {
+}
 
+bool mg_env_contains_point(const struct mg_envelope env, double x, double y)
+{
 }
