@@ -3,7 +3,7 @@ project(libmathse C CXX)
 
 if(MSVC)
     set(mathse libmathse)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -wd4244 -wd4800 -wd4805 -wd4101 -D_CRT_NONSTDC_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -wd4244 -wd4800 -wd4805 -wd4101 -D_CRT_NONSTDC_NO_WARNINGS")
 else()
     set(mathse mathse)
 endif()
@@ -85,6 +85,15 @@ check_symbol_exists("wcslen" "wchar.h" HAVE_WCSLEN)
 check_symbol_exists("wcsnlen" "wchar.h" HAVE_WCSNLEN)
 
 
+#-----------------------------------------------------------------------------
+# Setup build directories
+#-----------------------------------------------------------------------------
+# Place executables and shared libraries in the same location for
+# convenience of direct execution from common spot and for
+# convenience in environments without RPATH support.
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 set(mathse_HEADERS
     include/mathse.h
