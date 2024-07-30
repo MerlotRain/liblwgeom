@@ -10,12 +10,41 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mg.h"
+#include "mgp.h"
 
-double geom_tolerance(double tol)
+/// calc geometry length
+extern double geom_prop_length_value(const mg_geom* geom);
+/// calc geometry area
+extern double geom_prop_area_value(const mg_geom* geom);
+
+double geom_prop_value(const mg_geom *geom, int mode)
 {
-    static double g_tolerance = 0.0001;
-    double tmp = g_tolerance;
-    g_tolerance = tol;
-    return tmp;
+    assert(geom);
+    switch(mode)
+    {
+        case GEOMETRY_PROP_VALUE_LENGTH:
+            return geom_prop_length_value(geom);
+        case GEOMETRY_PROP_VALUE_WIDTH:
+        {
+            return 0.0;
+        }
+        case GEOMETRY_PROP_VALUE_HEIGHT:
+        {
+            return 0.0;
+        }
+        case GEOMETRY_PROP_VALUE_AREA:
+            return geom_prop_area_value(geom);
+        default:
+            return 0;
+    }
+}
+
+mg_geom *geom_prop_geo(const mg_geom *geom, int mode)
+{
+
+}
+
+void geom_prop_geo2(const mg_geom *geom, int mode, double *paras)
+{
+
 }

@@ -88,9 +88,7 @@ check_symbol_exists("wcsnlen" "wchar.h" HAVE_WCSNLEN)
 
 set(mathse_HEADERS
     include/mathse.h
-    include/geom.h
-    include/algorithms.h
-
+    include/mg.h
     include/btree.h
     include/geohash.h
     include/rtree.h
@@ -104,7 +102,7 @@ set(mathse_HEADERS
 )
 
 set(mathse_SOURCES
-    src/geom.c
+    src/mg.c
 
     src/index/rtree.c
     src/index/geohash.c

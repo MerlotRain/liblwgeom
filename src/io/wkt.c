@@ -7,20 +7,18 @@
 #include <assert.h>
 #include <ctype.h>
 
-#define str_endswith(str, suffix)
-
 struct Ordinate {
     int value;
     bool changeAllowed;
 };
 
-static char *wkt_next_word(stok *token);
+static char *p_wkt_next_word(stok *token);
 
-static void wkt_get_coordinates(stok *token, double **coordinates, int *num);
+static void p_wkt_get_coordinates(stok *token, double **coordinates, int *num);
 
-static char *wkt_get_next_empty_or_opener(stok *token);
+static char *p_wkt_get_next_empty_or_opener(stok *token);
 
-struct tg_geom *geom_read_wkt(const char *data, int len)
+struct mg_geom *geom_read_wkt(const char *data, int len)
 {
 #ifdef _MSC_VER
     // Avoid multithreading issues caused by setlocale
@@ -37,7 +35,7 @@ struct tg_geom *geom_read_wkt(const char *data, int len)
     flags.value = 1 | 2;
     flags.changeAllowed = true;
 
-    char *type = wkt_next_word(&token);
+    char *type = p_wkt_next_word(&token);
     if (strcmp(type, "EMPTY") == 0) {
         memcpy(&new_flags, &flags, sizeof(struct Ordinate));
     }
@@ -91,7 +89,7 @@ struct tg_geom *geom_read_wkt(const char *data, int len)
     return NULL;
 }
 
-static char *wkt_next_word(stok *token)
+static char *p_wkt_next_word(stok *token)
 {
     int type = stok_next_token(token);
     switch (type) {
@@ -118,23 +116,23 @@ static char *wkt_next_word(stok *token)
     return "";
 }
 
-static void wkt_get_coordinates(stok *token, double **coordinates, int *num)
+static void p_wkt_get_coordinates(stok *token, double **coordinates, int *num)
 {
-    char *nexttok = wkt_get_next_empty_or_opener(token);
+    char *nexttok = p_wkt_get_next_empty_or_opener(token);
 }
 
-char *wkt_get_next_empty_or_opener(stok *token)
+char *p_wkt_get_next_empty_or_opener(stok *token)
 {
-    char *nextword = wkt_next_word(token);
+    char *nextword = p_wkt_next_word(token);
     if (strcmp(nextword, "ZM") == 0) {
-        nextword = wkt_next_word(token);
+        nextword = p_wkt_next_word(token);
     }
     else {
         if (strcmp(nextword, "Z") == 0) {
-            nextword = wkt_next_word(token);
+            nextword = p_wkt_next_word(token);
         }
         if (strcmp(nextword, "M") == 0) {
-            nextword = wkt_next_word(token);
+            nextword = p_wkt_next_word(token);
         }
     }
 
@@ -144,7 +142,7 @@ char *wkt_get_next_empty_or_opener(stok *token)
     return "";
 }
 
-int geom_write_wkt(const struct tg_geom *g, char **data, int len)
+int geom_write_wkt(const struct mg_geom *g, char **data, int len)
 {
     return 0;
 }

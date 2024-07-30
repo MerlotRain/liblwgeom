@@ -50,6 +50,8 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
+#define DBL_NEAR(a, b) (fabs((a) - (b)) < 4 * DBL_EPSILON)
+
 #if defined(USE_TCMALLOC)
 
 #include <google/tcmalloc.h>
@@ -81,6 +83,9 @@ extern "C" {
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
+#include <float.h>
+#include <limits.h>
 
 #ifdef __cpluscplus
 }
