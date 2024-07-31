@@ -105,6 +105,10 @@ extern "C" {
 #include <float.h>
 #include <limits.h>
 
+EXTERN int error_code();
+
+EXTERN char* error_messgae();
+
 #ifdef __cpluscplus
 }
 #endif
