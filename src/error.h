@@ -10,24 +10,17 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
+#ifndef ERROR_H
+#define ERROR_H
 
-#include "mg.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-struct mg_envelope mg_env_intersection(const struct mg_envelope env1,
-                                       const struct mg_envelope env2)
-{
+void record_error(int code, const char* fmt, ...);
+
+#ifdef __cplusplus
 }
+#endif
 
-struct mg_envelope mg_env_union(const struct mg_envelope env1,
-                                const struct mg_envelope env2)
-{
-}
-
-bool mg_env_contains(const struct mg_envelope env1,
-                     const struct mg_envelope env2)
-{
-}
-
-bool mg_env_contains_point(const struct mg_envelope env, double x, double y)
-{
-}
+#endif

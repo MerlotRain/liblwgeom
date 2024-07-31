@@ -10,10 +10,23 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mgp.h"
+#include "mg.h"
 
-/// calc geometry length
-double geom_prop_length_value(const struct mg_geom* geom)
+struct mg_envelope mg_env_intersection(const struct mg_envelope env1,
+                                       const struct mg_envelope env2)
 {
-    return false;
+}
+
+struct mg_envelope mg_env_union(const struct mg_envelope env1,
+                                const struct mg_envelope env2)
+{
+}
+
+bool mg_env_contains(const struct mg_envelope env1,
+                     const struct mg_envelope env2)
+{
+}
+
+bool mg_env_contains_point(const struct mg_envelope env, double *xy)
+{
 }

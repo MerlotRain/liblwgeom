@@ -63,8 +63,6 @@ int get_i4_prop(i4_t *p, size_t index);
 /// @return
 int i4_prop_size(i4_t *p);
 
-
-
 typedef struct SEGeom_t se_geom;
 
 struct buf;

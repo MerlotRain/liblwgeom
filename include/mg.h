@@ -26,6 +26,11 @@ struct mg_point {
     double y;
 };
 
+/// Returns a new point which corresponds to this point projected by a specified
+/// distance with specified angles
+EXTERN struct mg_point mg_point_project(const struct mg_point p, double dis,
+                                        double azimuth);
+
 /// point angle with mg_point(0, 0)
 EXTERN double mg_angle(const struct mg_point p0);
 
@@ -51,7 +56,6 @@ EXTERN bool mg_interior_angle(const struct mg_point p0,
                               const struct mg_point p1,
                               const struct mg_point p2);
 
-
 /// Envelope
 /// A rectangle defined by a minimum and maximum coordinates.
 struct mg_envelope {
@@ -73,9 +77,7 @@ EXTERN bool mg_env_contains(const struct mg_envelope env1,
                             const struct mg_envelope env2);
 
 /// Returns `true` if the given point lies in or on the envelope.
-EXTERN bool mg_env_contains_point(const struct mg_envelope env, double x,
-                                  double y);
-
+EXTERN bool mg_env_contains_point(const struct mg_envelope env, double *xy);
 
 /// mg_ ellipse is used to describe an ellipse or circle.
 /// Before V1.0, it would be treated as a regular geometric shape and
@@ -92,14 +94,13 @@ struct mg_ellipse {
 #define MG_ELLIPSE_PROP_VALUE_ECCENTRICITY 0
 /// The area of the ellipse. - double
 #define MG_ELLIPSE_PROP_VALUE_AREA         1
-/// The perimeter of the ellipse. - double 
+/// The perimeter of the ellipse. - double
 #define MG_ELLIPSE_PROP_VALUE_PERIMETER    2
 /// Two foci of the ellipse. The axes are oriented by the azimuth and are on the
 /// semi-major axis. - mg_point[2]
 #define MG_ELLIPSE_PROP_VALUE_FOCI         4
 /// The distance between the center and each foci. - double
 #define MG_ELLIPSE_PROP_FOCUS_DISTANCE     8
-
 
 /// Two points form a circle, and the line segment between these two points is
 /// the diameter of the circle
@@ -129,11 +130,7 @@ EXTERN void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
 /// needs to create an array of sufficient size according to requirements to
 /// receive the return value.
 EXTERN void mg_construct_circle(const struct mg_point *p, int t,
-                                const struct mg_ellipse *es, int *n);
-
-
-
-
+                                struct mg_ellipse *es, int *n);
 
 /// Mini Geometry
 struct mg_path;

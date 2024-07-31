@@ -12,8 +12,8 @@
 
 #include "mgp.h"
 
-/// calc geometry area
-double geom_prop_area_value(const struct mg_geom* geom)
+/// calc geometry length
+double geom_prop_length_value(const struct mg_geom *geom)
 {
     return false;
 }

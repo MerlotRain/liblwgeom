@@ -23,7 +23,9 @@ int main(int argc, char **argv)
     if (CUE_SUCCESS != CU_initialize_registry())
         return CU_get_error();
 
-    register_suites();
+    int rs = register_suite();
+    if (rs != CUE_SUCCESS)
+        return CU_get_error();
 
     if (argc == 1) {
         CU_basic_set_mode(CU_BRM_VERBOSE);

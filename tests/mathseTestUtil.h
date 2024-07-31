@@ -48,7 +48,8 @@ static int mg_suite()
 
 
 /// register all suites
-int register_suites()
+int register_suite()
 {
-    return util_suite() && mg_suite();
+    int sr = util_suite() + mg_suite();
+    return sr;
 }

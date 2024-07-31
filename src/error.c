@@ -10,18 +10,28 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mg.h"
 
-static double g_tolerance = 0.0001;
+#include "error.h"
 
-double geom_tolerance(double tol)
+static char last_error[2048];
+
+static int last_errno = 0;
+
+void record_error(int code, const char* fmt, ...)
 {
-    double tmp = g_tolerance;
-    g_tolerance = tol;
-    return tmp;
+    memset(error, 0, 2048);
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(error, sizeof(error), fmt, args);
+    va_end(args);
 }
 
-double tolerance()
+int error_code()
 {
-    return g_tolerance;
+    return last_errno;
+}
+
+char* error_messgae()
+{
+    return last_error;
 }

@@ -12,11 +12,30 @@ struct Ordinate {
     bool changeAllowed;
 };
 
-static char *p_wkt_next_word(stok *token);
+static char *pir_wkt_next_word(stok *token);
 
-static void p_wkt_get_coordinates(stok *token, double **coordinates, int *num);
+static void pir_wkt_get_coordinates(stok *token, struct Ordinate* flag, double *coordinates, int *num);
 
-static char *p_wkt_get_next_empty_or_opener(stok *token);
+static void pir_wkt_get_precise_coordinates(stok *token, struct Ordinate* flag, double *coordinates, int *num);
+
+static char *pir_wkt_get_next_empty_or_opener(stok *token, struct Ordinate* flag);
+
+static struct mg_geom *pri_wkt_read_point(stok *token ,struct Ordinate* flag);
+
+static struct mg_geom *pri_wkt_read_linestring(stok *token ,struct Ordinate* flag);
+
+static struct mg_geom *pri_wkt_read_polygon(stok *token ,struct Ordinate* flag);
+
+static struct mg_geom *pri_wkt_read_multipoint(stok *token ,struct Ordinate* flag);
+
+static struct mg_geom *pri_wkt_read_multilinestring(stok *token ,struct Ordinate* flag);
+
+static struct mg_geom *pri_wkt_read_multipolygon(stok *token ,struct Ordinate* flag);
+
+static struct mg_geom *pri_wkt_read_geometrycollection(stok *token ,struct Ordinate* flag);
+
+//////////////////////
+//////////////////////
 
 struct mg_geom *geom_read_wkt(const char *data, int len)
 {
@@ -35,7 +54,7 @@ struct mg_geom *geom_read_wkt(const char *data, int len)
     flags.value = 1 | 2;
     flags.changeAllowed = true;
 
-    char *type = p_wkt_next_word(&token);
+    char *type = pir_wkt_next_word(&token);
     if (strcmp(type, "EMPTY") == 0) {
         memcpy(&new_flags, &flags, sizeof(struct Ordinate));
     }
@@ -59,6 +78,7 @@ struct mg_geom *geom_read_wkt(const char *data, int len)
     }
 
     if (strncmp(type, "POINT", 5) == 0) {
+        return pri_wkt_read_point(&token, &new_flags);
     }
     else if (strncmp(type, "LINESTRING", 10) == 0) {
     }
@@ -89,7 +109,7 @@ struct mg_geom *geom_read_wkt(const char *data, int len)
     return NULL;
 }
 
-static char *p_wkt_next_word(stok *token)
+static char *pir_wkt_next_word(stok *token)
 {
     int type = stok_next_token(token);
     switch (type) {
@@ -116,23 +136,28 @@ static char *p_wkt_next_word(stok *token)
     return "";
 }
 
-static void p_wkt_get_coordinates(stok *token, double **coordinates, int *num)
+static void pir_wkt_get_coordinates(stok *token, struct Ordinate* flag, double *coordinates, int *num)
 {
-    char *nexttok = p_wkt_get_next_empty_or_opener(token);
+    char *nexttok = pir_wkt_get_next_empty_or_opener(token, flag);
+    if(strcmp(nexttok, "EMPTY") == 0)
+    {
+        return;
+    }
+
 }
 
-char *p_wkt_get_next_empty_or_opener(stok *token)
+char *pir_wkt_get_next_empty_or_opener(stok *token, struct Ordinate* flag)
 {
-    char *nextword = p_wkt_next_word(token);
+    char *nextword = pir_wkt_next_word(token);
     if (strcmp(nextword, "ZM") == 0) {
-        nextword = p_wkt_next_word(token);
+        nextword = pir_wkt_next_word(token);
     }
     else {
         if (strcmp(nextword, "Z") == 0) {
-            nextword = p_wkt_next_word(token);
+            nextword = pir_wkt_next_word(token);
         }
         if (strcmp(nextword, "M") == 0) {
-            nextword = p_wkt_next_word(token);
+            nextword = pir_wkt_next_word(token);
         }
     }
 
@@ -141,6 +166,53 @@ char *p_wkt_get_next_empty_or_opener(stok *token)
     }
     return "";
 }
+
+struct mg_geom *pri_wkt_read_point(stok *token ,struct Ordinate* flag)
+{
+    double coords[4];
+    int n = 0;
+    pir_wkt_get_coordinates(token, flag, coords, &n);
+    return NULL;
+}
+
+struct mg_geom *pri_wkt_read_linestring(stok *token ,struct Ordinate* flag)
+{
+    return NULL;
+}
+
+struct mg_geom *pri_wkt_read_polygon(stok *token ,struct Ordinate* flag)
+{
+    return NULL;
+}
+
+struct mg_geom *pri_wkt_read_multipoint(stok *token ,struct Ordinate* flag)
+{
+    return NULL;
+}
+
+struct mg_geom *pri_wkt_read_multilinestring(stok *token ,struct Ordinate* flag)
+{
+    return NULL;
+}
+
+struct mg_geom *pri_wkt_read_multipolygon(stok *token ,struct Ordinate* flag)
+{
+    return NULL;
+}
+
+struct mg_geom *pri_wkt_read_geometrycollection(stok *token ,struct Ordinate* flag)
+{
+    return NULL;
+}
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
 
 int geom_write_wkt(const struct mg_geom *g, char **data, int len)
 {

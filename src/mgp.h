@@ -20,7 +20,7 @@ extern "C" {
 #endif
 
 union mg_upoint {
-    struct {            
+    struct {
         double x;
         double y;
         double z;
