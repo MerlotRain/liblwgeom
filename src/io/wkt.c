@@ -20,8 +20,6 @@ static void pir_wkt_get_precise_coordinates(stok *token, struct Ordinate* flag, 
 
 static char *pir_wkt_get_next_empty_or_opener(stok *token, struct Ordinate* flag);
 
-
-
 static struct mg_geom *pri_wkt_read_point(stok *token ,struct Ordinate* flag);
 
 static struct mg_geom *pri_wkt_read_linestring(stok *token ,struct Ordinate* flag);
@@ -80,7 +78,7 @@ struct mg_geom *geom_read_wkt(const char *data, int len)
     }
 
     if (strncmp(type, "POINT", 5) == 0) {
-        return pri_wkt_read_point(token, &new_flags);
+        return pri_wkt_read_point(&token, &new_flags);
     }
     else if (strncmp(type, "LINESTRING", 10) == 0) {
     }

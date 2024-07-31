@@ -12,6 +12,8 @@
 
 #include "mg.h"
 
+extern double tolerance();
+
 static double pir_normalized_angle(double angle)
 {
     double clippedAngle = angle;
@@ -35,30 +37,30 @@ static bool pri_is_perpendicular(const struct mg_point pt1,
                                  const struct mg_point pt2,
                                  const struct mg_point pt3)
 {
-    const double yDelta_a = pt2.y - pt1.y;
-    const double xDelta_a = pt2.x - pt1.x;
-    const double yDelta_b = pt3.y - pt2.y;
-    const double xDelta_b = pt3.x - pt2.x;
+    double yDelta_a = pt2.y - pt1.y;
+    double xDelta_a = pt2.x - pt1.x;
+    double yDelta_b = pt3.y - pt2.y;
+    double xDelta_b = pt3.x - pt2.x;
 
-    if ((fabs(xDelta_a) <= DBL_EPSILON) && (fabs(yDelta_b) <= DBL_EPSILON)) {
+    if (fabs(xDelta_a) <= tolerance() && fabs(yDelta_b) <= tolerance()) {
         return false;
     }
 
-    if (fabs(yDelta_a) <= DBL_EPSILON) {
+    if (fabs(yDelta_a) <= tolerance()) {
         return true;
     }
-    else if (fabs(yDelta_b) <= DBL_EPSILON) {
+    else if (fabs(yDelta_b) <= tolerance()) {
         return true;
     }
-    else if (fabs(xDelta_a) <= DBL_EPSILON) {
+    else if (fabs(xDelta_a) <= tolerance()) {
         return true;
     }
-    else if (fabs(xDelta_b) <= DBL_EPSILON) {
+    else if (fabs(xDelta_b) <= tolerance()) {
         return true;
     }
     return false;
 }
-     
+
 void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
                            double *values)
 {
@@ -111,8 +113,8 @@ void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
     }
 }
 
-void mg_construct_circle(const struct mg_point *p, int t,
-                         struct mg_ellipse *rs, int *n)
+void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
+                         int *n)
 {
     assert(p);
     assert(rs);
@@ -130,39 +132,39 @@ void mg_construct_circle(const struct mg_point *p, int t,
         rs[0].major = radius;
         rs[0].minor = radius;
         rs[0].azimuth = azimuth;
-        *n = 1;                       
+        *n = 1;
     }
     else if (MG_CONSTRUCT_CIRCLE_3P == t) {
         struct mg_point p1, p2, p3;
         struct mg_point pt1 = p[0];
         struct mg_point pt2 = p[1];
         struct mg_point pt3 = p[2];
-        if (!pri_is_perpendicular(pt1, pt2, pt3, tolerance())) {
+        if (!pri_is_perpendicular(pt1, pt2, pt3)) {
             p1 = pt1;
             p2 = pt2;
             p3 = pt3;
         }
-        else if (!pri_is_perpendicular(pt1, pt3, pt2, tolerance())) {
+        else if (!pri_is_perpendicular(pt1, pt3, pt2)) {
             p1 = pt1;
             p2 = pt3;
             p3 = pt2;
         }
-        else if (!pri_is_perpendicular(pt2, pt1, pt3, tolerance())) {
+        else if (!pri_is_perpendicular(pt2, pt1, pt3)) {
             p1 = pt2;
             p2 = pt1;
             p3 = pt3;
         }
-        else if (!pri_is_perpendicular(pt2, pt3, pt1, tolerance())) {
+        else if (!pri_is_perpendicular(pt2, pt3, pt1)) {
             p1 = pt2;
             p2 = pt3;
             p3 = pt1;
         }
-        else if (!pri_is_perpendicular(pt3, pt2, pt1, tolerance())) {
+        else if (!pri_is_perpendicular(pt3, pt2, pt1)) {
             p1 = pt3;
             p2 = pt2;
             p3 = pt1;
         }
-        else if (!pri_is_perpendicular(pt3, pt1, pt2, tolerance())) {
+        else if (!pri_is_perpendicular(pt3, pt1, pt2)) {
             p1 = pt3;
             p2 = pt1;
             p3 = pt2;
@@ -176,8 +178,7 @@ void mg_construct_circle(const struct mg_point *p, int t,
         const double yDelta_b = p3.y - p2.y;
         const double xDelta_b = p3.x - p2.x;
 
-        if (fabs(xDelta_a - 0.0) < tolerance() ||
-            fabs(xDelta_b - 0.0) < tolerance()) {
+        if (fabs(xDelta_a) < tolerance() || fabs(xDelta_b) < tolerance()) {
             *n = 0;
             return;
         }
@@ -197,14 +198,14 @@ void mg_construct_circle(const struct mg_point *p, int t,
             rs[0].azimuth = 0.0;
             *n = 1;
         }
-        
+
         if (fabs(aSlope - bSlope) <= tolerance()) {
             *n = 0;
             return;
         }
         struct mg_point center;
-        center.x = (aSlope * bSlope * (p1.y - p3.y) +
-                    bSlope * (p1.x + p2.x) - aSlope * (p2.x + p3.x)) /
+        center.x = (aSlope * bSlope * (p1.y - p3.y) + bSlope * (p1.x + p2.x) -
+                    aSlope * (p2.x + p3.x)) /
                    (2.0 * (bSlope - aSlope));
         center.y = -1.0 * (center.x - (p1.x + p2.x) / 2.0) / aSlope +
                    (p1.y + p2.y) / 2.0;

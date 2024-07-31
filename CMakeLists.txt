@@ -112,6 +112,7 @@ set(mathse_HEADERS
 
 set(mathse_SOURCES
     src/mg.c
+    src/tolerance.c
     
     src/mg/ellipse.c
     src/mg/point.c
