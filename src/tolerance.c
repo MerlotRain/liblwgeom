@@ -12,10 +12,16 @@
 
 #include "mg.h"
 
+static double g_tolerance = 0.0001;
+
 double geom_tolerance(double tol)
 {
-    static double g_tolerance = 0.0001;
     double tmp = g_tolerance;
     g_tolerance = tol;
     return tmp;
+}
+
+double tolerance()
+{
+    return g_tolerance;
 }

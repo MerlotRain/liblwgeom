@@ -10,21 +10,20 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-
 #include "stok.h"
 #include "CUnit/Basic.h"
 
-int init_stok_suite()
+int init_stok_suite(void)
 {
     return 0;
 }
 
-int clean_stok_suite()
+int clean_stok_suite(void)
 {
     return 0;
 }
 
-void util_stok_Test1()
+void util_stok_Test1(void)
 {
 }
 

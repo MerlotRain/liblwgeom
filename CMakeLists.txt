@@ -113,8 +113,8 @@ set(mathse_HEADERS
 set(mathse_SOURCES
     src/mg.c
     
-    src/algorithm/ellipse.c
-    src/algorithm/point.c
+    src/mg/ellipse.c
+    src/mg/point.c
 
     src/index/rtree.c
     src/index/geohash.c

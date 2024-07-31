@@ -12,11 +12,11 @@ struct Ordinate {
     bool changeAllowed;
 };
 
-static char *p_wkt_next_word(stok *token);
+static char *pir_wkt_next_word(stok *token);
 
-static void p_wkt_get_coordinates(stok *token, double **coordinates, int *num);
+static void pir_wkt_get_coordinates(stok *token, double **coordinates, int *num);
 
-static char *p_wkt_get_next_empty_or_opener(stok *token);
+static char *pir_wkt_get_next_empty_or_opener(stok *token);
 
 struct mg_geom *geom_read_wkt(const char *data, int len)
 {
@@ -35,7 +35,7 @@ struct mg_geom *geom_read_wkt(const char *data, int len)
     flags.value = 1 | 2;
     flags.changeAllowed = true;
 
-    char *type = p_wkt_next_word(&token);
+    char *type = pir_wkt_next_word(&token);
     if (strcmp(type, "EMPTY") == 0) {
         memcpy(&new_flags, &flags, sizeof(struct Ordinate));
     }
@@ -89,7 +89,7 @@ struct mg_geom *geom_read_wkt(const char *data, int len)
     return NULL;
 }
 
-static char *p_wkt_next_word(stok *token)
+static char *pir_wkt_next_word(stok *token)
 {
     int type = stok_next_token(token);
     switch (type) {
@@ -116,23 +116,23 @@ static char *p_wkt_next_word(stok *token)
     return "";
 }
 
-static void p_wkt_get_coordinates(stok *token, double **coordinates, int *num)
+static void pir_wkt_get_coordinates(stok *token, double **coordinates, int *num)
 {
-    char *nexttok = p_wkt_get_next_empty_or_opener(token);
+    char *nexttok = pir_wkt_get_next_empty_or_opener(token);
 }
 
-char *p_wkt_get_next_empty_or_opener(stok *token)
+char *pir_wkt_get_next_empty_or_opener(stok *token)
 {
-    char *nextword = p_wkt_next_word(token);
+    char *nextword = pir_wkt_next_word(token);
     if (strcmp(nextword, "ZM") == 0) {
-        nextword = p_wkt_next_word(token);
+        nextword = pir_wkt_next_word(token);
     }
     else {
         if (strcmp(nextword, "Z") == 0) {
-            nextword = p_wkt_next_word(token);
+            nextword = pir_wkt_next_word(token);
         }
         if (strcmp(nextword, "M") == 0) {
-            nextword = p_wkt_next_word(token);
+            nextword = pir_wkt_next_word(token);
         }
     }
 

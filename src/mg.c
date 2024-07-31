@@ -13,7 +13,7 @@
 #include "mg.h"
 #include "mgp.h"
 
-static struct mg_path *p_geom_create_path(int flag, const double *pp, int np)
+static struct mg_path *pir_geom_create_path(int flag, const double *pp, int np)
 {
     struct mg_path *path = (struct mg_path *)malloc(
         sizeof(struct mg_path) + sizeof(union mg_upoint) * np);
@@ -102,7 +102,7 @@ struct mg_geom *geom_new_path(int flag, const double *pp, int np)
     if (g == NULL)
         return NULL;
     memset(g, 0, sizeof(struct mg_geom));
-    struct mg_path *path = p_geom_create_path(flag, pp, np);
+    struct mg_path *path = pir_geom_create_path(flag, pp, np);
     if (path == NULL) {
         free(g);
         return NULL;
@@ -120,7 +120,7 @@ struct mg_geom *geom_new_ring(int flag, const double *rp, int np)
     if (g == NULL)
         return NULL;
     memset(g, 0, sizeof(struct mg_geom));
-    struct mg_path *ring = p_geom_create_path(flag, rp, np);
+    struct mg_path *ring = pir_geom_create_path(flag, rp, np);
     if (ring == NULL) {
         free(g);
         return NULL;
@@ -146,7 +146,7 @@ struct mg_geom *geom_new_polygon(int flag, const double *sp, int spn,
         return NULL;
     }
     polygon->holes = (struct mg_ring **)malloc(sizeof(struct mg_ring *) * hppn);
-    struct mg_ring *shell = (struct mg_ring *)p_geom_create_path(flag, sp, spn);
+    struct mg_ring *shell = (struct mg_ring *)pir_geom_create_path(flag, sp, spn);
     if (shell == NULL) {
         free(g);
         return NULL;
@@ -156,7 +156,7 @@ struct mg_geom *geom_new_polygon(int flag, const double *sp, int spn,
     polygon->nholes = hppn;
     for (int i = 0; i < hppn; ++i) {
         struct mg_ring *hole =
-            (struct mg_ring *)p_geom_create_path(flag, hpp[i], hpn[i]);
+            (struct mg_ring *)pir_geom_create_path(flag, hpp[i], hpn[i]);
         if (hole) {
             polygon->holes[i] = hole;
         }

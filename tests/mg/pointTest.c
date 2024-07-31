@@ -48,7 +48,7 @@ int mg_pointSuite()
     CU_pSuite pSuite = NULL;
     pSuite = CU_add_suite("mg-point", init_point_suite, clean_point_suite);
 
-    if (NULL, CU_add_test(pSuite, "point Test1", mg_point_Test1)) {
+    if (NULL == CU_add_test(pSuite, "point Test1", mg_point_Test1)) {
         return CU_get_error();
     }
     return CUE_SUCCESS;

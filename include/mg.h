@@ -26,6 +26,11 @@ struct mg_point {
     double y;
 };
 
+/// Returns a new point which corresponds to this point projected by a specified
+/// distance with specified angles
+EXTERN struct mg_point mg_point_project(const struct mg_point p, double dis,
+                                        double azimuth);
+
 /// point angle with mg_point(0, 0)
 EXTERN double mg_angle(const struct mg_point p0);
 
@@ -125,7 +130,7 @@ EXTERN void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
 /// needs to create an array of sufficient size according to requirements to
 /// receive the return value.
 EXTERN void mg_construct_circle(const struct mg_point *p, int t,
-                                const struct mg_ellipse *es, int *n);
+                                struct mg_ellipse *es, int *n);
 
 /// Mini Geometry
 struct mg_path;
