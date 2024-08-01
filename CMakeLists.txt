@@ -107,7 +107,6 @@ set(mathse_HEADERS
     include/util/hash.h
     include/util/logging.h
     include/util/sort.h
-    include/util/stok.h
 )
 
 set(mathse_SOURCES
@@ -128,9 +127,9 @@ set(mathse_SOURCES
     src/io/kml.c
     src/io/wkb.c
     src/io/wkt.c
+    src/io/stok.c
 
     src/util/buf.c
-    src/util/stok.c
     src/util/hash.c
     src/util/base64.c
     src/util/md5.c
