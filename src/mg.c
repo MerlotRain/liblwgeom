@@ -146,7 +146,8 @@ struct mg_geom *geom_new_polygon(int flag, const double *sp, int spn,
         return NULL;
     }
     polygon->holes = (struct mg_ring **)malloc(sizeof(struct mg_ring *) * hppn);
-    struct mg_ring *shell = (struct mg_ring *)pir_geom_create_path(flag, sp, spn);
+    struct mg_ring *shell =
+        (struct mg_ring *)pir_geom_create_path(flag, sp, spn);
     if (shell == NULL) {
         free(g);
         return NULL;

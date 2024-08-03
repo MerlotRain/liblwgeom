@@ -503,7 +503,7 @@ static bool node_insert(struct rtree *tr, struct rect *nr, struct node *node,
 
 struct rtree *rtree_new(void)
 {
-    struct rtree *tr = (struct rtree *)_malloc(sizeof(struct rtree));
+    struct rtree *tr = (struct rtree *)malloc(sizeof(struct rtree));
     if (!tr)
         return NULL;
     memset(tr, 0, sizeof(struct rtree));
@@ -587,7 +587,7 @@ void rtree_free(struct rtree *tr)
     if (tr->root) {
         node_free(tr, tr->root);
     }
-    tfree(tr);
+    free(tr);
 }
 
 static bool node_search(struct node *node, struct rect *rect,
@@ -828,7 +828,7 @@ struct rtree *rtree_clone(struct rtree *tr)
 {
     if (!tr)
         return NULL;
-    struct rtree *tr2 = tr->malloc(sizeof(struct rtree));
+    struct rtree *tr2 = (struct rtree *)malloc(sizeof(struct rtree));
     if (!tr2)
         return NULL;
     memcpy(tr2, tr, sizeof(struct rtree));

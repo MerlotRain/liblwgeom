@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 
-void record_error(int code, const char* fmt, ...);
+void record_error(int code, const char *fmt, ...);
 
 #ifdef __cplusplus
 }
