@@ -185,7 +185,7 @@ int geohash_encode(const geohash_range *long_range,
 }
 
 int geohash_encode_type(double longitude, double latitude, uint8_t step,
-                       geohash_bits *hash)
+                        geohash_bits *hash)
 {
     geohash_range r[2] = {{0}};
     get_geohash_range(&r[0], &r[1]);

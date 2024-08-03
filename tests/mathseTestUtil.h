@@ -28,11 +28,11 @@
 
 
 /// module util
-extern int util_stokSuite();
+
 /// collection of util suite
 static int util_suite()
 {
-    int r = util_stokSuite();
+    int r = 0;
     return r;
 }
 

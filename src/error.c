@@ -10,19 +10,20 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-
 #include "error.h"
+#include <stdarg.h>
+#include <stdio.h>
 
 static char last_error[2048];
 
 static int last_errno = 0;
 
-void record_error(int code, const char* fmt, ...)
+void record_error(int code, const char *fmt, ...)
 {
-    memset(error, 0, 2048);
+    memset(last_error, 0, 2048);
     va_list args;
     va_start(args, fmt);
-    vsnprintf(error, sizeof(error), fmt, args);
+    vsnprintf(last_error, sizeof(last_error), fmt, args);
     va_end(args);
 }
 
@@ -31,7 +32,7 @@ int error_code()
     return last_errno;
 }
 
-char* error_messgae()
+char *error_messgae()
 {
     return last_error;
 }
