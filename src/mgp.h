@@ -66,8 +66,6 @@ struct mg_geom {
         struct mg_polygon *polygon;
         struct mg_multi *multi;
     };
-    double z;
-    double m;
 };
 
 #ifdef __cplusplus
