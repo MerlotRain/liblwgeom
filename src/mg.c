@@ -12,6 +12,7 @@
 
 #include "mg.h"
 #include "mgp.h"
+#include <sys/_types/_null.h>
 
 /* ---------------------------- geometry factory ---------------------------- */
 
@@ -35,7 +36,7 @@ struct mg_object *mg_create_single(int gdim, int pn, int cdim, const double *pp,
     else {
         obj->pp = (double *)malloc(sizeof(double) * pn * cdim);
         if (obj->pp == NULL) {
-            mg_free(obj);
+            mg_free_object(obj);
             return NULL;
         }
         memcpy(obj->pp, pp, sizeof(double) * pn * cdim);
@@ -130,27 +131,54 @@ void mg_free_object(struct mg_object *g)
 
 int mg_dim_c(const struct mg_object *obj)
 {
-    return 0;
+    assert(obj);
+    return obj->cdim;
 }
 
 int mg_dim_g(const struct mg_object *obj)
 {
-    return 0;
+    assert(obj);
+    return obj->gdim;
 }
 
 int mg_sub_n(const struct mg_object *obj)
 {
-    return 0;
+    assert(obj);
+    return obj->ngeoms;
 }
 
 struct mg_object *mg_sub_at(const struct mg_object *obj, int i)
 {
+    assert(obj);
+    if (obj->ngeoms == 1) {
+        if (i == 0) {
+            return (struct mg_object *)obj;
+        }
+    }
+    else {
+        if (i < obj->ngeoms) {
+            return obj->objects[i];
+        }
+    }
     return NULL;
 }
 
 int mg_point_n(const struct mg_object *obj)
 {
-    return 0;
+    assert(obj);
+    if (obj->ngeoms == 1) {
+        return obj->npoints;
+    }
+    else {
+        int n = 0;
+        for (int i = 0; i < obj->ngeoms; ++i) {
+            struct mg_object *sub = obj->objects[i];
+            if (sub == NULL)
+                continue;
+            n += sub->npoints;
+        }
+        return 0;
+    }
 }
 
 /* ------------------------------- geometry io ------------------------------ */
@@ -181,25 +209,58 @@ int mg_write_ora(struct mg_object *obj, int *i_n, int **i_p, int *c_n,
 
 struct mg_object *mg_i4_object(struct mg_i4 *i4)
 {
+    assert(i4);
+    return i4->obj;
 }
 
 void mg_i4_propProp(const struct mg_i4 *i4, int *propSize, int **prop)
 {
+    assert(i4);
+    *propSize = i4->propSize;
+    *prop = i4->prop;
 }
 
 int mg_i4_prop_value(const struct mg_i4 *i4, int index)
 {
-    return 0;
+    assert(i4);
+    assert(index < i4->propSize);
+    return i4->prop[index];
 }
 
 struct mg_reader2 *mg_create_reader(int size)
 {
-    return NULL;
+    struct mg_reader2 *reader =
+        (struct mg_reader2 *)malloc(sizeof(struct mg_reader2));
+    if (reader == NULL)
+        return NULL;
+    reader->size = size;
+    reader->objs = (struct mg_i4 **)calloc(size, sizeof(struct mg_i4 *));
+    if (reader->objs == NULL) {
+        free(reader);
+        return NULL;
+    }
+    reader->current = 0;
+    reader->index = NULL;
+
+    return reader;
 }
 
 struct mg_reader2 *mg_create_writer()
 {
-    return NULL;
+    struct mg_reader2 *writer =
+        (struct mg_reader2 *)malloc(sizeof(struct mg_reader2));
+    if (writer == NULL)
+        return NULL;
+    writer->size = 10;
+    writer->objs = (struct mg_i4 **)calloc(10, sizeof(struct mg_i4 *));
+    if (writer->objs == NULL) {
+        free(writer);
+        return NULL;
+    }
+    writer->current = 0;
+    writer->index = NULL;
+
+    return writer;
 }
 
 void mg_free_reader2(struct mg_reader2 *reader)
@@ -234,15 +295,6 @@ double tolerance()
 
 /* --------------------------- geometry algorithm --------------------------- */
 
-/// calc geometry length
-double mg_prop_length_value(const struct mg_object *obj);
-/// calc geometry area
-double mg_prop_area_value(const struct mg_object *obj);
-/// calc geometry width
-double mg_prop_width_value(const struct mg_object *obj);
-/// calc geometry height
-double mg_prop_height_value(const struct mg_object *obj);
-
 double mg_prop_value(const struct mg_object *obj, int mode)
 {
     assert(obj);
@@ -266,6 +318,13 @@ double mg_prop_value(const struct mg_object *obj, int mode)
 
 struct mg_object *mg_prop_geo(const struct mg_object *obj, int mode)
 {
+    assert(obj);
+    switch (mode) {
+    case GEOMETRY_PROP_GEO_CENTER: {
+        return NULL;
+    }
+    }
+    return NULL;
 }
 
 void mg_prop_geo2(const struct mg_object *obj, int mode, double *paras)

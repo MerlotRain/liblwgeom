@@ -21,10 +21,24 @@ extern "C" {
 
 struct mg_object;
 
+/// create a single geometry object
+/// @param gdim geometry dimension 0:point, 1:line, 2:area
+/// @param pn point number
+/// @param cdim coordinate dimension 2:2D, 3:3D
+/// @param pp point coordinates
+/// @param flag geometry type 0: reference pp, 1: copy pp
 EXTERN struct mg_object *mg_create_single(int gdim, int pn, int cdim,
                                           const double *pp, int flag);
 
-EXTERN struct mg_object *mg_create_multi(int dim, int snum,
+/// create a multi geometry object
+///
+/// When multiple geometries of different dimensions are passed in, only
+/// geometries with the same dimension as \a gdim will be accepted. When the
+/// result of the combination is only one geometry, it will degenerate into a
+/// simple geometry.
+///
+/// @param gdim geometry dimension 0:point, 1:line, 2:area
+EXTERN struct mg_object *mg_create_multi(int gdim, int snum,
                                          struct mg_object **subs);
 
 EXTERN void mg_free_object(struct mg_object *obj);
@@ -197,10 +211,17 @@ EXTERN struct mg_i4 *mg_output_writer(struct mg_reader2 *writer);
 /* Check geometry pseudo endpoints */
 #define GEOMETRY_CHECK_2_PSEUDO_ENDPOINT               0x04
 
+/// Set the tolerance used in geometric operations. This interface returns the
+/// tolerance currently in use.
 EXTERN double mg_tolerance(double tol);
 
+/// Get the value property of a geometric object
+/// Candidate values for mode are GEOMETRY_PROP_VALUE_*
 EXTERN double mg_prop_value(const struct mg_object *obj, int mode);
 
+/// Get the geometric object property of a geometric object
+/// Candidate values for mode are GEOMETRY_PROP_GEO_*, except
+/// GEOMETRY_PROP_GEO_ENVELOPE_CIRCLE and GEOMETRY_PROP_GEO_INNER_CIRCLE.
 EXTERN struct mg_object *mg_prop_geo(const struct mg_object *obj, int mode);
 
 EXTERN void mg_prop_geo2(const struct mg_object *obj, int mode, double *paras);

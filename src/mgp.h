@@ -42,10 +42,41 @@ struct mg_i4 {
 
 struct mg_reader2 {
     int current;         ///< current index
-    int nobj;            ///< number of objects
+    int size;            ///< size of object array
     struct mg_i4 **objs; ///< object array
     struct rtree *index; ///< spatial index
 };
+
+/* ----------------------- geometry IO extern function ---------------------- */
+
+struct mg_object *mg_read_wkt(const char *wkt, int len);
+struct mg_object *mg_read_wkb(const char *wkb, int len);
+struct mg_object *mg_read_ewkt(const char *ewkt, int len);
+struct mg_object *mg_read_ewkb(const char *ewkb, int len);
+struct mg_object *mg_read_geojson(const char *json, int len);
+struct mg_object *mg_read_kml(const char *kml, int len);
+struct mg_object *mg_read_gml2(const char *gml, int len);
+struct mg_object *mg_read_gml3(const char *gml, int len);
+
+int mg_write_wkt(const struct mg_object *obj, char **wkt, int *len);
+int mg_write_wkb(const struct mg_object *obj, char **wkb, int *len);
+int mg_write_ewkt(const struct mg_object *obj, char **ewkt, int *len);
+int mg_write_ewkb(const struct mg_object *obj, char **ewkb, int *len);
+int mg_write_geojson(const struct mg_object *obj, char **json, int *len);
+int mg_write_kml(const struct mg_object *obj, char **kml, int *len);
+int mg_write_gml2(const struct mg_object *obj, char **gml, int *len);
+int mg_write_gml3(const struct mg_object *obj, char **gml, int *len);
+
+/* ------------------- geometry algorithm extern function ------------------- */
+
+/// calc geometry length
+double mg_prop_length_value(const struct mg_object *obj);
+/// calc geometry area
+double mg_prop_area_value(const struct mg_object *obj);
+/// calc geometry width
+double mg_prop_width_value(const struct mg_object *obj);
+/// calc geometry height
+double mg_prop_height_value(const struct mg_object *obj);
 
 #ifdef __cplusplus
 }
