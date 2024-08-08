@@ -10,18 +10,23 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mg.h"
+#include "mghelp.h"
 
-static double g_tolerance = 0.0001;
-
-double geom_tolerance(double tol)
+struct mg_box mg_box_intersection(const struct mg_box env1,
+                                       const struct mg_box env2)
 {
-    double tmp = g_tolerance;
-    g_tolerance = tol;
-    return tmp;
 }
 
-double tolerance()
+struct mg_box mg_box_union(const struct mg_box env1,
+                                const struct mg_box env2)
 {
-    return g_tolerance;
+}
+
+bool mg_box_contains(const struct mg_box env1,
+                     const struct mg_box env2)
+{
+}
+
+bool mg_box_contains_point(const struct mg_box env, double *xy)
+{
 }

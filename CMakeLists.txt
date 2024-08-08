@@ -96,11 +96,15 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 set(mathse_HEADERS
-    include/mathse.h
-    include/mg.h
     include/btree.h
     include/geohash.h
+    include/mathse.h
+    include/mesh.h
+    include/mg.h
+    include/mghelp.h
+    include/nmea.h
     include/rtree.h
+    include/stream.h
 
     include/util/buf.h
     include/util/encode.h
@@ -111,10 +115,13 @@ set(mathse_HEADERS
 
 set(mathse_SOURCES
     src/mg.c
-    src/tolerance.c
     src/error.c
     
+    src/mg/area.c
+    src/mg/box.c
     src/mg/ellipse.c
+    src/mg/envelope.c
+    src/mg/length.c
     src/mg/point.c
 
     src/index/rtree.c

@@ -14,60 +14,37 @@
 #define MGP_H
 
 #include "mg.h"
+#include "rtree.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-union mg_upoint {
-    struct {
-        double x;
-        double y;
-        double z;
-        double m;
-    };
-    struct mg_point pt;
-    double extend[2];
+/// @brief Create a multi-geometry or single-geometry object
+struct mg_object {
+    int ngeoms;                 ///< number of geometries
+    int gdim;                   ///< geometry dimension 0:point, 1:line, 2:area
+    int cdim;                   ///< coordinate dimension 2:2D, 3:3D
+    int npoints;                ///< number of points
+    int flag;                   ///< flag 0: reference input, 1: memory copy
+    int clockwise;              ///< 1: clockwise, 0: counterclockwise
+    double *pp;                 ///< point pointer
+    struct mg_object **objects; ///< multi objects pointer
 };
 
-struct mg_path {
-    bool clockwise;
-    int npoints;
-    struct mg_envelope rect;
-    union mg_upoint points[];
+/// @brief create integer attribute object
+struct mg_i4 {
+    int id;                ///< i4 object id
+    struct mg_object *obj; ///< geometry object
+    int propSize;          ///< property size
+    int *prop;             ///< property array
 };
 
-struct mg_ring {
-    bool clockwise;
-    int npoints;
-    struct mg_envelope rect;
-    union mg_upoint points[];
-};
-
-struct mg_polygon {
-    struct mg_envelope rect;
-    struct mg_ring *exterior;
-    int nholes;
-    struct mg_ring **holes;
-};
-
-struct mg_multi {
-    struct mg_geom **geoms;
-    int ngeoms;
-    struct mg_envelope rect; // unioned rect child geometries
-};
-
-struct mg_geom {
-    int geomt;
-    int flags;
-    union {
-        union mg_upoint point;
-        struct mg_path *path;
-        struct mg_polygon *polygon;
-        struct mg_multi *multi;
-    };
-    double z;
-    double m;
+struct mg_reader2 {
+    int current;         ///< current index
+    int nobj;            ///< number of objects
+    struct mg_i4 **objs; ///< object array
+    struct rtree *index; ///< spatial index
 };
 
 #ifdef __cplusplus

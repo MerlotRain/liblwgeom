@@ -13,188 +13,261 @@
 #include "mg.h"
 #include "mgp.h"
 
-static struct mg_path *pir_geom_create_path(int flag, const double *pp, int np)
+/* ---------------------------- geometry factory ---------------------------- */
+
+struct mg_object *mg_create_single(int gdim, int pn, int cdim, const double *pp,
+                                   int flag)
 {
-    struct mg_path *path = (struct mg_path *)malloc(
-        sizeof(struct mg_path) + sizeof(union mg_upoint) * np);
-    if (path == NULL) {
-        free(path);
+    assert(pp);
+    struct mg_object *obj =
+        (struct mg_object *)malloc(sizeof(struct mg_object));
+    if (obj == NULL)
         return NULL;
+    memset(obj, 0, sizeof(struct mg_object));
+
+    obj->ngeoms = 1;
+    obj->gdim = gdim;
+    obj->npoints = pn;
+    obj->flag = flag;
+    if (flag == 0) {
+        obj->pp = (double *)pp;
     }
-    path->npoints = np;
+    else {
+        obj->pp = (double *)malloc(sizeof(double) * pn * cdim);
+        if (obj->pp == NULL) {
+            mg_free(obj);
+            return NULL;
+        }
+        memcpy(obj->pp, pp, sizeof(double) * pn * cdim);
+    }
+    return obj;
+}
 
-    // create mg_upoint
-    {
-        double min_x = pp[0];
-        double min_y = pp[1];
-        double max_x = pp[0];
-        double max_y = pp[1];
-        int step = 2;
-        if (flag & MG_COORDINATE_FLAG_Z)
-            step += 1;
-        if (flag & MG_COORDINATE_FLAG_M)
-            step += 1;
-        for (int i = 0; i < np; ++i) {
-            if (pp[i * step] < min_x)
-                min_x = pp[i * step];
-            if (pp[i * step] > max_x)
-                max_x = pp[i * step];
-            if (pp[i * step + 1] < min_y)
-                min_y = pp[i * step + 1];
-            if (pp[i * step + 1] > max_y)
-                max_y = pp[i * step + 1];
+struct mg_object *mg_create_multi(int gdim, int snum, struct mg_object **subs)
+{
+    assert(subs);
+    struct mg_object *obj =
+        (struct mg_object *)malloc(sizeof(struct mg_object));
+    if (obj == NULL)
+        return NULL;
+    memset(obj, 0, sizeof(struct mg_object));
 
-            path->points[i].x = pp[i * step];
-            path->points[i].y = pp[i * step + 1];
-            if (flag & MG_COORDINATE_FLAG_Z) {
-                path->points[i].z = pp[i * step + 2];
-                if (flag & MG_COORDINATE_FLAG_M) {
-                    path->points[i].z = pp[i * step + 3];
+    obj->gdim = gdim;
+    for (int i = 0; i < snum; ++i) {
+        struct mg_object *sub = subs[i];
+        if (sub == NULL)
+            continue;
+
+        // single sub
+        if (sub->ngeoms == 1) {
+            if (sub->gdim == obj->gdim) {
+                obj->ngeoms++;
+                obj->objects = (struct mg_object **)realloc(
+                    obj->objects, obj->ngeoms * sizeof(struct mg_object *));
+                if (obj->objects == NULL) {
+                    free(obj);
+                    return NULL;
+                }
+                obj->objects[obj->ngeoms - 1] = sub;
+            }
+        }
+        // multi sub
+        else {
+            for (int j = 0; j < sub->ngeoms; ++j) {
+                struct mg_object *ssub = sub->objects[j];
+                if (ssub == NULL)
+                    continue;
+                if (ssub->gdim == obj->gdim) {
+                    obj->ngeoms++;
+                    obj->objects = (struct mg_object **)realloc(
+                        obj->objects, obj->ngeoms * sizeof(struct mg_object *));
+                    if (obj->objects == NULL) {
+                        free(obj);
+                        return NULL;
+                    }
+                    obj->objects[obj->ngeoms - 1] = ssub;
                 }
             }
-            else if (flag & MG_COORDINATE_FLAG_M) {
-                path->points[i].m = pp[i * step + 2];
-            }
-        }
-    }
-    return path;
-}
-
-static bool p_check_ring_close(struct mg_ring *r)
-{
-    assert(r);
-    union mg_upoint pt0 = r->points[0];
-    union mg_upoint ptn = r->points[r->npoints - 1];
-    if (DBL_NEAR(pt0.x, ptn.x) && DBL_NEAR(pt0.y, ptn.y)) {
-        return true;
-    }
-    return false;
-}
-
-struct mg_geom *geom_new_point(int flag, const double *pp)
-{
-    assert(pp);
-    struct mg_geom *g = (struct mg_geom *)malloc(sizeof(struct mg_geom));
-    if (g == NULL)
-        return NULL;
-    memset(g, 0, sizeof(struct mg_geom));
-    struct mg_point p = {.x = pp[0], .y = pp[1]};
-    g->point.pt = p;
-    if (flag & MG_COORDINATE_FLAG_Z) {
-        g->point.z = pp[2];
-        if (flag & MG_COORDINATE_FLAG_M) {
-            g->point.m = pp[3];
-        }
-    }
-    else if (flag & MG_COORDINATE_FLAG_M) {
-        g->point.m = pp[2];
-    }
-
-    g->flags = flag;
-    g->geomt = MG_POINT;
-    return g;
-}
-
-struct mg_geom *geom_new_path(int flag, const double *pp, int np)
-{
-    assert(pp);
-    struct mg_geom *g = (struct mg_geom *)malloc(sizeof(struct mg_geom));
-    if (g == NULL)
-        return NULL;
-    memset(g, 0, sizeof(struct mg_geom));
-    struct mg_path *path = pir_geom_create_path(flag, pp, np);
-    if (path == NULL) {
-        free(g);
-        return NULL;
-    }
-    g->path = path;
-    g->flags = flag;
-    g->geomt = MG_PATH;
-    return g;
-}
-
-struct mg_geom *geom_new_ring(int flag, const double *rp, int np)
-{
-    assert(rp);
-    struct mg_geom *g = (struct mg_geom *)malloc(sizeof(struct mg_geom));
-    if (g == NULL)
-        return NULL;
-    memset(g, 0, sizeof(struct mg_geom));
-    struct mg_path *ring = pir_geom_create_path(flag, rp, np);
-    if (ring == NULL) {
-        free(g);
-        return NULL;
-    }
-    g->path = ring;
-    g->flags = flag;
-    g->geomt = MG_RING;
-    return g;
-}
-
-struct mg_geom *geom_new_polygon(int flag, const double *sp, int spn,
-                                 const double **hpp, int *hpn, int hppn)
-{
-    assert(sp);
-    struct mg_geom *g = (struct mg_geom *)malloc(sizeof(struct mg_geom));
-    if (g == NULL)
-        return NULL;
-
-    struct mg_polygon *polygon =
-        (struct mg_polygon *)malloc(sizeof(struct mg_polygon));
-    if (polygon == NULL) {
-        free(g);
-        return NULL;
-    }
-    polygon->holes = (struct mg_ring **)malloc(sizeof(struct mg_ring *) * hppn);
-    struct mg_ring *shell =
-        (struct mg_ring *)pir_geom_create_path(flag, sp, spn);
-    if (shell == NULL) {
-        free(g);
-        return NULL;
-    }
-
-    polygon->exterior = shell;
-    polygon->nholes = hppn;
-    for (int i = 0; i < hppn; ++i) {
-        struct mg_ring *hole =
-            (struct mg_ring *)pir_geom_create_path(flag, hpp[i], hpn[i]);
-        if (hole) {
-            polygon->holes[i] = hole;
         }
     }
 
-    return g;
+    if (obj->ngeoms == 1) {
+        // degenerate
+        obj->flag = obj->objects[0]->flag;
+        obj->npoints = obj->objects[0]->npoints;
+        obj->pp = obj->objects[0]->pp;
+        free(obj->objects[0]);
+        free(obj->objects);
+        obj->objects = NULL;
+    }
+    return obj;
 }
 
-struct mg_geom *geom_new_multigeom(int gt, const struct mg_geom **geoms, int ng)
+void pri_mg_free_object(struct mg_object *g)
 {
-    struct mg_geom *g = (struct mg_geom *)malloc(sizeof(struct mg_geom));
-    if (g == NULL) {
-        return NULL;
+    assert(g);
+    if (g->flag != 0) {
+        free(g->pp);
     }
-    if (gt == MG_POINT || gt == MG_MULTIPOINT)
-        g->geomt = MG_MULTIPOINT;
-    else if (gt == MG_PATH || gt == MG_MULTILINESTRING)
-        g->geomt = MG_MULTILINESTRING;
-    else if (gt == MG_POLYGON || gt == MG_MULTIPOLYGON)
-        g->geomt = MG_MULTIPOLYGON;
+    free(g);
+}
+
+void mg_free_object(struct mg_object *g)
+{
+    assert(g);
+    if (g->ngeoms == 1) {
+        pri_mg_free_object(g);
+    }
     else {
-        free(g);
-        return NULL;
+        for (int i = 0; i < g->ngeoms; ++i) {
+            struct mg_object *sub = g->objects[i];
+            if (sub == NULL)
+                continue;
+            pri_mg_free_object(sub);
+        }
     }
-
-    struct mg_multi *mul = (struct mg_multi *)malloc(sizeof(struct mg_multi));
-    if (!mul) {
-        free(g);
-        return NULL;
-    }
-    mul->geoms = (struct mg_geom **)geoms;
-    mul->ngeoms = ng;
-
-    g->multi = mul;
-    return g;
 }
 
-void geom_free(struct mg_geom *geom)
+int mg_dim_c(const struct mg_object *obj)
+{
+    return 0;
+}
+
+int mg_dim_g(const struct mg_object *obj)
+{
+    return 0;
+}
+
+int mg_sub_n(const struct mg_object *obj)
+{
+    return 0;
+}
+
+struct mg_object *mg_sub_at(const struct mg_object *obj, int i)
+{
+    return NULL;
+}
+
+int mg_point_n(const struct mg_object *obj)
+{
+    return 0;
+}
+
+/* ------------------------------- geometry io ------------------------------ */
+
+struct mg_object *mg_read(int flag, const char *data, int len)
+{
+    return NULL;
+}
+
+int mg_write(int flag, const struct mg_object *obj, char **data, int len)
+{
+    return 0;
+}
+
+struct mg_object *mg_read_ora(int i_n, const int *i_p, int c_n, int c_dim,
+                              const double *c_p, int flag)
+{
+    return NULL;
+}
+
+int mg_write_ora(struct mg_object *obj, int *i_n, int **i_p, int *c_n,
+                 int *c_dim, double **c_p)
+{
+    return 0;
+}
+
+/* ------------------------- geometry reader writer ------------------------- */
+
+struct mg_object *mg_i4_object(struct mg_i4 *i4)
+{
+}
+
+void mg_i4_propProp(const struct mg_i4 *i4, int *propSize, int **prop)
+{
+}
+
+int mg_i4_prop_value(const struct mg_i4 *i4, int index)
+{
+    return 0;
+}
+
+struct mg_reader2 *mg_create_reader(int size)
+{
+    return NULL;
+}
+
+struct mg_reader2 *mg_create_writer()
+{
+    return NULL;
+}
+
+void mg_free_reader2(struct mg_reader2 *reader)
+{
+}
+
+void mg_input_reader(struct mg_reader2 *reader, const struct mg_object *obj,
+                     int propSize, int *prop)
+{
+}
+
+struct mg_i4 *mg_output_writer(struct mg_reader2 *writer)
+{
+    return NULL;
+}
+
+/* -------------------------------- tolerance ------------------------------- */
+
+static double g_tolerance = 0.0001;
+
+double mg_tolerance(double tol)
+{
+    double tmp = g_tolerance;
+    g_tolerance = tol;
+    return tmp;
+}
+
+double tolerance()
+{
+    return g_tolerance;
+}
+
+/* --------------------------- geometry algorithm --------------------------- */
+
+/// calc geometry length
+double mg_prop_length_value(const struct mg_object *obj);
+/// calc geometry area
+double mg_prop_area_value(const struct mg_object *obj);
+/// calc geometry width
+double mg_prop_width_value(const struct mg_object *obj);
+/// calc geometry height
+double mg_prop_height_value(const struct mg_object *obj);
+
+double mg_prop_value(const struct mg_object *obj, int mode)
+{
+    assert(obj);
+    switch (mode) {
+    case GEOMETRY_PROP_VALUE_LENGTH: {
+        return mg_prop_length_value(obj);
+    }
+    case GEOMETRY_PROP_VALUE_WIDTH: {
+        return mg_prop_width_value(obj);
+    }
+    case GEOMETRY_PROP_VALUE_HEIGHT: {
+        return mg_prop_height_value(obj);
+    }
+    case GEOMETRY_PROP_VALUE_AREA: {
+        return mg_prop_area_value(obj);
+    }
+    default:
+        return 0;
+    }
+}
+
+struct mg_object *mg_prop_geo(const struct mg_object *obj, int mode)
+{
+}
+
+void mg_prop_geo2(const struct mg_object *obj, int mode, double *paras)
 {
 }
