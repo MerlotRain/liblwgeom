@@ -36,7 +36,7 @@ double pri_geom_ring_length(const struct mg_ring* ring)
 }
 
 /// calc geometry length
-double geom_prop_length_value(const struct mg_geom *geom)
+double geom_prop_length_value(const struct mg_object *geom)
 {
     assert(geom);
 

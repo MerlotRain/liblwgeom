@@ -13,11 +13,11 @@
 #include "mgp.h"
 
 /// calc geometry length
-extern double geom_prop_length_value(const struct mg_geom *geom);
+extern double geom_prop_length_value(const struct mg_object *geom);
 /// calc geometry area
-extern double geom_prop_area_value(const struct mg_geom *geom);
+extern double geom_prop_area_value(const struct mg_object *geom);
 
-double geom_prop_value(const struct mg_geom *geom, int mode)
+double geom_prop_value(const struct mg_object *geom, int mode)
 {
     assert(geom);
     switch (mode) {
@@ -36,10 +36,10 @@ double geom_prop_value(const struct mg_geom *geom, int mode)
     }
 }
 
-struct mg_geom *geom_prop_geo(const struct mg_geom *geom, int mode)
+struct mg_object *geom_prop_geo(const struct mg_object *geom, int mode)
 {
 }
 
-void geom_prop_geo2(const struct mg_geom *geom, int mode, double *paras)
+void geom_prop_geo2(const struct mg_object *geom, int mode, double *paras)
 {
 }

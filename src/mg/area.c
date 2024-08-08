@@ -30,7 +30,7 @@ double pri_geom_ring_area(const struct mg_ring* ring)
 }
 
 /// calc geometry area
-double geom_prop_area_value(const struct mg_geom *geom)
+double geom_prop_area_value(const struct mg_object *geom)
 {
     assert(geom);
 

@@ -23,29 +23,29 @@ static void pir_wkt_get_precise_coordinates(stok *token, struct Ordinate *flag,
 static char *pir_wkt_get_next_empty_or_opener(stok *token,
                                               struct Ordinate *flag);
 
-static struct mg_geom *pri_wkt_read_point(stok *token, struct Ordinate *flag);
+static struct mg_object *pri_wkt_read_point(stok *token, struct Ordinate *flag);
 
-static struct mg_geom *pri_wkt_read_linestring(stok *token,
+static struct mg_object *pri_wkt_read_linestring(stok *token,
                                                struct Ordinate *flag);
 
-static struct mg_geom *pri_wkt_read_polygon(stok *token, struct Ordinate *flag);
+static struct mg_object *pri_wkt_read_polygon(stok *token, struct Ordinate *flag);
 
-static struct mg_geom *pri_wkt_read_multipoint(stok *token,
+static struct mg_object *pri_wkt_read_multipoint(stok *token,
                                                struct Ordinate *flag);
 
-static struct mg_geom *pri_wkt_read_multilinestring(stok *token,
+static struct mg_object *pri_wkt_read_multilinestring(stok *token,
                                                     struct Ordinate *flag);
 
-static struct mg_geom *pri_wkt_read_multipolygon(stok *token,
+static struct mg_object *pri_wkt_read_multipolygon(stok *token,
                                                  struct Ordinate *flag);
 
-static struct mg_geom *pri_wkt_read_geometrycollection(stok *token,
+static struct mg_object *pri_wkt_read_geometrycollection(stok *token,
                                                        struct Ordinate *flag);
 
 //////////////////////
 //////////////////////
 
-struct mg_geom *geom_read_wkt(const char *data, int len)
+struct mg_object *geom_read_wkt(const char *data, int len)
 {
 #ifdef _MSC_VER
     // Avoid multithreading issues caused by setlocale
@@ -174,7 +174,7 @@ char *pir_wkt_get_next_empty_or_opener(stok *token, struct Ordinate *flag)
     return "";
 }
 
-struct mg_geom *pri_wkt_read_point(stok *token, struct Ordinate *flag)
+struct mg_object *pri_wkt_read_point(stok *token, struct Ordinate *flag)
 {
     double coords[4];
     int n = 0;
@@ -182,32 +182,32 @@ struct mg_geom *pri_wkt_read_point(stok *token, struct Ordinate *flag)
     return NULL;
 }
 
-struct mg_geom *pri_wkt_read_linestring(stok *token, struct Ordinate *flag)
+struct mg_object *pri_wkt_read_linestring(stok *token, struct Ordinate *flag)
 {
     return NULL;
 }
 
-struct mg_geom *pri_wkt_read_polygon(stok *token, struct Ordinate *flag)
+struct mg_object *pri_wkt_read_polygon(stok *token, struct Ordinate *flag)
 {
     return NULL;
 }
 
-struct mg_geom *pri_wkt_read_multipoint(stok *token, struct Ordinate *flag)
+struct mg_object *pri_wkt_read_multipoint(stok *token, struct Ordinate *flag)
 {
     return NULL;
 }
 
-struct mg_geom *pri_wkt_read_multilinestring(stok *token, struct Ordinate *flag)
+struct mg_object *pri_wkt_read_multilinestring(stok *token, struct Ordinate *flag)
 {
     return NULL;
 }
 
-struct mg_geom *pri_wkt_read_multipolygon(stok *token, struct Ordinate *flag)
+struct mg_object *pri_wkt_read_multipolygon(stok *token, struct Ordinate *flag)
 {
     return NULL;
 }
 
-struct mg_geom *pri_wkt_read_geometrycollection(stok *token,
+struct mg_object *pri_wkt_read_geometrycollection(stok *token,
                                                 struct Ordinate *flag)
 {
     return NULL;
@@ -217,7 +217,7 @@ struct mg_geom *pri_wkt_read_geometrycollection(stok *token,
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-int geom_write_wkt(const struct mg_geom *g, char **data, int len)
+int geom_write_wkt(const struct mg_object *g, char **data, int len)
 {
     return 0;
 }

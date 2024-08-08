@@ -19,196 +19,61 @@
 extern "C" {
 #endif
 
-/// PointXY
-/// The base point type used for all geometries.
-struct mg_point {
-    double x;
-    double y;
-};
+struct mg_object;
 
-/// Returns a new point which corresponds to this point projected by a specified
-/// distance with specified angles
-EXTERN struct mg_point mg_point_project(const struct mg_point p, double dis,
-                                        double azimuth);
+EXTERN struct mg_object *geom_create_single(int gdim, int pn, int cdim, const double* pp, int flag);
 
-/// point angle with mg_point(0, 0)
-EXTERN double mg_angle(const struct mg_point p0);
+EXTERN struct mg_object *geom_create_multi(int dim, int snum, struct mg_object** subs);
 
-/// Returns the angle of the vector from p0 to p1, relative to the positive
-/// X-axis.
-EXTERN double mg_angle2(const struct mg_point p0, const struct mg_point p1);
+EXTERN void geom_free(struct mg_object* g);
 
-/// Tests whether the angle between p0-p1-p2 is acute.
-EXTERN bool mg_acute(const struct mg_point p0, const struct mg_point p1,
-                     const struct mg_point p2);
+EXTERN int geom_dim_c(const struct mg_object* g);
 
-/// Tests whether the angle between p0-p1-p2 is obtuse.
-EXTERN bool mg_obtuse(const struct mg_point p0, const struct mg_point p1,
-                      const struct mg_point p2);
+EXTERN int geom_dim_g(const struct mg_object* g);
 
-/// Returns the unoriented smallest angle between two vectors.
-EXTERN double mg_angle_between(const struct mg_point tip1,
-                               const struct mg_point tail,
-                               const struct mg_point tip2);
+EXTERN int geom_sub_n(const struct mg_object* g);
 
-/// Computes the interior angle between two segments of a ring.
-EXTERN bool mg_interior_angle(const struct mg_point p0,
-                              const struct mg_point p1,
-                              const struct mg_point p2);
+EXTERN struct geom_object* mg_sub_at(const struct mg_object *g, int i);
 
-/// Envelope
-/// A rectangle defined by a minimum and maximum coordinates.
-struct mg_envelope {
-    struct mg_point min;
-    struct mg_point max;
-};
+EXTERN int geom_point_n(const struct mg_object *p);
 
-/// Computes the intersection of two Envelopes
-EXTERN struct mg_envelope mg_env_intersection(const struct mg_envelope env1,
-                                              const struct mg_envelope env2);
+EXTERN struct mg_object *geom_read_wkt(const char *data, int len);
 
-/// Enlarges the boundary of the Envelope so that it contains
-EXTERN struct mg_envelope mg_env_union(const struct mg_envelope env1,
-                                       const struct mg_envelope env2);
+EXTERN struct mg_object *geom_read_wkb(const char *data, int len);
 
-/// Tests if the Envelope `other` lies wholly inside this Envelope
-/// (inclusive of the boundary).
-EXTERN bool mg_env_contains(const struct mg_envelope env1,
-                            const struct mg_envelope env2);
+EXTERN struct mg_object *geom_read_geojson(const char *data, int len);
 
-/// Returns `true` if the given point lies in or on the envelope.
-EXTERN bool mg_env_contains_point(const struct mg_envelope env, double *xy);
+EXTERN struct mg_object *geom_read_ewkt(const char *data, int len);
 
-/// mg_ ellipse is used to describe an ellipse or circle.
-/// Before V1.0, it would be treated as a regular geometric shape and
-/// temporarily not included in the unified management of the mg_geom model,
-/// while providing relevant algorithms for circles or ellipses.
-struct mg_ellipse {
-    struct mg_point center;
-    double major;
-    double minor;
-    double azimuth;
-};
+EXTERN struct mg_object *geom_read_ewkb(const char *data, int len);
 
-/// The eccentricity of the ellipse. - double
-#define MG_ELLIPSE_PROP_VALUE_ECCENTRICITY 0
-/// The area of the ellipse. - double
-#define MG_ELLIPSE_PROP_VALUE_AREA         1
-/// The perimeter of the ellipse. - double
-#define MG_ELLIPSE_PROP_VALUE_PERIMETER    2
-/// Two foci of the ellipse. The axes are oriented by the azimuth and are on the
-/// semi-major axis. - mg_point[2]
-#define MG_ELLIPSE_PROP_VALUE_FOCI         4
-/// The distance between the center and each foci. - double
-#define MG_ELLIPSE_PROP_FOCUS_DISTANCE     8
+EXTERN struct mg_object *geom_read_kml(const char *data, int len);
 
-/// Two points form a circle, and the line segment between these two points is
-/// the diameter of the circle
-#define MG_CONSTRUCT_CIRCLE_2P             1
-/// Three points form a circle, and these three points are on the circle
-#define MG_CONSTRUCT_CIRCLE_3P             2
-/// To construct a circle with three tangent lines, six points need to be passed
-/// in. These six points form three straight lines, which can generate 0-2
-/// circles. They are also the inscribed circles of a triangle
-#define MG_CONSTRUCT_CIRCLE_ICT            3
+EXTERN struct mg_object *geom_read_gml(const char *data, int len);
 
-/// Calculate the ellipse attribute. \a flags are a combination of
-/// \a MG_ELLIPSE_PROP macro series. When passing in \a values externally, the
-/// data structure needs to be organized by oneself. The algorithm will write
-/// the calculation result in sequence based on the bits of the flag.
-EXTERN void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
-                                  double *values);
+EXTERN struct mg_object *geom_read_gml2(const char *data, int len);
 
-/// Construct circles according to different calculation methods. \a t is
-/// determined based on the \a MG_CONSTRUCT_CIRCLE series macros.
-/// For MG_CONSTRUCT_CIRCLE_2P andMG_CONSTRUCT_CIRCLE_3P, a circle will
-/// ultimately be generated.
-/// When the value of \a n is MG_CONSTRUCT_CIRCLE_ICT, if \a n is -1, the
-/// algorithm for generating multiple tangent circles will be executed. If \a n
-/// is -2, only one circle will be generated. And after the algorithm is
-/// executed, the number of circles generated is transmitted out. External CS
-/// needs to create an array of sufficient size according to requirements to
-/// receive the return value.
-EXTERN void mg_construct_circle(const struct mg_point *p, int t,
-                                struct mg_ellipse *es, int *n);
+EXTERN struct mg_object *geom_read_ora(int i_n,const int *i_p,int c_n,int c_dim,const double *c_p);
 
-/// Mini Geometry
-struct mg_path;
-struct mg_ring;
-struct mg_polygon;
-struct mg_geom;
 
-/// Geometry types.
-enum geom_type {
-    MG_POINT = 1,              ///< Point
-    MG_PATH = 2,               ///< Path
-    MG_RING = 3,               ///< Ring, closed path
-    MG_POLYGON = 4,            ///< Polygon
-    MG_MULTIPOINT = 5,         ///< MultiPoint, collection of points
-    MG_MULTILINESTRING = 6,    ///< MultiLinestring, collection of paths
-    MG_MULTIPOLYGON = 7,       ///< MultiPolygon, collection of polygons
-    MG_GEOMETRYCOLLECTION = 8, ///< GeometryCollection, collection of geometries
-};
 
-#define MG_COORDINATE_FLAG_XY 1 << 0 ///< base coordinate flag
-#define MG_COORDINATE_FLAG_Z  1 << 1 ///< coordinate ptr order by x, y, z
-#define MG_COORDINATE_FLAG_M  1 << 2 ///< coordinate ptr order by x, y, m
+EXTERN int geom_write_wkt(const struct mg_object *g, char **data, int len);
 
-/// @brief create point geometry
-/// @param flag Extract and combine values from MG-COORDINATe_LAG series macros
-/// @param pp point coordinate ptr
-EXTERN struct mg_geom *geom_new_point(int flag, const double *pp);
+EXTERN int geom_write_wkb(const struct mg_object *g, char **data, int len);
 
-/// @brief create path geometry
-/// @param flag Extract and combine values from MG-COORDINATe_LAG series macros
-/// @param pp path coordinate ptr
-/// @param np number of point
-EXTERN struct mg_geom *geom_new_path(int flag, const double *pp, int np);
+EXTERN int geom_write_geojson(const struct mg_object *g, char *data, int len);
 
-/// @brief create path geometry
-/// @param flag Extract and combine values from MG-COORDINATe_LAG series macros
-/// @param pp ring coordinate ptr
-/// @param np number of point
-EXTERN struct mg_geom *geom_new_ring(int flag, const double *rp, int np);
+EXTERN int geom_write_ewkt(const struct mg_object *g, char **data, int len);
 
-/// @brief create path geometry
-/// @param flag Extract and combine values from MG-COORDINATe_LAG series macros
-/// @param sp polygon shell ring ptr
-/// @param spn shell ring point number
-/// @param hpp polygon holes pointer
-/// @param hpn the array of single hole point number
-/// @param hppn hpn number
-EXTERN struct mg_geom *geom_new_polygon(int flag, const double *sp, int spn,
-                                        const double **hpp, int *hpn, int hppn);
+EXTERN int geom_write_ewkb(const struct mg_object *g, char **data, int len);
 
-/// @brief create multi geometry
-/// @param gt geometry type
-/// @param geoms single geometry struct pointer
-/// @param ng number of geometry
-EXTERN struct mg_geom *geom_new_multigeom(int gt, const struct mg_geom **geoms,
-                                          int ng);
+EXTERN int geom_write_kml(const struct mg_object *g, char **data, int len);
 
-/// @brief free geometry
-/// @param geom
-EXTERN void geom_free(struct mg_geom *geom);
+EXTERN int geom_write_gml(const struct mg_object *g, char **data, int len);
 
-EXTERN struct mg_geom *geom_read_wkt(const char *data, int len);
-EXTERN struct mg_geom *geom_read_wkb(const char *data, int len);
-EXTERN struct mg_geom *geom_read_geojson(const char *data, int len);
-EXTERN struct mg_geom *geom_read_ewkt(const char *data, int len);
-EXTERN struct mg_geom *geom_read_ewkb(const char *data, int len);
-EXTERN struct mg_geom *geom_read_kml(const char *data, int len);
-EXTERN struct mg_geom *geom_read_gml(const char *data, int len);
-EXTERN struct mg_geom *geom_read_gml2(const char *data, int len);
+EXTERN int geom_write_gml2(const struct mg_object *g, char **data, int len);
 
-EXTERN int geom_write_wkt(const struct mg_geom *g, char **data, int len);
-EXTERN int geom_write_wkb(const struct mg_geom *g, char **data, int len);
-EXTERN int geom_write_geojson(const struct mg_geom *g, char *data, int len);
-EXTERN int geom_write_ewkt(const struct mg_geom *g, char **data, int len);
-EXTERN int geom_write_ewkb(const struct mg_geom *g, char **data, int len);
-EXTERN int geom_write_kml(const struct mg_geom *g, char **data, int len);
-EXTERN int geom_write_gml(const struct mg_geom *g, char **data, int len);
-EXTERN int geom_write_gml2(const struct mg_geom *g, char **data, int len);
+EXTERN int geom_write_ora(struct mg_object* g, int* i_n, int** i_p, int* c_n, int* c_dim, double **c_p);
 
 /* Calculate the length of a geometry */
 #define GEOMETRY_PROP_VALUE_LENGTH                     0
@@ -314,11 +179,11 @@ EXTERN int geom_write_gml2(const struct mg_geom *g, char **data, int len);
 
 EXTERN double geom_tolerance(double tol);
 
-EXTERN double geom_prop_value(const struct mg_geom *geom, int mode);
+EXTERN double geom_prop_value(const struct mg_object *geom, int mode);
 
-EXTERN struct mg_geom *geom_prop_geo(const struct mg_geom *geom, int mode);
+EXTERN struct mg_object *geom_prop_geo(const struct mg_object *geom, int mode);
 
-EXTERN void geom_prop_geo2(const struct mg_geom *geom, int mode, double *paras);
+EXTERN void geom_prop_geo2(const struct mg_object *geom, int mode, double *paras);
 
 #ifdef __cplusplus
 }
