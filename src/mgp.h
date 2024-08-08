@@ -19,17 +19,13 @@
 extern "C" {
 #endif
 
-struct mg_path {
+struct mg_object {
+    int ngeoms;
     int gdim;
     int npoints;
     int flag;
+    int clockwise;
     double *pp;
-};
-
-struct mg_object {
-    int gdim;
-    int ngeoms;
-    struct mg_path* path;
     struct mg_object** objects;
 };
 

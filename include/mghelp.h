@@ -44,28 +44,28 @@ EXTERN bool mg_interior_angle(const struct mg_point p0,
                               const struct mg_point p1,
                               const struct mg_point p2);
 
-/// Envelope
+/// Box
 /// A rectangle defined by a minimum and maximum coordinates.
-struct mg_envelope {
+struct mg_box {
     struct mg_point min;
     struct mg_point max;
 };
 
 /// Computes the intersection of two Envelopes
-EXTERN struct mg_envelope mg_env_intersection(const struct mg_envelope env1,
-                                              const struct mg_envelope env2);
+EXTERN struct mg_box mg_box_intersection(const struct mg_box env1,
+                                              const struct mg_box env2);
 
 /// Enlarges the boundary of the Envelope so that it contains
-EXTERN struct mg_envelope mg_env_union(const struct mg_envelope env1,
-                                       const struct mg_envelope env2);
+EXTERN struct mg_box mg_box_union(const struct mg_box env1,
+                                const struct mg_box env2);
 
 /// Tests if the Envelope `other` lies wholly inside this Envelope
 /// (inclusive of the boundary).
-EXTERN bool mg_env_contains(const struct mg_envelope env1,
-                            const struct mg_envelope env2);
+EXTERN bool mg_box_contains(const struct mg_box env1,
+                            const struct mg_box env2);
 
 /// Returns `true` if the given point lies in or on the envelope.
-EXTERN bool mg_env_contains_point(const struct mg_envelope env, double *xy);
+EXTERN bool mg_box_contains_point(const struct mg_box env, double *xy);
 
 /// mg_ ellipse is used to describe an ellipse or circle.
 /// Before V1.0, it would be treated as a regular geometric shape and

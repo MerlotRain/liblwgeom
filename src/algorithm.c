@@ -13,33 +13,39 @@
 #include "mgp.h"
 
 /// calc geometry length
-extern double geom_prop_length_value(const struct mg_object *geom);
+extern double geom_prop_length_value(const struct mg_object *obj);
 /// calc geometry area
-extern double geom_prop_area_value(const struct mg_object *geom);
+extern double geom_prop_area_value(const struct mg_object *obj);
+/// calc geometry width
+extern double geom_prop_width_value(const struct mg_object *obj);
+/// calc geometry height
+extern double geom_prop_height_value(const struct mg_object *obj);
 
-double geom_prop_value(const struct mg_object *geom, int mode)
+double geom_prop_value(const struct mg_object *obj, int mode)
 {
-    assert(geom);
+    assert(obj);
     switch (mode) {
-    case GEOMETRY_PROP_VALUE_LENGTH:
-        return geom_prop_length_value(geom);
+    case GEOMETRY_PROP_VALUE_LENGTH: {
+        return geom_prop_length_value(obj);
+    }
     case GEOMETRY_PROP_VALUE_WIDTH: {
-        return 0.0;
+        return geom_prop_width_value(obj);
     }
     case GEOMETRY_PROP_VALUE_HEIGHT: {
-        return 0.0;
+        return geom_prop_height_value(obj);
     }
-    case GEOMETRY_PROP_VALUE_AREA:
-        return geom_prop_area_value(geom);
+    case GEOMETRY_PROP_VALUE_AREA: {
+        return geom_prop_area_value(obj);
+    }
     default:
         return 0;
     }
 }
 
-struct mg_object *geom_prop_geo(const struct mg_object *geom, int mode)
+struct mg_object *geom_prop_geo(const struct mg_object *obj, int mode)
 {
 }
 
-void geom_prop_geo2(const struct mg_object *geom, int mode, double *paras)
+void geom_prop_geo2(const struct mg_object *obj, int mode, double *paras)
 {
 }

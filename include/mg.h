@@ -25,15 +25,15 @@ EXTERN struct mg_object *geom_create_single(int gdim, int pn, int cdim, const do
 
 EXTERN struct mg_object *geom_create_multi(int dim, int snum, struct mg_object** subs);
 
-EXTERN void geom_free(struct mg_object* g);
+EXTERN void geom_free(struct mg_object* obj);
 
-EXTERN int geom_dim_c(const struct mg_object* g);
+EXTERN int geom_dim_c(const struct mg_object* obj);
 
-EXTERN int geom_dim_g(const struct mg_object* g);
+EXTERN int geom_dim_g(const struct mg_object* obj);
 
-EXTERN int geom_sub_n(const struct mg_object* g);
+EXTERN int geom_sub_n(const struct mg_object* obj);
 
-EXTERN struct geom_object* mg_sub_at(const struct mg_object *g, int i);
+EXTERN struct geom_object* mg_sub_at(const struct mg_object *obj, int i);
 
 EXTERN int geom_point_n(const struct mg_object *p);
 
@@ -57,23 +57,23 @@ EXTERN struct mg_object *geom_read_ora(int i_n,const int *i_p,int c_n,int c_dim,
 
 
 
-EXTERN int geom_write_wkt(const struct mg_object *g, char **data, int len);
+EXTERN int geom_write_wkt(const struct mg_object *obj, char **data, int len);
 
-EXTERN int geom_write_wkb(const struct mg_object *g, char **data, int len);
+EXTERN int geom_write_wkb(const struct mg_object *obj, char **data, int len);
 
-EXTERN int geom_write_geojson(const struct mg_object *g, char *data, int len);
+EXTERN int geom_write_geojson(const struct mg_object *obj, char *data, int len);
 
-EXTERN int geom_write_ewkt(const struct mg_object *g, char **data, int len);
+EXTERN int geom_write_ewkt(const struct mg_object *obj, char **data, int len);
 
-EXTERN int geom_write_ewkb(const struct mg_object *g, char **data, int len);
+EXTERN int geom_write_ewkb(const struct mg_object *obj, char **data, int len);
 
-EXTERN int geom_write_kml(const struct mg_object *g, char **data, int len);
+EXTERN int geom_write_kml(const struct mg_object *obj, char **data, int len);
 
-EXTERN int geom_write_gml(const struct mg_object *g, char **data, int len);
+EXTERN int geom_write_gml(const struct mg_object *obj, char **data, int len);
 
-EXTERN int geom_write_gml2(const struct mg_object *g, char **data, int len);
+EXTERN int geom_write_gml2(const struct mg_object *obj, char **data, int len);
 
-EXTERN int geom_write_ora(struct mg_object* g, int* i_n, int** i_p, int* c_n, int* c_dim, double **c_p);
+EXTERN int geom_write_ora(struct mg_object* obj, int* i_n, int** i_p, int* c_n, int* c_dim, double **c_p);
 
 /* Calculate the length of a geometry */
 #define GEOMETRY_PROP_VALUE_LENGTH                     0
@@ -179,11 +179,11 @@ EXTERN int geom_write_ora(struct mg_object* g, int* i_n, int** i_p, int* c_n, in
 
 EXTERN double geom_tolerance(double tol);
 
-EXTERN double geom_prop_value(const struct mg_object *geom, int mode);
+EXTERN double geom_prop_value(const struct mg_object *obj, int mode);
 
-EXTERN struct mg_object *geom_prop_geo(const struct mg_object *geom, int mode);
+EXTERN struct mg_object *geom_prop_geo(const struct mg_object *obj, int mode);
 
-EXTERN void geom_prop_geo2(const struct mg_object *geom, int mode, double *paras);
+EXTERN void geom_prop_geo2(const struct mg_object *obj, int mode, double *paras);
 
 #ifdef __cplusplus
 }

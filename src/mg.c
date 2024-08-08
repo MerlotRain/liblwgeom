@@ -13,80 +13,114 @@
 #include "mg.h"
 #include "mgp.h"
 
-struct mg_object *geom_create_single(int gdim, int pn, int cdim, const double* pp, int flag)
+
+struct mg_object *geom_create_single(int gdim, int pn, int cdim,
+                                     const double *pp, int flag)
 {
     assert(pp);
-    struct mg_object* obj = (struct mg_object)malloc(sizeof(struct mg_object));
-    if(obj == NULL)
+    struct mg_object *obj = 
+        (struct mg_object *)malloc(sizeof(struct mg_object));
+    if (obj == NULL)
         return NULL;
     memset(obj, 0, sizeof(struct mg_object));
 
-    obj->gdim = gdim;
     obj->ngeoms = 1;
-    obj->path = (struct mg_path**)malloc(sizeof(obj->ngeoms * sizeof(struct mg_path*)));
-    if(obj->path == NULL)
-    {
-        geom_free(obj);
-        return NULL;
+    obj->gdim = gdim;
+    obj->npoints = pn;
+    obj->flag = flag;
+    if (flag == 0) {
+        obj->pp = (double *)pp;
     }
-    obj->path->gdim = gdim;
-    obj->path->npoints = pn;
-    obj->path->flag = flag;
-    if(flag == 0)
-    {
-        obj->path->pp = pp;
-    }
-    else
-    {
-        obj->path->pp = (double *)malloc(sizeof(double) * pn * cdim);
-        if(obj->path->pp == NULL)
-        {
+    else {
+        obj->pp = (double *)malloc(sizeof(double) * pn * cdim);
+        if (obj->pp == NULL) {
             geom_free(obj);
             return NULL;
         }
-        memcpy(obj->path->pp, pp, sizeof(double) * pn * cdim);
+        memcpy(obj->pp, pp, sizeof(double) * pn * cdim);
     }
     return obj;
 }
 
-struct mg_object *geom_create_multi(int dim, int snum, struct mg_object** subs)
+struct mg_object *geom_create_multi(int gdim, int snum, struct mg_object **subs)
 {
     assert(subs);
-    struct mg_object* obj = (struct mg_object)malloc(sizeof(struct mg_object));
-    if(obj == NULL)
+    struct mg_object *obj = 
+        (struct mg_object *)malloc(sizeof(struct mg_object));
+    if (obj == NULL)
         return NULL;
     memset(obj, 0, sizeof(struct mg_object));
-    
+
     obj->gdim = gdim;
-    obj->ngeoms = snum;
-    obj->objects = subs;
-    return obj;      
+    for (int i = 0; i < snum; ++i) {
+        struct mg_object *sub = subs[i];
+        if (sub == NULL)
+            continue;
+
+        // single sub
+        if (sub->ngeoms == 1) {
+            if (sub->gdim == obj->gdim) {
+                obj->ngeoms++;
+                obj->objects = (struct mg_object **)realloc(
+                    obj->objects, obj->ngeoms * sizeof(struct mg_object *));
+                if (obj->objects == NULL) {
+                    free(obj);
+                    return NULL;
+                }
+                obj->objects[obj->ngeoms - 1] = sub;
+            }
+        }
+        // multi sub
+        else {
+            for (int j = 0; j < sub->ngeoms; ++j) {
+                struct mg_object *ssub = sub->objects[j];
+                if (ssub == NULL)
+                    continue;
+                if (ssub->gdim == obj->gdim) {
+                    obj->ngeoms++;
+                    obj->objects = (struct mg_object **)realloc(
+                        obj->objects, obj->ngeoms * sizeof(struct mg_object *));
+                    if (obj->objects == NULL) {
+                        free(obj);
+                        return NULL;
+                    }
+                    obj->objects[obj->ngeoms - 1] = ssub;
+                }
+            }
+        }
+    }
+
+    if (obj->ngeoms == 1) {
+        // degenerate
+        obj->flag = obj->objects[0]->flag;
+        obj->npoints = obj->objects[0]->npoints;
+        obj->pp = obj->objects[0]->pp;
+        free(obj->objects[0]);
+        free(obj->objects);
+        obj->objects = NULL;
+    }
+    return obj;
 }
 
 void pri_geom_free(struct mg_object *g)
 {
     assert(g);
-    if(g->path && path->flag != 0)
-    {
-        free(g->path->pp);
+    if (g->flag != 0) {
+        free(g->pp);
     }
-    free(g->path);
     free(g);
 }
 
-void geom_free(struct mg_object* g)
+void geom_free(struct mg_object *g)
 {
     assert(g);
-    if(g->ngeoms == 1)
-    {
+    if (g->ngeoms == 1) {
         pri_geom_free(g);
     }
-    else
-    {
-        for(int i = 0; i < g->ngeoms; ++i)
-        {
-            struct mg_object* sub = g->objects[i];
-            if(path == NULL)
+    else {
+        for (int i = 0; i < g->ngeoms; ++i) {
+            struct mg_object *sub = g->objects[i];
+            if (sub == NULL)
                 continue;
             geom_free(sub);
         }
