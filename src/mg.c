@@ -13,12 +13,13 @@
 #include "mg.h"
 #include "mgp.h"
 
+/* ---------------------------- geometry factory ---------------------------- */
 
-struct mg_object *geom_create_single(int gdim, int pn, int cdim,
-                                     const double *pp, int flag)
+struct mg_object *mg_create_single(int gdim, int pn, int cdim, const double *pp,
+                                   int flag)
 {
     assert(pp);
-    struct mg_object *obj = 
+    struct mg_object *obj =
         (struct mg_object *)malloc(sizeof(struct mg_object));
     if (obj == NULL)
         return NULL;
@@ -34,7 +35,7 @@ struct mg_object *geom_create_single(int gdim, int pn, int cdim,
     else {
         obj->pp = (double *)malloc(sizeof(double) * pn * cdim);
         if (obj->pp == NULL) {
-            geom_free(obj);
+            mg_free(obj);
             return NULL;
         }
         memcpy(obj->pp, pp, sizeof(double) * pn * cdim);
@@ -42,10 +43,10 @@ struct mg_object *geom_create_single(int gdim, int pn, int cdim,
     return obj;
 }
 
-struct mg_object *geom_create_multi(int gdim, int snum, struct mg_object **subs)
+struct mg_object *mg_create_multi(int gdim, int snum, struct mg_object **subs)
 {
     assert(subs);
-    struct mg_object *obj = 
+    struct mg_object *obj =
         (struct mg_object *)malloc(sizeof(struct mg_object));
     if (obj == NULL)
         return NULL;
@@ -102,7 +103,7 @@ struct mg_object *geom_create_multi(int gdim, int snum, struct mg_object **subs)
     return obj;
 }
 
-void pri_geom_free(struct mg_object *g)
+void pri_mg_free_object(struct mg_object *g)
 {
     assert(g);
     if (g->flag != 0) {
@@ -111,18 +112,162 @@ void pri_geom_free(struct mg_object *g)
     free(g);
 }
 
-void geom_free(struct mg_object *g)
+void mg_free_object(struct mg_object *g)
 {
     assert(g);
     if (g->ngeoms == 1) {
-        pri_geom_free(g);
+        pri_mg_free_object(g);
     }
     else {
         for (int i = 0; i < g->ngeoms; ++i) {
             struct mg_object *sub = g->objects[i];
             if (sub == NULL)
                 continue;
-            geom_free(sub);
+            pri_mg_free_object(sub);
         }
     }
+}
+
+int mg_dim_c(const struct mg_object *obj)
+{
+    return 0;
+}
+
+int mg_dim_g(const struct mg_object *obj)
+{
+    return 0;
+}
+
+int mg_sub_n(const struct mg_object *obj)
+{
+    return 0;
+}
+
+struct mg_object *mg_sub_at(const struct mg_object *obj, int i)
+{
+    return NULL;
+}
+
+int mg_point_n(const struct mg_object *obj)
+{
+    return 0;
+}
+
+/* ------------------------------- geometry io ------------------------------ */
+
+struct mg_object *mg_read(int flag, const char *data, int len)
+{
+    return NULL;
+}
+
+int mg_write(int flag, const struct mg_object *obj, char **data, int len)
+{
+    return 0;
+}
+
+struct mg_object *mg_read_ora(int i_n, const int *i_p, int c_n, int c_dim,
+                              const double *c_p, int flag)
+{
+    return NULL;
+}
+
+int mg_write_ora(struct mg_object *obj, int *i_n, int **i_p, int *c_n,
+                 int *c_dim, double **c_p)
+{
+    return 0;
+}
+
+/* ------------------------- geometry reader writer ------------------------- */
+
+struct mg_object *mg_i4_object(struct mg_i4 *i4)
+{
+}
+
+void mg_i4_propProp(const struct mg_i4 *i4, int *propSize, int **prop)
+{
+}
+
+int mg_i4_prop_value(const struct mg_i4 *i4, int index)
+{
+    return 0;
+}
+
+struct mg_reader2 *mg_create_reader(int size)
+{
+    return NULL;
+}
+
+struct mg_reader2 *mg_create_writer()
+{
+    return NULL;
+}
+
+void mg_free_reader2(struct mg_reader2 *reader)
+{
+}
+
+void mg_input_reader(struct mg_reader2 *reader, const struct mg_object *obj,
+                     int propSize, int *prop)
+{
+}
+
+struct mg_i4 *mg_output_writer(struct mg_reader2 *writer)
+{
+    return NULL;
+}
+
+/* -------------------------------- tolerance ------------------------------- */
+
+static double g_tolerance = 0.0001;
+
+double mg_tolerance(double tol)
+{
+    double tmp = g_tolerance;
+    g_tolerance = tol;
+    return tmp;
+}
+
+double tolerance()
+{
+    return g_tolerance;
+}
+
+/* --------------------------- geometry algorithm --------------------------- */
+
+/// calc geometry length
+double mg_prop_length_value(const struct mg_object *obj);
+/// calc geometry area
+double mg_prop_area_value(const struct mg_object *obj);
+/// calc geometry width
+double mg_prop_width_value(const struct mg_object *obj);
+/// calc geometry height
+double mg_prop_height_value(const struct mg_object *obj);
+
+double mg_prop_value(const struct mg_object *obj, int mode)
+{
+    assert(obj);
+    switch (mode) {
+    case GEOMETRY_PROP_VALUE_LENGTH: {
+        return mg_prop_length_value(obj);
+    }
+    case GEOMETRY_PROP_VALUE_WIDTH: {
+        return mg_prop_width_value(obj);
+    }
+    case GEOMETRY_PROP_VALUE_HEIGHT: {
+        return mg_prop_height_value(obj);
+    }
+    case GEOMETRY_PROP_VALUE_AREA: {
+        return mg_prop_area_value(obj);
+    }
+    default:
+        return 0;
+    }
+}
+
+struct mg_object *mg_prop_geo(const struct mg_object *obj, int mode)
+{
+}
+
+void mg_prop_geo2(const struct mg_object *obj, int mode, double *paras)
+{
 }

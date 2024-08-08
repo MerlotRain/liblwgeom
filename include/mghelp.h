@@ -5,8 +5,7 @@
 extern "C" {
 #endif
 
-struct mg_object;
-
+#include "mg.h"
 /// Point
 /// The base point type used for all geometries.
 struct mg_point {
@@ -53,16 +52,15 @@ struct mg_box {
 
 /// Computes the intersection of two Envelopes
 EXTERN struct mg_box mg_box_intersection(const struct mg_box env1,
-                                              const struct mg_box env2);
+                                         const struct mg_box env2);
 
 /// Enlarges the boundary of the Envelope so that it contains
 EXTERN struct mg_box mg_box_union(const struct mg_box env1,
-                                const struct mg_box env2);
+                                  const struct mg_box env2);
 
 /// Tests if the Envelope `other` lies wholly inside this Envelope
 /// (inclusive of the boundary).
-EXTERN bool mg_box_contains(const struct mg_box env1,
-                            const struct mg_box env2);
+EXTERN bool mg_box_contains(const struct mg_box env1, const struct mg_box env2);
 
 /// Returns `true` if the given point lies in or on the envelope.
 EXTERN bool mg_box_contains_point(const struct mg_box env, double *xy);
@@ -120,10 +118,10 @@ EXTERN void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
 EXTERN void mg_construct_circle(const struct mg_point *p, int t,
                                 struct mg_ellipse *es, int *n);
 
+/// Convert mg_box object to mg_object
+EXTERN struct mg_object *mg_trans_box(struct mg_box *e, int gdim);
 
-EXTERN struct mg_object* mg_trans_envelope(struct mg_envelope* e, int gdim);
-
-EXTERN struct mg_object* mg_trans_ellipse(struct mg_ellipse* e, int gdim);
+EXTERN struct mg_object *mg_trans_ellipse(struct mg_ellipse *e, int gdim);
 
 #ifdef __cplusplus
 }

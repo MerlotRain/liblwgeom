@@ -82,7 +82,8 @@
     "stok.h": "c",
     "mathsetestutil.h": "c",
     "mg.h": "c",
-    "xlocale": "c"
+    "xlocale": "c",
+    "mghelp.h": "c"
   },
   "cmake.configureArgs": [
     "-DBUILD_TESTS=ON",

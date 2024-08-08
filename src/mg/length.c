@@ -12,23 +12,22 @@
 
 #include "mgp.h"
 
-double pri_geom_prop_length_value(const struct mg_object* obj)
+double pri_mg_prop_length_value(const struct mg_object *obj)
 {
     size_t n = obj->npoints;
-    if(n <= 1) {
+    if (n <= 1) {
         return 0.0;
     }
     double len = 0.0;
     double x0 = obj->pp[0];
     double y0 = obj->pp[1];
-    for(int i = 1; i < n; ++i)
-    {
+    for (int i = 1; i < n; ++i) {
         double x1 = obj->pp[i * obj->cdim];
         double y1 = obj->pp[i * obj->cdim + 1];
         double dx = x1 - x0;
         double dy = y1 - y0;
 
-        len += sqrt(dx * dx + dy * dy);        
+        len += sqrt(dx * dx + dy * dy);
         x0 = x1;
         y0 = y1;
     }
@@ -36,20 +35,17 @@ double pri_geom_prop_length_value(const struct mg_object* obj)
 }
 
 /// calc geometry length
-double geom_prop_length_value(const struct mg_object *obj)
+double mg_prop_length_value(const struct mg_object *obj)
 {
     assert(obj);
 
     double sum = 0.0;
-    if(obj->ngeoms == 0)
-    {
-        sum = pri_geom_prop_length_value(obj);
+    if (obj->ngeoms == 0) {
+        sum = pri_mg_prop_length_value(obj);
     }
-    else
-    {
-        for(int i = 0; i < obj->ngeoms; ++i)
-        {
-            sum += pri_geom_prop_length_value(obj->objects[i]);
+    else {
+        for (int i = 0; i < obj->ngeoms; ++i) {
+            sum += pri_mg_prop_length_value(obj->objects[i]);
         }
     }
     return sum;

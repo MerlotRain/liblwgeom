@@ -10,7 +10,7 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mg.h"
+#include "mghelp.h"
 
 static double p_normalize_positive(double angle)
 {
