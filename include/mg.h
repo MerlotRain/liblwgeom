@@ -19,6 +19,16 @@
 extern "C" {
 #endif
 
+/// It is a geometric description that is consistent with sdo-geometry in the
+/// coordinate dimension, and any constructed geometry does not have an M value,
+/// even if mg_order is exported to other common interchange formats (v1.0).
+/// 
+/// It will be used to record single geometry and multi geometry, where multi
+/// geometry is an array of single geometry, and we will not make any special
+/// descriptions of the geometry itself, such as inner and outer loops.
+/// Normally, we consider the ring you input to be correct, or generally
+/// correct, and at least it will not exhibit self intersection or other
+/// situations.
 struct mg_object;
 
 /// create a single geometry object
@@ -77,11 +87,19 @@ EXTERN struct mg_object *mg_read(int flag, const char *data, int len);
 EXTERN int mg_write(int flag, const struct mg_object *obj, char **data,
                     int len);
 
-EXTERN struct mg_object *mg_read_ora(int i_n, const int *i_p, int c_n,
-                                     int c_dim, const double *c_p, int flag);
+struct sdo_geometry
+{
+    int sdo_gtype;
+    int sdo_srid;
+    int sdo_elem_count;
+    int *sdo_elem_info;
+    int sdo_ord_count;
+    double *sdo_ordinates;
+};
 
-EXTERN int mg_write_ora(struct mg_object *obj, int *i_n, int **i_p, int *c_n,
-                        int *c_dim, double **c_p);
+EXTERN struct mg_object *mg_read_ora(const struct sdo_geometry sdo, int flag);
+
+EXTERN int mg_write_ora(const struct mg_object *obj, struct sdo_geometry* sdo);
 
 /* ------------------------- geometry reader writer ------------------------- */
 

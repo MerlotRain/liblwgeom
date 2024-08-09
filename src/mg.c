@@ -12,7 +12,6 @@
 
 #include "mg.h"
 #include "mgp.h"
-#include <sys/_types/_null.h>
 
 /* ---------------------------- geometry factory ---------------------------- */
 

@@ -10,32 +10,27 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mgp.h"
+#include "mghelp.h"
 
-struct mg_sdo_elem_info {
-    int sdo_starting_offset;
-    int sdo_etype;
-    int sdo_interpretation;
-};
-
-struct mg_object *mg_read_ora(const struct sdo_geometry sdo, int flag)
+static int pri_arc_center(struct mg_point c0, struct mg_point c1,
+                          struct mg_point c2, struct mg_point *center)
 {
-    int dimension = 2 > (sdo.sdo_gtype / 1000) ? 2 : (sdo.sdo_gtype / 1000);
+    if(c0.x == c2.x && c0.y == c2.y)
+    {
+        center->x = (c0.x + c1.x) / 2.0;
+        center->y = (c0.y + c1.y) / 2.0;
+        return 1;
+    }
 
-    int tt = sdo.sdo_gtype % 100;
-    if (tt > 0 && tt < 4) {
-        struct mg_sdo_elem_info *pElemInfo =
-            (struct mg_sdo_elem_info *)sdo.sdo_elem_info;
-        for (int i = 0; i < sdo.sdo_elem_count / 3; i++) {
-        }
-    }
-    else if (tt > 4 && tt < 8) {
-        // multi mg_object
-    }
-    return NULL;
+    double m1, x1, y1;
+
+
 }
 
-int mg_write_ora(const struct mg_object *obj, struct sdo_geometry* sdo)
+struct mg_object *mg_stroke_arc(struct mg_arc arc,
+                                double maxAngleStepSizeDegress)
 {
+    double startAngle, alongAngle, endAngle;
+    double cx, cy, radius;
     return 0;
 }
