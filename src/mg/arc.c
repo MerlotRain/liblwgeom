@@ -15,16 +15,32 @@
 static int pri_arc_center(struct mg_point c0, struct mg_point c1,
                           struct mg_point c2, struct mg_point *center)
 {
-    if(c0.x == c2.x && c0.y == c2.y)
-    {
+    if (c0.x == c2.x && c0.y == c2.y) {
         center->x = (c0.x + c1.x) / 2.0;
         center->y = (c0.y + c1.y) / 2.0;
         return 1;
     }
 
-    double m1, x1, y1;
+    struct mg_point a = {.x = c1.x - c2.x, .y = c1.y - c2.y};
+    struct mg_point b = {.x = c2.x - c0.x, .y = c2.y - c0.y};
+    struct mg_point c = {.x = c0.x - c1.x, .y = c0.y - c1.y};
 
+    double d1 = -(b.x * c.x + b.y * c.y);
+    double d2 = -(c.x * a.x + c.y * a.y);
+    double d3 = -(a.x * b.x + a.y * b.y);
 
+    double e1 = d2 * d3;
+    double e2 = d3 * d1;
+    double e3 = d1 * d2;
+    double e = e1 + e2 + e3;
+
+    struct mg_point G3 = {.x = c0.x + c1.x + c2.x, .y = c0.y + c1.y + c2.y};
+    struct mg_point H = {.x = (e1 * c0.x + e2 * c1.x + e3 * c2.x) / e,
+                         .y = (e1 * c0.y + e2 * c1.y + e3 * c2.y) / e};
+
+    center->x = 0.5 * (G3.x - H.x);
+    center->y = 0.5 * (G3.y - H.y);
+    return 1;
 }
 
 struct mg_object *mg_stroke_arc(struct mg_arc arc,

@@ -9,3 +9,20 @@
 /*  You should have received a copy of the GNU General Public License        */
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
+
+#include "mgp.h"
+
+struct mg_object *mg_prop_geo_clone(const struct mg_object *obj)
+{
+    assert(obj);
+
+    struct mg_object *clone =
+        (struct mg_object *)malloc(sizeof(struct mg_object));
+    if (clone == NULL) {
+        return NULL;
+    }
+
+    clone->ngeoms = obj->ngeoms;
+    if (obj->ngeoms == 1) {
+    }
+}

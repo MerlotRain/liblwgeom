@@ -11,6 +11,7 @@
 /*****************************************************************************/
 
 #include "mghelp.h"
+#include "mgp.h"
 
 extern double tolerance();
 
@@ -219,4 +220,8 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
     }
     else if (MG_CONSTRUCT_CIRCLE_ICT == t) {
     }
+}
+
+struct mg_object *mg_stroke_ellipse(struct mg_ellipse e, int gdim)
+{
 }

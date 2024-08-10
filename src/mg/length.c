@@ -22,8 +22,8 @@ double pri_mg_prop_length_value(const struct mg_object *obj)
     double x0 = obj->pp[0];
     double y0 = obj->pp[1];
     for (int i = 1; i < n; ++i) {
-        double x1 = obj->pp[i * obj->cdim];
-        double y1 = obj->pp[i * obj->cdim + 1];
+        double x1 = obj->pp[(ptrdiff_t)(i * obj->cdim)];
+        double y1 = obj->pp[(ptrdiff_t)((i * obj->cdim) + 1)];
         double dx = x1 - x0;
         double dy = y1 - y0;
 

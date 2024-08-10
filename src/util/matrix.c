@@ -11,21 +11,22 @@
 /*****************************************************************************/
 
 #include "matrix.h"
+#include <math.h>
 
-void matrix_left_multiply(matrix_t *m, const matrix_t *mat)
+void mtx_left_multiply(struct matrix *m, const struct matrix *mat)
 {
-    matrix_t mx = MATRIX_INIT;
+    struct matrix mx = MATRIX_INIT;
     mx.m_m[0] = mat->m_m[0];
     mx.m_m[1] = mat->m_m[1];
     mx.m_m[2] = mat->m_m[2];
     mx.m_m[3] = mat->m_m[3];
     mx.m_m[4] = mat->m_m[4];
     mx.m_m[5] = mat->m_m[5];
-    matrix_multiply(&mx, m);
+    mtx_multiply(&mx, m);
     *m = mx;
 }
 
-void matrix_multiply(matrix_t *m, const matrix_t *mat)
+void mtx_multiply(struct matrix *m, const struct matrix *mat)
 {
     double mm[6] = {m->m_m[0], m->m_m[1], m->m_m[2],
                     m->m_m[3], m->m_m[4], m->m_m[5]};
@@ -38,13 +39,13 @@ void matrix_multiply(matrix_t *m, const matrix_t *mat)
     m->m_dy = mm[4] * mat->m_m12 + mm[5] * mat->m_m22 + mat->m_dy;
 }
 
-void matrix_translate(matrix_t *m, const float x, const float y)
+void mtx_translate(struct matrix *m, const double x, const double y)
 {
     m->m_dx += x;
     m->m_dy += y;
 }
 
-void matrix_scale(matrix_t *m, const float x, const float y)
+void mtx_scale(struct matrix *m, const double x, const double y)
 {
     m->m_m11 *= x;
     m->m_m21 *= x;
@@ -54,13 +55,13 @@ void matrix_scale(matrix_t *m, const float x, const float y)
     m->m_dy *= y;
 }
 
-void matrix_rotate(matrix_t *m, const float angle)
+void mtx_rotate(struct matrix *m, const double angle)
 {
-    matrix_rotate2(m, angle, 0, 0);
+    mtx_rotate2(m, angle, 0, 0);
 }
 
-void matrix_rotate2(matrix_t *m, const float angle, const float x,
-                    const float y)
+void mtx_rotate2(struct matrix *m, const double angle, const double x,
+                 const double y)
 {
 
     double ca = cos(angle);
@@ -77,7 +78,7 @@ void matrix_rotate2(matrix_t *m, const float angle, const float x,
     m->m_dy = mm[4] * sa + mm[5] * ca + y - x * sa - y * ca;
 }
 
-void matrix_shear(matrix_t *m, const float x, const float y)
+void mtx_shear(struct matrix *m, const double x, const double y)
 {
     double mm[6] = {m->m_m[0], m->m_m[1], m->m_m[2],
                     m->m_m[3], m->m_m[4], m->m_m[5]};
@@ -90,7 +91,7 @@ void matrix_shear(matrix_t *m, const float x, const float y)
     m->m_dy = mm[4] * y + mm[5];
 }
 
-void matrix_mirror(matrix_t *m, const float x, const float y)
+void mtx_mirror(struct matrix *m, const double x, const double y)
 {
     double mm[6] = {m->m_m[0], m->m_m[1], m->m_m[2],
                     m->m_m[3], m->m_m[4], m->m_m[5]};
@@ -101,9 +102,9 @@ void matrix_mirror(matrix_t *m, const float x, const float y)
     m->m_dy = mm[5] + 2 * y;
 }
 
-void matrix_invert(matrix_t *m)
+void mtx_invert(struct matrix *m)
 {
-    if (!matrix_invertible(m))
+    if (!mtx_invertible(m))
         return;
 
     double mm[6] = {m->m_m[0], m->m_m[1], m->m_m[2],
@@ -118,25 +119,15 @@ void matrix_invert(matrix_t *m)
     m->m_dy = (mm[1] * mm[4] - mm[0] * mm[5]) / D;
 }
 
-bool matrix_invertible(const matrix_t *m)
+bool mtx_invertible(const struct matrix *m)
 {
     if (m->m_m[0] * m->m_m[3] - m->m_m[1] * m->m_m[2] != 0)
         return true;
     return false;
 }
 
-bool matrix_identity(const matrix_t *m)
+bool mtx_identity(const struct matrix *m)
 {
     return m->m_m11 == 1 && m->m_m12 == 0 && m->m_m21 == 0 && m->m_m22 == 1 &&
            m->m_dx == 0 && m->m_dy == 0;
-}
-
-void matrix_trans_points(const matrix_t *m, double *points, int count)
-{
-    for (int i = 0; i < count; ++i) {
-        double x = points[i * 2];
-        double y = points[i * 2 + 1];
-        points[i * 2] = m->m_m11 * x + m->m_m21 * y + m->m_dx;
-        points[i * 2 + 1] = m->m_m12 * x + m->m_m22 * y + m->m_dy;
-    }
 }

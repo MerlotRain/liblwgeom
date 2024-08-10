@@ -22,7 +22,7 @@ extern "C" {
 /// It is a geometric description that is consistent with sdo-geometry in the
 /// coordinate dimension, and any constructed geometry does not have an M value,
 /// even if mg_order is exported to other common interchange formats (v1.0).
-/// 
+///
 /// It will be used to record single geometry and multi geometry, where multi
 /// geometry is an array of single geometry, and we will not make any special
 /// descriptions of the geometry itself, such as inner and outer loops.
@@ -48,19 +48,43 @@ EXTERN struct mg_object *mg_create_single(int gdim, int pn, int cdim,
 /// simple geometry.
 ///
 /// @param gdim geometry dimension 0:point, 1:line, 2:area
+/// @param snum geometry number
+/// @param subs geometry array
+/// @return geometry object
 EXTERN struct mg_object *mg_create_multi(int gdim, int snum,
                                          struct mg_object **subs);
 
+/// @brief free geometry object
+/// @param obj
+/// @return
 EXTERN void mg_free_object(struct mg_object *obj);
 
+/// @brief return geometry coordinate dimension
+/// @param obj
+/// @return 2 or 3
 EXTERN int mg_dim_c(const struct mg_object *obj);
 
+/// @brief return geometry dimension
+/// @param obj
+/// @return 0:point, 1:line, 2:area
+/// TODO: 3:collection
 EXTERN int mg_dim_g(const struct mg_object *obj);
 
+/// @brief return geometry number
+/// @param obj
+/// @return geometry number
 EXTERN int mg_sub_n(const struct mg_object *obj);
 
+/// @brief return sub of multi geometry
+/// @param obj multi geometry
+/// @param i index
+/// @return sub geometry, When \a obj is a single geometry object, returns
+/// itself
 EXTERN struct mg_object *mg_sub_at(const struct mg_object *obj, int i);
 
+/// @brief return point number
+/// @param obj
+/// @return point number
 EXTERN int mg_point_n(const struct mg_object *obj);
 
 /* --------------------------------- Factory -------------------------------- */
@@ -87,8 +111,7 @@ EXTERN struct mg_object *mg_read(int flag, const char *data, int len);
 EXTERN int mg_write(int flag, const struct mg_object *obj, char **data,
                     int len);
 
-struct sdo_geometry
-{
+struct sdo_geometry {
     int sdo_gtype;
     int sdo_srid;
     int sdo_elem_count;
@@ -99,7 +122,7 @@ struct sdo_geometry
 
 EXTERN struct mg_object *mg_read_ora(const struct sdo_geometry sdo, int flag);
 
-EXTERN int mg_write_ora(const struct mg_object *obj, struct sdo_geometry* sdo);
+EXTERN int mg_write_ora(const struct mg_object *obj, struct sdo_geometry *sdo);
 
 /* ------------------------- geometry reader writer ------------------------- */
 
@@ -243,6 +266,21 @@ EXTERN double mg_prop_value(const struct mg_object *obj, int mode);
 EXTERN struct mg_object *mg_prop_geo(const struct mg_object *obj, int mode);
 
 EXTERN void mg_prop_geo2(const struct mg_object *obj, int mode, double *paras);
+
+/// @brief Check if the point is on the left or right side of the line
+/// @param obj line object
+/// @param xy point coordinates
+/// @return 0: The distance from the point to the line is less than the
+/// tolerance; 1: left; 2: right
+EXTERN int mg_left_right(const struct mg_object *obj, double *xy);
+
+/// @brief Get the convexity of a vertex on a ring object
+/// @param obj single ring object
+/// @param index vertex index When index is -1, get the concave and convex
+/// properties of all vertices
+/// @param convex convexity of the vertex
+EXTERN void mg_vertex_convex(const struct mg_object *obj, int index,
+                             int *convex);
 
 #ifdef __cplusplus
 }

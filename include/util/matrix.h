@@ -13,7 +13,11 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <stdbool.h>
+#include <mathse.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define MATRIX_INIT            {1, 0, 0, 1, 0, 0}
 /* Return matrix m11 element */
@@ -49,40 +53,41 @@
  * transformation is nx = m11 * x + m21 * y + dx; ny = m12 * x + m22 * y +
  * dy;
  */
-typedef struct se_matrix {
+struct matrix {
     union {
-        float m_m[6];
+        double m_m[6];
         struct {
-            float m_m11, m_m12, m_m21, m_m22, m_dx, m_dy;
+            double m_m11, m_m12, m_m21, m_m22, m_dx, m_dy;
         };
     };
-} matrix_t;
+};
 
 /* Matrix left multiplication */
-void matrix_left_multiply(matrix_t *m, const matrix_t *mat);
+EXTERN void mtx_left_multiply(struct matrix *m, const struct matrix *mat);
 /* Matrix (right) multiplication */
-void matrix_multiply(matrix_t *m, const matrix_t *mat);
+EXTERN void mtx_multiply(struct matrix *m, const struct matrix *mat);
 /* Matrix translation transformation */
-void matrix_translate(matrix_t *m, const float x, const float y);
+EXTERN void mtx_translate(struct matrix *m, const double x, const double y);
 /* Matrix scaling transformation */
-void matrix_scale(matrix_t *m, const float x, const float y);
+EXTERN void mtx_scale(struct matrix *m, const double x, const double y);
 /* Matrix rotation transformation */
-void matrix_rotate(matrix_t *m, const float angle);
+EXTERN void mtx_rotate(struct matrix *m, const double angle);
 /* Matrix rotation transformation based on a certain center point */
-void matrix_rotate2(matrix_t *m, const float angle, const float x,
-                    const float y);
+EXTERN void mtx_rotate2(struct matrix *m, const double angle, const double x,
+                        const double y);
 /* matrix shear transformation */
-void matrix_shear(matrix_t *m, const float x, const float y);
+EXTERN void mtx_shear(struct matrix *m, const double x, const double y);
 /* Matrix mirror transformation */
-void matrix_mirror(matrix_t *m, const float x, const float y);
+EXTERN void mtx_mirror(struct matrix *m, const double x, const double y);
 /* Matrix inversion matrix */
-void matrix_invert(matrix_t *m);
+EXTERN void mtx_invert(struct matrix *m);
 /* Determine whether the matrix can be inverted */
-bool matrix_invertible(const matrix_t *m);
+EXTERN bool mtx_invertible(const struct matrix *m);
 /* Determine whether the matrix can be an identity matrix */
-bool matrix_identity(const matrix_t *m);
+EXTERN bool mtx_identity(const struct matrix *m);
 
-/* Transform point coordinates using a matrix */
-void matrix_trans_points(const matrix_t *m, double *points, int count);
+#ifdef __cplusplus
+}
+#endif
 
 #endif

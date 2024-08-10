@@ -192,18 +192,6 @@ int mg_write(int flag, const struct mg_object *obj, char **data, int len)
     return 0;
 }
 
-struct mg_object *mg_read_ora(int i_n, const int *i_p, int c_n, int c_dim,
-                              const double *c_p, int flag)
-{
-    return NULL;
-}
-
-int mg_write_ora(struct mg_object *obj, int *i_n, int **i_p, int *c_n,
-                 int *c_dim, double **c_p)
-{
-    return 0;
-}
-
 /* ------------------------- geometry reader writer ------------------------- */
 
 struct mg_object *mg_i4_object(struct mg_i4 *i4)
@@ -294,6 +282,59 @@ double tolerance()
 
 /* --------------------------- geometry algorithm --------------------------- */
 
+bool mg_check_single_ring(const struct mg_object *obj)
+{
+    assert(obj);
+    if (obj->ngeoms != 1)
+        return false;
+
+    // At least 4 points are required to form a ring
+    if (obj->npoints < 4)
+        return false;
+
+    double x0 = obj->pp[0];
+    double y0 = obj->pp[1];
+    double xn = obj->pp[(ptrdiff_t)(obj->npoints * obj->cdim)];
+    double yn = obj->pp[(ptrdiff_t)(obj->npoints * obj->cdim + 1)];
+
+    return (fabs(x0 - xn) < g_tolerance) && (fabs(y0 - yn) < g_tolerance);
+}
+
+bool mg_ccw(const struct mg_object *obj)
+{
+    if (!mg_check_single_ring(obj))
+        return false;
+
+    // The ring must be a convex point at the vertex extreme value, which is the
+    // product of the line segments formed by the vertices before and after the
+    // point. If it is greater than 0, it means the ring is counterclockwise,
+    // and if it is less than 0, it means the ring is clockwise.
+
+    // Flat Ring
+    // The Y coordinate of at least one of the adjacent points of the lowest
+    // point on the ring is the same as that of the lowest point.
+
+    // of points without closing endpoint
+    int inPts = obj->npoints - 1;
+    if (inPts < 3)
+        return false;
+
+    double upHeiPx = obj->pp[0];
+    double upHeiPy = obj->pp[1];
+    double upLowPx = 0;
+    double upLowPy = 0;
+
+    double prevY = upHeiPy;
+    for (int i = 1; i <= inPts; ++i) {
+        double py = obj->pp[(ptrdiff_t)(i * obj->cdim + 1)];
+        if (py > prevY) {
+        }
+        prevY = py;
+    }
+
+    return 0;
+}
+
 double mg_prop_value(const struct mg_object *obj, int mode)
 {
     assert(obj);
@@ -319,7 +360,7 @@ struct mg_object *mg_prop_geo(const struct mg_object *obj, int mode)
 {
     assert(obj);
     switch (mode) {
-    case GEOMETRY_PROP_GEO_CENTER: {
+    case GEOMETRY_PROP_GEO_CLONE: {
         return NULL;
     }
     }
@@ -327,5 +368,14 @@ struct mg_object *mg_prop_geo(const struct mg_object *obj, int mode)
 }
 
 void mg_prop_geo2(const struct mg_object *obj, int mode, double *paras)
+{
+}
+
+int mg_left_right(const struct mg_object *obj, double *xy)
+{
+    return 0;
+}
+
+void mg_vertex_convex(const struct mg_object *obj, int index, int *convex)
 {
 }
