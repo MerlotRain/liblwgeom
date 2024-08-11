@@ -11,8 +11,9 @@
 /*****************************************************************************/
 
 #include "mghelp.h"
+#include "mgp.h"
 
-static double p_normalize_positive(double angle)
+static double pri_normalize_positive(double angle)
 {
     if (angle < 0.0) {
         while (angle < 0.0) {
@@ -51,20 +52,6 @@ static double p_diff(double ang1, double ang2)
     }
 
     return delAngle;
-}
-
-struct mg_point mg_point_project(struct mg_point p, double dis, double azimuth)
-{
-    struct mg_point pr;
-    const double rads = azimuth * M_PI / 180.0;
-    double dx = 0.0, dy = 0.0, dz = 0.0;
-
-    dx = dis * sin(rads);
-    dy = dis * cos(rads);
-    pr.x = p.x + dx;
-    pr.y = p.y + dy;
-
-    return pr;
 }
 
 double mg_angle(const struct mg_point p0)
@@ -115,5 +102,20 @@ bool mg_interior_angle(const struct mg_point p0, const struct mg_point p1,
 {
     double angle_prev = mg_angle2(p1, p0);
     double angle_next = mg_angle2(p1, p2);
-    return p_normalize_positive(angle_next - angle_prev);
+    return pri_normalize_positive(angle_next - angle_prev);
+}
+
+double mg_dis_point_to_segment(const struct mg_point P, const struct mg_point A,
+                               const struct mg_point B)
+{
+    if (MG_DOUBLE_NEARES(A.x, B.x) && MG_DOUBLE_NEARES(A.y, B.y)) {
+        return MG_POINTDISTANCE2(P, A);
+    }
+    return 0;
+}
+double mg_dis_point_to_perpendicular(const struct mg_point P,
+                                     const struct mg_point A,
+                                     const struct mg_point B)
+{
+    return 0;
 }

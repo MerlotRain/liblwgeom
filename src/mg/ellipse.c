@@ -13,9 +13,24 @@
 #include "mghelp.h"
 #include "mgp.h"
 
-extern double tolerance();
+/// Returns a new point which corresponds to this point projected by a specified
+/// distance with specified angles
+static struct mg_point pri_point_project(const struct mg_point p, double dis,
+                                         double azimuth)
+{
+    struct mg_point pr;
+    const double rads = azimuth * M_PI / 180.0;
+    double dx = 0.0, dy = 0.0, dz = 0.0;
 
-static double pir_normalized_angle(double angle)
+    dx = dis * sin(rads);
+    dy = dis * cos(rads);
+    pr.x = p.x + dx;
+    pr.y = p.y + dy;
+
+    return pr;
+}
+
+static double pri_normalized_angle(double angle)
 {
     double clippedAngle = angle;
     if (clippedAngle >= M_PI * 2 || clippedAngle <= -2 * M_PI) {
@@ -27,11 +42,11 @@ static double pir_normalized_angle(double angle)
     return clippedAngle;
 }
 
-static double pir_line_angle(double x1, double y1, double x2, double y2)
+static double pri_line_angle(double x1, double y1, double x2, double y2)
 {
     double at = atan2(y2 - y1, x2 - x1);
     double a = -at + M_PI_2;
-    return pir_normalized_angle(a);
+    return pri_normalized_angle(a);
 }
 
 static bool pri_is_perpendicular(const struct mg_point pt1,
@@ -43,20 +58,20 @@ static bool pri_is_perpendicular(const struct mg_point pt1,
     double yDelta_b = pt3.y - pt2.y;
     double xDelta_b = pt3.x - pt2.x;
 
-    if (fabs(xDelta_a) <= tolerance() && fabs(yDelta_b) <= tolerance()) {
+    if (MG_DOUBLE_NEARES(xDelta_a, 0.0) && MG_DOUBLE_NEARES(yDelta_b, 0.0)) {
         return false;
     }
 
-    if (fabs(yDelta_a) <= tolerance()) {
+    if (MG_DOUBLE_NEARES(yDelta_a, 0.0)) {
         return true;
     }
-    else if (fabs(yDelta_b) <= tolerance()) {
+    else if (MG_DOUBLE_NEARES(yDelta_b, 0.0)) {
         return true;
     }
-    else if (fabs(xDelta_a) <= tolerance()) {
+    else if (MG_DOUBLE_NEARES(xDelta_a, 0.0)) {
         return true;
     }
-    else if (fabs(xDelta_b) <= tolerance()) {
+    else if (MG_DOUBLE_NEARES(xDelta_b, 0.0)) {
         return true;
     }
     return false;
@@ -99,8 +114,8 @@ void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
     // calc foci
     if (flags & MG_ELLIPSE_PROP_VALUE_FOCI) {
         double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
-        struct mg_point p1 = mg_point_project(ell.center, dis, ell.azimuth);
-        struct mg_point p2 = mg_point_project(ell.center, -dis, ell.azimuth);
+        struct mg_point p1 = pri_point_project(ell.center, dis, ell.azimuth);
+        struct mg_point p2 = pri_point_project(ell.center, -dis, ell.azimuth);
         memcpy(values + pos, &p1, sizeof(struct mg_point));
         memcpy(values + pos + 2, &p2, sizeof(struct mg_point));
         pos += 4;
@@ -128,7 +143,7 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
         double radius = sqrt((pt1.x - pt2.x) * (pt1.x - pt2.x) +
                              (pt1.y - pt2.y) * (pt1.y - pt2.y));
         double azimuth =
-            pir_line_angle(pt1.x, pt1.y, pt2.x, pt2.y) * 180.0 / M_PI;
+            pri_line_angle(pt1.x, pt1.y, pt2.x, pt2.y) * 180.0 / M_PI;
         rs[0].center = center;
         rs[0].major = radius;
         rs[0].minor = radius;
@@ -179,19 +194,20 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
         const double yDelta_b = p3.y - p2.y;
         const double xDelta_b = p3.x - p2.x;
 
-        if (fabs(xDelta_a) < tolerance() || fabs(xDelta_b) < tolerance()) {
+        if (MG_DOUBLE_NEARES(xDelta_a, 0.0) ||
+            MG_DOUBLE_NEARES(xDelta_b, 0.0)) {
             *n = 0;
             return;
         }
         const double aSlope = yDelta_a / xDelta_a;
         const double bSlope = yDelta_b / xDelta_b;
-        if ((fabs(xDelta_a) <= tolerance()) &&
-            (fabs(yDelta_b) <= tolerance())) {
+        if ((MG_DOUBLE_NEARES(xDelta_a, 0.0)) &&
+            (MG_DOUBLE_NEARES(yDelta_b, 0.0))) {
             struct mg_point center;
             center.x = 0.5 * (p2.x + p3.x);
             center.y = 0.5 * (p1.y + p2.y);
-            double radius = sqrt((center.x - pt1.x) * (center.x - pt1.x) +
-                                 (center.y - pt1.y) * (center.y - pt1.y));
+            double radius =
+                sqrt(pow((center.x - pt1.x), 2) + pow((center.y - pt1.y), 2));
 
             rs[0].center = center;
             rs[0].major = radius;
@@ -200,7 +216,7 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
             *n = 1;
         }
 
-        if (fabs(aSlope - bSlope) <= tolerance()) {
+        if (MG_DOUBLE_NEARES(aSlope - bSlope, MG_TOLERANCE)) {
             *n = 0;
             return;
         }
@@ -210,8 +226,8 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
                    (2.0 * (bSlope - aSlope));
         center.y = -1.0 * (center.x - (p1.x + p2.x) / 2.0) / aSlope +
                    (p1.y + p2.y) / 2.0;
-        double radius = sqrt((center.x - pt1.x) * (center.x - pt1.x) +
-                             (center.y - pt1.y) * (center.y - pt1.y));
+        double radius =
+            sqrt(pow((center.x - pt1.x), 2) + pow((center.y - pt1.y), 2));
         rs[0].center = center;
         rs[0].major = radius;
         rs[0].minor = radius;

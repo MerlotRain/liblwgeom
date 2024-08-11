@@ -2,13 +2,14 @@
 #include "bitset.h"
 
 struct int_simplify_rdp {
-    int np;         ///< number of points
-    double *pp;     ///< points
-    uint8_t usef[]; ///< useful points
+    int np;              ///< number of points
+    double *pp;          ///< points
+    struct bitset *usef; ///< useful points
 };
 
 void pri_simplify_section(int i, int j, struct int_simplify_rdp *intrdp)
 {
+    
 }
 
 static struct mg_object *pri_simplify_line(const struct mg_object *obj)
@@ -25,10 +26,13 @@ static struct mg_object *pri_simplify_line(const struct mg_object *obj)
         return NULL;
     intrdp->np = obj->npoints;
     intrdp->pp = obj->pp;
-    memset(intrdp->usef, 0, obj->npoints * sizeof(uint8_t));
+    intrdp->usef = bitset_new(obj->npoints);
+    if (intrdp->usef == NULL) {
+        free(intrdp);
+        return NULL;
+    }
 
     pri_simplify_section(0, obj->npoints - 1, intrdp);
-    
 
     return NULL;
 }

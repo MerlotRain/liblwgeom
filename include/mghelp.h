@@ -13,10 +13,25 @@ struct mg_point {
     double y;
 };
 
-/// Returns a new point which corresponds to this point projected by a specified
-/// distance with specified angles
-EXTERN struct mg_point mg_point_project(const struct mg_point p, double dis,
-                                        double azimuth);
+/// @brief Computes the distance from a point p to a line segment AB
+/// @param P the point to compute the distance for
+/// @param A one point of the line
+/// @param B another point of the line (must be different to A)
+/// @return the distance from p to line segment AB
+EXTERN double mg_dis_point_to_segment(const struct mg_point P,
+                                      const struct mg_point A,
+                                      const struct mg_point B);
+
+/// @brief Computes the perpendicular distance from a point p to the (infinite)
+/// line containing the points AB
+/// @param P the point to compute the distance for
+/// @param A one point of the line
+/// @param B another point of the line (must be different to A)
+/// @return the distance from p to line segment AB
+EXTERN double mg_dis_point_to_perpendicular(const struct mg_point P,
+                                            const struct mg_point A,
+                                            const struct mg_point B);
+
 
 /// point angle with mg_point(0, 0)
 EXTERN double mg_angle(const struct mg_point p0);
@@ -118,13 +133,11 @@ EXTERN void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
 EXTERN void mg_construct_circle(const struct mg_point *p, int t,
                                 struct mg_ellipse *es, int *n);
 
-
 struct mg_arc {
     struct mg_point start;
     struct mg_point along;
     struct mg_point end;
 };
-
 
 /// Convert mg_box object to mg_object
 EXTERN struct mg_object *mg_stroke_box(struct mg_box e, int gdim);
@@ -132,7 +145,7 @@ EXTERN struct mg_object *mg_stroke_box(struct mg_box e, int gdim);
 EXTERN struct mg_object *mg_stroke_ellipse(struct mg_ellipse e, int gdim);
 
 /// stroke arc to mg_object
-EXTERN struct mg_object *mg_stroke_arc(struct mg_arc arc, 
+EXTERN struct mg_object *mg_stroke_arc(struct mg_arc arc,
                                        double maxAngleStepSizeDegress);
 
 #ifdef __cplusplus

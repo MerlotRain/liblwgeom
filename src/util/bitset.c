@@ -42,14 +42,22 @@ void bitset_free(struct bitset *bs)
     free(bs);
 }
 
-bool bitset_set(struct bitset *bs, size_t index, bool value)
+void bitset_set(struct bitset *bs, size_t index)
 {
     if (index >= bs->length) {
-        return false;
+        return;
     }
 
-    bs->data[index / 8] |= (char)(value ? 1 << (index % 8) : 0); // set bit
-    return value;
+    bs->data[index / 8] |= (1 << (index % 8)); // set bit
+}
+
+void bitset_clear(struct bitset *bs, size_t index)
+{
+    if (index >= bs->length) {
+        return;
+    }
+
+    bs->data[index / 8] &= ~(1 << (index % 8)); // clear bit
 }
 
 bool bitset_test(struct bitset *bs, size_t index)
@@ -61,30 +69,43 @@ bool bitset_test(struct bitset *bs, size_t index)
     return bs->data[index / 8] & (char)(1 << (index % 8)); // test bit
 }
 
-bool bitset_flip(struct bitset *bs, size_t index)
+void bitset_flip(struct bitset *bs, size_t index)
 {
     if (index >= bs->length) {
-        return false;
+        return;
     }
 
-    bs->data[index / 8] ^= (char)(1 << (index % 8)); // flip bit
-    return false;
+    bs->data[index / 8] ^= (1 << (index % 8));
 }
 
 int bitset_state(struct bitset *bs)
 {
-    if (bs->length == 0) {
-        return 0;
+    size_t c = bitset_count(bs);
+    if (c == 0) {
+        return BITSET_STATE_NONE;
     }
-    return 0;
+    else if (c == bs->length) {
+        return BITSET_STATE_ALL;
+    }
+    else {
+        return BITSET_STATE_ANY;
+    }
 }
 
 size_t bitset_count(struct bitset *bs)
 {
-    return 0;
+    int count = 0;
+    for (int i = 0; i < (bs->length / 8) + (bs->length % 8 ? 1 : 0); i++) {
+        unsigned char byte = bs->data[i];
+        while (byte) {
+            byte &= (byte - 1);
+            count++;
+        }
+    }
+    return count;
 }
 
 size_t bitset_size(struct bitset *bs)
 {
-    return 0;
+    return bs->length;
 }

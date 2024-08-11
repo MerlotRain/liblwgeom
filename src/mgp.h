@@ -14,11 +14,34 @@
 #define MGP_H
 
 #include "mg.h"
+#include "mghelp.h"
 #include "rtree.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/// @brief tolerance value
+extern double tolerence();
+
+/// @brief tolerance value macro
+#define MG_TOLERANCE tolerence()
+
+/// @brief calculate point distance
+#define MG_POINTDISTANCE(x0, y0, x1, y1) \
+    sqrt(pow((x0) - (x1), 2) + pow((y0) - (y1), 2))
+#define MG_POINTDISTANCE2(A, B) MG_POINTDISTANCE((A).x, (A).y, (B).x, (B).y)
+
+/// @brief check point A, B is equal
+#define MG_POINT_EQUAL(A, B)    (MG_POINTDISTANCE2((A), (B)) < MG_TOLERANCE)
+
+/// @brief return point A angle
+#define MG_POINT_ANGLE(A)       (atan2((A).y, (A).x))
+
+/// @brief check double value is equal
+#define MG_DOUBLE_NEARES(A, B)  (fabs((A) - (B)) < MG_TOLERANCE)
+
+/* ---------------------------- mg kernel struct ---------------------------- */
 
 /// @brief Create a multi-geometry or single-geometry object
 struct mg_object {
@@ -78,7 +101,6 @@ double mg_prop_width_value(const struct mg_object *obj);
 double mg_prop_height_value(const struct mg_object *obj);
 
 struct mg_object *mg_prop_geo_clone(const struct mg_object *obj);
-
 struct mg_object *mg_prop_geo_simpily_RDP(const struct mg_object *obj);
 
 #ifdef __cplusplus

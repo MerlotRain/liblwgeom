@@ -24,15 +24,15 @@ struct Ordinate {
     bool changeAllowed;
 };
 
-static char *pir_wkt_next_word(stok *token);
+static char *pri_wkt_next_word(stok *token);
 
-static void pir_wkt_get_coordinates(stok *token, struct Ordinate *flag,
+static void pri_wkt_get_coordinates(stok *token, struct Ordinate *flag,
                                     double *coordinates, int *num);
 
-static void pir_wkt_get_precise_coordinates(stok *token, struct Ordinate *flag,
+static void pri_wkt_get_precise_coordinates(stok *token, struct Ordinate *flag,
                                             double *coordinates, int *num);
 
-static char *pir_wkt_get_next_empty_or_opener(stok *token,
+static char *pri_wkt_get_next_empty_or_opener(stok *token,
                                               struct Ordinate *flag);
 
 static struct mg_object *pri_wkt_read_point(stok *token, struct Ordinate *flag);
@@ -74,7 +74,7 @@ struct mg_object *mg_read_wkt(const char *data, int len)
     flags.value = 1 | 2;
     flags.changeAllowed = true;
 
-    char *type = pir_wkt_next_word(&token);
+    char *type = pri_wkt_next_word(&token);
     if (strcmp(type, "EMPTY") == 0) {
         memcpy(&new_flags, &flags, sizeof(struct Ordinate));
     }
@@ -136,7 +136,7 @@ int mg_write_wkt(const struct mg_object *obj, char **data, int *len)
 
 /* ----------------------------- static read wkt ---------------------------- */
 
-char *pir_wkt_next_word(stok *token)
+char *pri_wkt_next_word(stok *token)
 {
     int type = stok_next_token(token);
     switch (type) {
@@ -163,27 +163,27 @@ char *pir_wkt_next_word(stok *token)
     return "";
 }
 
-void pir_wkt_get_coordinates(stok *token, struct Ordinate *flag,
+void pri_wkt_get_coordinates(stok *token, struct Ordinate *flag,
                              double *coordinates, int *num)
 {
-    char *nexttok = pir_wkt_get_next_empty_or_opener(token, flag);
+    char *nexttok = pri_wkt_get_next_empty_or_opener(token, flag);
     if (strcmp(nexttok, "EMPTY") == 0) {
         return;
     }
 }
 
-char *pir_wkt_get_next_empty_or_opener(stok *token, struct Ordinate *flag)
+char *pri_wkt_get_next_empty_or_opener(stok *token, struct Ordinate *flag)
 {
-    char *nextword = pir_wkt_next_word(token);
+    char *nextword = pri_wkt_next_word(token);
     if (strcmp(nextword, "ZM") == 0) {
-        nextword = pir_wkt_next_word(token);
+        nextword = pri_wkt_next_word(token);
     }
     else {
         if (strcmp(nextword, "Z") == 0) {
-            nextword = pir_wkt_next_word(token);
+            nextword = pri_wkt_next_word(token);
         }
         if (strcmp(nextword, "M") == 0) {
-            nextword = pir_wkt_next_word(token);
+            nextword = pri_wkt_next_word(token);
         }
     }
 
@@ -197,7 +197,7 @@ struct mg_object *pri_wkt_read_point(stok *token, struct Ordinate *flag)
 {
     double coords[4];
     int n = 0;
-    pir_wkt_get_coordinates(token, flag, coords, &n);
+    pri_wkt_get_coordinates(token, flag, coords, &n);
     return NULL;
 }
 
