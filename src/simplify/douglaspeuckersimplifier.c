@@ -37,7 +37,8 @@ static struct mg_object *pri_simplify_line(const struct mg_object *obj)
     return NULL;
 }
 
-struct mg_object *mg_prop_geo_simpily_RDP(const struct mg_object *obj)
+struct mg_object *
+mg_prop_geo_simpily_douglaspeucker(const struct mg_object *obj)
 {
     if (obj == NULL)
         return NULL;
