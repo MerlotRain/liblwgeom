@@ -7,8 +7,6 @@ else()
 endif()
 
 file(GLOB_RECURSE _testfiles ${CMAKE_CURRENT_LIST_DIR}/**/*Test.c CONFIGURE_DEPEND)
-
-message("_testfiles=${_testfiles}")
 enable_testing() 
 
 foreach(_testfile ${_testfiles})

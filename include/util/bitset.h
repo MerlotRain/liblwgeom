@@ -10,15 +10,39 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mgp.h"
-#include "mg.h"
+#ifndef BITSET_H
+#define BITSET_H
 
-struct mg_object *mg_read_ewkb(const char *data, int len)
-{
-    return NULL;
-}
+#include <mathse.h>
 
-int mg_write_ewkb(const struct mg_object *g, char **data, int *len)
-{
-    return 0;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define BITSET_STATE_NONE 0
+#define BITSET_STATE_ALL  1
+#define BITSET_STATE_ANY  2
+
+struct bitset;
+
+EXTERN struct bitset *bitset_new(size_t size);
+
+EXTERN void bitset_free(struct bitset *bs);
+
+EXTERN bool bitset_set(struct bitset *bs, size_t index, bool value);
+
+EXTERN bool bitset_test(struct bitset *bs, size_t index);
+
+EXTERN bool bitset_flip(struct bitset *bs, size_t index);
+
+EXTERN int bitset_state(struct bitset *bs);
+
+EXTERN size_t bitset_count(struct bitset *bs);
+
+EXTERN size_t bitset_size(struct bitset *bs);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

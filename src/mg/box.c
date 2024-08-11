@@ -11,22 +11,25 @@
 /*****************************************************************************/
 
 #include "mghelp.h"
+#include "mgp.h"
 
 struct mg_box mg_box_intersection(const struct mg_box env1,
-                                       const struct mg_box env2)
+                                  const struct mg_box env2)
 {
 }
 
-struct mg_box mg_box_union(const struct mg_box env1,
-                                const struct mg_box env2)
+struct mg_box mg_box_union(const struct mg_box env1, const struct mg_box env2)
 {
 }
 
-bool mg_box_contains(const struct mg_box env1,
-                     const struct mg_box env2)
+bool mg_box_contains(const struct mg_box env1, const struct mg_box env2)
 {
 }
 
 bool mg_box_contains_point(const struct mg_box env, double *xy)
+{
+}
+
+struct mg_object *mg_stroke_box(struct mg_box e, int gdim)
 {
 }

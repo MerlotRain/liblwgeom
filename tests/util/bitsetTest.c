@@ -10,15 +10,34 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mgp.h"
-#include "mg.h"
+#include "bitset.h"
 
-struct mg_object *mg_read_ewkb(const char *data, int len)
-{
-    return NULL;
-}
+#include <CUnit/CUnit.h>
+#include <CUnit/Basic.h>
 
-int mg_write_ewkb(const struct mg_object *g, char **data, int *len)
+struct bitset *bs;
+
+int init_bitset_suite(void)
 {
     return 0;
+}
+
+int clean_bitset_suite(void)
+{
+    return 0;
+}
+
+void mg_bitset_Test1(void)
+{
+}
+
+int mg_bitsetSuite()
+{
+    CU_pSuite pSuite = NULL;
+    pSuite = CU_add_suite("mg-bitset", init_bitset_suite, clean_bitset_suite);
+
+    if (NULL == CU_add_test(pSuite, "bitset Test1", mg_bitset_Test1)) {
+        return CU_get_error();
+    }
+    return CUE_SUCCESS;
 }

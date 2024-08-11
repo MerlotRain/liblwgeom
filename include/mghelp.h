@@ -118,10 +118,22 @@ EXTERN void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
 EXTERN void mg_construct_circle(const struct mg_point *p, int t,
                                 struct mg_ellipse *es, int *n);
 
-/// Convert mg_box object to mg_object
-EXTERN struct mg_object *mg_trans_box(struct mg_box *e, int gdim);
 
-EXTERN struct mg_object *mg_trans_ellipse(struct mg_ellipse *e, int gdim);
+struct mg_arc {
+    struct mg_point start;
+    struct mg_point along;
+    struct mg_point end;
+};
+
+
+/// Convert mg_box object to mg_object
+EXTERN struct mg_object *mg_stroke_box(struct mg_box e, int gdim);
+
+EXTERN struct mg_object *mg_stroke_ellipse(struct mg_ellipse e, int gdim);
+
+/// stroke arc to mg_object
+EXTERN struct mg_object *mg_stroke_arc(struct mg_arc arc, 
+                                       double maxAngleStepSizeDegress);
 
 #ifdef __cplusplus
 }

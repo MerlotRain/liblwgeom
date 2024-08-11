@@ -10,15 +10,22 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mgp.h"
-#include "mg.h"
+#ifndef UUID_H
+#define UUID_H
 
-struct mg_object *mg_read_ewkb(const char *data, int len)
-{
-    return NULL;
-}
+#include "mathse.h"
 
-int mg_write_ewkb(const struct mg_object *g, char **data, int *len)
-{
-    return 0;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define UUID_LEN 37
+
+int uuid_init();
+void uuid_generate(char *dst);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

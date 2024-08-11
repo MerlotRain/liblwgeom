@@ -13,6 +13,7 @@
 #include "error.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 static char last_error[2048];
 

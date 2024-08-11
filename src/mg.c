@@ -35,7 +35,7 @@ struct mg_object *mg_create_single(int gdim, int pn, int cdim, const double *pp,
     else {
         obj->pp = (double *)malloc(sizeof(double) * pn * cdim);
         if (obj->pp == NULL) {
-            mg_free(obj);
+            mg_free_object(obj);
             return NULL;
         }
         memcpy(obj->pp, pp, sizeof(double) * pn * cdim);
@@ -130,27 +130,54 @@ void mg_free_object(struct mg_object *g)
 
 int mg_dim_c(const struct mg_object *obj)
 {
-    return 0;
+    assert(obj);
+    return obj->cdim;
 }
 
 int mg_dim_g(const struct mg_object *obj)
 {
-    return 0;
+    assert(obj);
+    return obj->gdim;
 }
 
 int mg_sub_n(const struct mg_object *obj)
 {
-    return 0;
+    assert(obj);
+    return obj->ngeoms;
 }
 
 struct mg_object *mg_sub_at(const struct mg_object *obj, int i)
 {
+    assert(obj);
+    if (obj->ngeoms == 1) {
+        if (i == 0) {
+            return (struct mg_object *)obj;
+        }
+    }
+    else {
+        if (i < obj->ngeoms) {
+            return obj->objects[i];
+        }
+    }
     return NULL;
 }
 
 int mg_point_n(const struct mg_object *obj)
 {
-    return 0;
+    assert(obj);
+    if (obj->ngeoms == 1) {
+        return obj->npoints;
+    }
+    else {
+        int n = 0;
+        for (int i = 0; i < obj->ngeoms; ++i) {
+            struct mg_object *sub = obj->objects[i];
+            if (sub == NULL)
+                continue;
+            n += sub->npoints;
+        }
+        return 0;
+    }
 }
 
 /* ------------------------------- geometry io ------------------------------ */
@@ -165,41 +192,62 @@ int mg_write(int flag, const struct mg_object *obj, char **data, int len)
     return 0;
 }
 
-struct mg_object *mg_read_ora(int i_n, const int *i_p, int c_n, int c_dim,
-                              const double *c_p, int flag)
-{
-    return NULL;
-}
-
-int mg_write_ora(struct mg_object *obj, int *i_n, int **i_p, int *c_n,
-                 int *c_dim, double **c_p)
-{
-    return 0;
-}
-
 /* ------------------------- geometry reader writer ------------------------- */
 
 struct mg_object *mg_i4_object(struct mg_i4 *i4)
 {
+    assert(i4);
+    return i4->obj;
 }
 
 void mg_i4_propProp(const struct mg_i4 *i4, int *propSize, int **prop)
 {
+    assert(i4);
+    *propSize = i4->propSize;
+    *prop = i4->prop;
 }
 
 int mg_i4_prop_value(const struct mg_i4 *i4, int index)
 {
-    return 0;
+    assert(i4);
+    assert(index < i4->propSize);
+    return i4->prop[index];
 }
 
 struct mg_reader2 *mg_create_reader(int size)
 {
-    return NULL;
+    struct mg_reader2 *reader =
+        (struct mg_reader2 *)malloc(sizeof(struct mg_reader2));
+    if (reader == NULL)
+        return NULL;
+    reader->size = size;
+    reader->objs = (struct mg_i4 **)calloc(size, sizeof(struct mg_i4 *));
+    if (reader->objs == NULL) {
+        free(reader);
+        return NULL;
+    }
+    reader->current = 0;
+    reader->index = NULL;
+
+    return reader;
 }
 
 struct mg_reader2 *mg_create_writer()
 {
-    return NULL;
+    struct mg_reader2 *writer =
+        (struct mg_reader2 *)malloc(sizeof(struct mg_reader2));
+    if (writer == NULL)
+        return NULL;
+    writer->size = 10;
+    writer->objs = (struct mg_i4 **)calloc(10, sizeof(struct mg_i4 *));
+    if (writer->objs == NULL) {
+        free(writer);
+        return NULL;
+    }
+    writer->current = 0;
+    writer->index = NULL;
+
+    return writer;
 }
 
 void mg_free_reader2(struct mg_reader2 *reader)
@@ -234,14 +282,58 @@ double tolerance()
 
 /* --------------------------- geometry algorithm --------------------------- */
 
-/// calc geometry length
-double mg_prop_length_value(const struct mg_object *obj);
-/// calc geometry area
-double mg_prop_area_value(const struct mg_object *obj);
-/// calc geometry width
-double mg_prop_width_value(const struct mg_object *obj);
-/// calc geometry height
-double mg_prop_height_value(const struct mg_object *obj);
+bool mg_check_single_ring(const struct mg_object *obj)
+{
+    assert(obj);
+    if (obj->ngeoms != 1)
+        return false;
+
+    // At least 4 points are required to form a ring
+    if (obj->npoints < 4)
+        return false;
+
+    double x0 = obj->pp[0];
+    double y0 = obj->pp[1];
+    double xn = obj->pp[(ptrdiff_t)(obj->npoints * obj->cdim)];
+    double yn = obj->pp[(ptrdiff_t)(obj->npoints * obj->cdim + 1)];
+
+    return (fabs(x0 - xn) < g_tolerance) && (fabs(y0 - yn) < g_tolerance);
+}
+
+bool mg_ccw(const struct mg_object *obj)
+{
+    if (!mg_check_single_ring(obj))
+        return false;
+
+    // The ring must be a convex point at the vertex extreme value, which is the
+    // product of the line segments formed by the vertices before and after the
+    // point. If it is greater than 0, it means the ring is counterclockwise,
+    // and if it is less than 0, it means the ring is clockwise.
+
+    // Flat Ring
+    // The Y coordinate of at least one of the adjacent points of the lowest
+    // point on the ring is the same as that of the lowest point.
+
+    // of points without closing endpoint
+    int inPts = obj->npoints - 1;
+    if (inPts < 3)
+        return false;
+
+    double upHeiPx = obj->pp[0];
+    double upHeiPy = obj->pp[1];
+    double upLowPx = 0;
+    double upLowPy = 0;
+
+    double prevY = upHeiPy;
+    for (int i = 1; i <= inPts; ++i) {
+        double py = obj->pp[(ptrdiff_t)(i * obj->cdim + 1)];
+        if (py > prevY) {
+        }
+        prevY = py;
+    }
+
+    return 0;
+}
 
 double mg_prop_value(const struct mg_object *obj, int mode)
 {
@@ -266,8 +358,24 @@ double mg_prop_value(const struct mg_object *obj, int mode)
 
 struct mg_object *mg_prop_geo(const struct mg_object *obj, int mode)
 {
+    assert(obj);
+    switch (mode) {
+    case GEOMETRY_PROP_GEO_CLONE: {
+        return NULL;
+    }
+    }
+    return NULL;
 }
 
 void mg_prop_geo2(const struct mg_object *obj, int mode, double *paras)
+{
+}
+
+int mg_left_right(const struct mg_object *obj, double *xy)
+{
+    return 0;
+}
+
+void mg_vertex_convex(const struct mg_object *obj, int index, int *convex)
 {
 }

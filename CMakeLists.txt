@@ -8,7 +8,9 @@ else()
     set(mathse mathse)
 endif()
 
+find_package(OpenCV REQUIRED)
 find_package(PNG REQUIRED)
+find_package(PROJ REQUIRED)
 find_package(Git)
 set(PACKAGE_VERSION "")
 execute_process(COMMAND ${GIT_EXECUTABLE} describe --long --tags --always
@@ -95,54 +97,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
-set(mathse_HEADERS
-    include/btree.h
-    include/geohash.h
-    include/mathse.h
-    include/mesh.h
-    include/mg.h
-    include/mghelp.h
-    include/nmea.h
-    include/rtree.h
-    include/stream.h
-
-    include/util/buf.h
-    include/util/encode.h
-    include/util/hash.h
-    include/util/logging.h
-    include/util/sort.h
-)
-
-set(mathse_SOURCES
-    src/mg.c
-    src/error.c
-    
-    src/mg/area.c
-    src/mg/box.c
-    src/mg/ellipse.c
-    src/mg/envelope.c
-    src/mg/length.c
-    src/mg/point.c
-
-    src/index/rtree.c
-    src/index/geohash.c
-    src/index/btree.c
-
-    src/io/ewkb.c
-    src/io/ewkt.c
-    src/io/geojson.c
-    src/io/gml.c
-    src/io/kml.c
-    src/io/wkb.c
-    src/io/wkt.c
-    src/io/stok.c
-
-    src/util/buf.c
-    src/util/hash.c
-    src/util/base64.c
-    src/util/md5.c
-    src/util/sort.c
-)
+file(GLOB_RECURSE mathse_HEADERS ${CMAKE_CURRENT_LIST_DIR}/include/*.h CONFIGURE_DEPEND)
+file(GLOB_RECURSE mathse_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c CONFIGURE_DEPEND)
+file(GLOB_RECURSE mathse_HEADER_PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/*.h CONFIGURE_DEPEND)
 
 set(MATHSE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -150,12 +107,14 @@ if(BUILD_SHARD_LIBRARY)
   add_library(${mathse} SHARED
       ${mathse_HEADERS}
       ${mathse_SOURCES}
+      ${mathse_HEADER_PRIVATE}
   )
   target_compile_definitions(${mathse} PRIVATE DLL_EXPORT)
 else()
   add_library(${mathse} STATIC
     ${mathse_HEADERS}
     ${mathse_SOURCES}
+    ${mathse_HEADER_PRIVATE}
   )
 endif()
 
@@ -176,8 +135,10 @@ target_include_directories(${mathse} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(${mathse} PNG::PNG)
-
+target_link_libraries(${mathse} 
+  PNG::PNG
+  ${OpenCV_LIBS}
+  ${PROJ_LIBRARIES})
 
 if(BUILD_TESTS)
   include(CTest)

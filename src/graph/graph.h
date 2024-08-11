@@ -10,15 +10,38 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mgp.h"
-#include "mg.h"
+#ifndef GRAPH_H
+#define GRAPH_H
 
-struct mg_object *mg_read_ewkb(const char *data, int len)
-{
-    return NULL;
-}
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int mg_write_ewkb(const struct mg_object *g, char **data, int *len)
-{
-    return 0;
+/// @brief undirected graph node
+struct ung_node {
+    int id;
+};
+
+/// @brief undirected graph edge
+struct ung_edge {
+    int id;   ///< id
+    int from; ///< from node id
+    int to;   ///< to node id
+};
+
+/// @brief undirected graph
+struct un_graph {
+    double *pp;             ///< graph point coordinates
+    int num_nodes;          ///< number of nodes
+    struct ung_node *nodes; ///< nodes
+    int num_edges;          ///< number of edges
+    struct ung_edge *edges; ///< edges
+};
+
+struct un_graph *graph_delaunay(double *pp, int num_points);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif
