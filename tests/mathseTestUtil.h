@@ -10,8 +10,6 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-
-
 /// Naming conventions and registration methods for test suites
 /// ---
 /// The test cases for a module need to be placed in a file consisting of the
@@ -26,16 +24,15 @@
 /// be named 'util-stok'. This naming can facilitate cmake to generate
 /// corresponding test units based on file names.
 
-
 /// module util
+extern int mg_bitsetSuite();
 
 /// collection of util suite
 static int util_suite()
 {
-    int r = 0;
+    int r = mg_bitsetSuite();
     return r;
 }
-
 
 /// module mg
 extern int mg_pointSuite();
@@ -45,7 +42,6 @@ static int mg_suite()
     int r = mg_pointSuite();
     return r;
 }
-
 
 /// register all suites
 int register_suite()

@@ -8,7 +8,9 @@ else()
     set(mathse mathse)
 endif()
 
+find_package(OpenCV REQUIRED)
 find_package(PNG REQUIRED)
+find_package(PROJ REQUIRED)
 find_package(Git)
 set(PACKAGE_VERSION "")
 execute_process(COMMAND ${GIT_EXECUTABLE} describe --long --tags --always
@@ -133,8 +135,10 @@ target_include_directories(${mathse} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(${mathse} PNG::PNG)
-
+target_link_libraries(${mathse} 
+  PNG::PNG
+  ${OpenCV_LIBS}
+  ${PROJ_LIBRARIES})
 
 if(BUILD_TESTS)
   include(CTest)

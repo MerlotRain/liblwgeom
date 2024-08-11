@@ -282,6 +282,13 @@ EXTERN int mg_left_right(const struct mg_object *obj, double *xy);
 EXTERN void mg_vertex_convex(const struct mg_object *obj, int index,
                              int *convex);
 
+/// @brief Make the rings formed by the building outlines extracted from the
+/// city image rectangular
+/// @param xy building outline coordinates, Points may be added or deleted
+/// within the algorithm
+/// @param np number of points
+EXTERN void mg_building_regularization(double *xy, int np);
+
 #ifdef __cplusplus
 }
 #endif

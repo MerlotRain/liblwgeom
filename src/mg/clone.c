@@ -25,4 +25,5 @@ struct mg_object *mg_prop_geo_clone(const struct mg_object *obj)
     clone->ngeoms = obj->ngeoms;
     if (obj->ngeoms == 1) {
     }
+    return NULL;
 }
