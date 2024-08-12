@@ -8,9 +8,8 @@ else()
     set(mathse mathse)
 endif()
 
-find_package(OpenCV REQUIRED)
-find_package(PNG REQUIRED)
-find_package(PROJ REQUIRED)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 find_package(Git)
 set(PACKAGE_VERSION "")
 execute_process(COMMAND ${GIT_EXECUTABLE} describe --long --tags --always
@@ -20,10 +19,28 @@ string(STRIP "${NL_PACKAGE_VERSION}" PACKAGE_VERSION)
 option(BUILD_SHARD_LIBRARY "build shared libmathse library" ON)
 option(BUILD_TESTS "build libmathse tests" OFF)
 option(BUILD_PROGRAMS "build program tools" OFF)
-
+option(BUILD_WITH_OPENCV "Compile libmathse and use OpenCV to process images" OFF)
+option(BUILD_WITH_ICONV "build with iconv" OFF)
+option(BUILD_WITH_PROJ "build with proj" OFF)
+option(BUILD_WITH_LIBPNG16 "build with libpng16" OFF)
 option(MATHSE_DISABLE_LIBPNG_CANVAS "on libmathse libpng support" OFF)
 option(MATHSE_DISABLE_QT_CANVAS "on libmathse qt canvas support" OFF)
 
+if(BUILD_WITH_LIBPNG16)
+  find_package(PNG REQUIRED)
+endif()
+
+if(BUILD_WITH_OPENCV)
+  find_package(OpenCV REQUIRED)
+endif()
+
+if(BUILD_WITH_ICONV)
+  find_package(Iconv REQUIRED)
+endif()
+
+if(BUILD_WITH_PROJ)
+  find_package(PROJ REQUIRED)
+endif()
 
 include(CheckIncludeFile)
 CHECK_INCLUDE_FILE("stddef.h" HAVE_STDDEF_H)
@@ -122,10 +139,6 @@ if(WIN32)
   target_compile_definitions(${mathse} PUBLIC _USE_MATH_DEFINES)
 endif()
 
-target_include_directories(${mathse} SYSTEM PUBLIC
-  ${PNG_INCLUDE_DIRS}
-)
-
 target_include_directories(${mathse} PUBLIC 
   ${MATHSE_INCLUDE_DIR}
   ${MATHSE_INCLUDE_DIR}/util
@@ -135,10 +148,17 @@ target_include_directories(${mathse} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(${mathse} 
-  PNG::PNG
-  ${OpenCV_LIBS}
-  ${PROJ_LIBRARIES})
+if(BUILD_WITH_LIBPNG16)
+  target_link_libraries(${mathse} PNG::PNG)
+endif()
+
+if(BUILD_WITH_OPENCV)
+  target_link_libraries(${mathse} ${OpenCV_LIBS})
+endif()
+
+if(BUILD_WITH_PROJ)
+  target_link_libraries(${mathse} PROJ::proj)
+endif()
 
 if(BUILD_TESTS)
   include(CTest)

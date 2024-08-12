@@ -11,15 +11,49 @@
 /*****************************************************************************/
 
 #include "mghelp.h"
-#include "mgp.h"
+
+/// check box is null?
+#define MG_BOX_NULL(B)                                                        \
+    (isnan(B.min.x) && isnan(B.max.x) && isnan(B.min.y) && isnan(B.max.y)) || \
+        (DBL_NEAR(B.min.x, DBL_MAX) && DBL_NEAR(B.min.y, DBL_MAX) &&          \
+         DBL_NEAR(B.max.x, -DBL_MAX) && DBL_NEAR(B.max.y, -DBL_MAX))
+
+/// init box
+#define MG_BOX_INIT(B)                                      \
+    struct mg_box B = {.min = {.x = DBL_MIN, .y = DBL_MIN}, \
+                       .max = {.x = DBL_MAX, .y = DBL_MAX}};
 
 struct mg_box mg_box_intersection(const struct mg_box env1,
                                   const struct mg_box env2)
 {
+    MG_BOX_INIT(b)
+    if(MG_BOX_NULL(env1) || MG_BOX_NULL(env2))
+    {
+        return b;
+    }
+
+    if(mg_box_contains(env1, env2))
+    {
+        b.min.x = env1.min.x > env2.min.x ? env1.min.x : env2.min.x;
+        b.min.y = env1.min.y > env2.min.y ? env1.min.y : env2.min.y;
+        b.max.x = env1.max.x < env2.max.x ? env1.max.x : env2.max.x;
+        b.max.y = env1.max.y < env2.max.y ? env1.max.y : env2.max.y;
+    }
+    return b;
 }
 
 struct mg_box mg_box_union(const struct mg_box env1, const struct mg_box env2)
 {
+    MG_BOX_INIT(b)
+    if(MG_BOX_NULL(env1) || MG_BOX_NULL(env2))
+    {
+        return b;
+    }
+    b.min.x = MIN(env1.min.x, env2.min.x);
+    b.min.y = MIN(env1.min.y, env2.min.y);
+    b.max.x = MIN(env1.max.x, env2.max.x);
+    b.max.y = MIN(env1.max.y, env2.max.y);
+    return b;
 }
 
 bool mg_box_contains(const struct mg_box env1, const struct mg_box env2)
@@ -33,3 +67,6 @@ bool mg_box_contains_point(const struct mg_box env, double *xy)
 struct mg_object *mg_stroke_box(struct mg_box e, int gdim)
 {
 }
+
+#undef MG_BOX_NULL
+#undef MG_BOX_INIT
