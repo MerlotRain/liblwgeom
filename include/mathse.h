@@ -68,6 +68,12 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
+#define MAX3(a, b, c) \
+    ((a) > (b) ? ((a) > (c) ? (a) : (c)) : ((b) > (c) ? (b) : (c)))
+
+#define MIN3(a, b, c) \
+    ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
+
 #define DBL_NEAR(a, b) (fabs((a) - (b)) < 4 * DBL_EPSILON)
 
 #if defined(USE_TCMALLOC)
