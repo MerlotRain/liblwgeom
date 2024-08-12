@@ -113,7 +113,7 @@ extern "C" {
 
 EXTERN int error_code();
 
-EXTERN char* error_messgae();
+EXTERN char *error_messgae();
 
 #ifdef __cpluscplus
 }

@@ -5,13 +5,63 @@
 extern "C" {
 #endif
 
-#include "mg.h"
-/// Point
+#include <mathse.h>
+
+/* ---------------------------------- Point --------------------------------- */
+
 /// The base point type used for all geometries.
 struct mg_point {
     double x;
     double y;
 };
+
+/// @brief point angle with mg_point(0, 0)
+/// @param p the point to compute the angle for
+/// @return the angle of the point
+EXTERN double mg_angle(const struct mg_point p0);
+
+/// @brief Returns the angle of the vector from p0 to p1, relative to the
+/// positive X-axis.
+/// @param p0 the first point
+/// @param p1 the second point
+/// @return the angle of the vector from p0 to p1
+EXTERN double mg_angle2(const struct mg_point p0, const struct mg_point p1);
+
+/// @brief Tests whether the angle between p0-p1-p2 is acute.
+/// @param p0 the first point
+/// @param p1 the second point
+/// @param p2 the third point
+/// @return true if the angle is acute
+EXTERN bool mg_acute(const struct mg_point p0, const struct mg_point p1,
+                     const struct mg_point p2);
+
+/// @brief Tests whether the angle between p0-p1-p2 is obtuse.
+/// @param p0 the first point
+/// @param p1 the second point
+/// @param p2 the third point
+/// @return true if the angle is obtuse
+EXTERN bool mg_obtuse(const struct mg_point p0, const struct mg_point p1,
+                      const struct mg_point p2);
+
+/// @brief Returns the unoriented smallest angle between two vectors.
+/// @param tip1 the first tip point
+/// @param tail the tail point
+/// @param tip2 the second tip point
+/// @return the unoriented smallest angle between two vectors
+EXTERN double mg_angle_between(const struct mg_point tip1,
+                               const struct mg_point tail,
+                               const struct mg_point tip2);
+
+/// @brief Computes the interior angle between two segments of a ring.
+/// @param p0 the first point
+/// @param p1 the second point
+/// @param p2 the third point
+/// @return the interior angle between two segments of a ring
+EXTERN bool mg_interior_angle(const struct mg_point p0,
+                              const struct mg_point p1,
+                              const struct mg_point p2);
+
+/* --------------------------------- Segment -------------------------------- */
 
 /// @brief Computes the distance from a point p to a line segment AB
 /// @param P the point to compute the distance for
@@ -32,50 +82,48 @@ EXTERN double mg_dis_point_to_perpendicular(const struct mg_point P,
                                             const struct mg_point A,
                                             const struct mg_point B);
 
+EXTERN void
+mg_segment_intersection(const struct mg_point p1, const struct mg_point p2,
+                        const struct mg_point p3, const struct mg_point p4,
+                        const struct mg_point *pin, bool *intersection);
 
-/// point angle with mg_point(0, 0)
-EXTERN double mg_angle(const struct mg_point p0);
+/* ----------------------------------- Box
+   ---------------------------------- */
 
-/// Returns the angle of the vector from p0 to p1, relative to the positive
-/// X-axis.
-EXTERN double mg_angle2(const struct mg_point p0, const struct mg_point p1);
-
-/// Tests whether the angle between p0-p1-p2 is acute.
-EXTERN bool mg_acute(const struct mg_point p0, const struct mg_point p1,
-                     const struct mg_point p2);
-
-/// Tests whether the angle between p0-p1-p2 is obtuse.
-EXTERN bool mg_obtuse(const struct mg_point p0, const struct mg_point p1,
-                      const struct mg_point p2);
-
-/// Returns the unoriented smallest angle between two vectors.
-EXTERN double mg_angle_between(const struct mg_point tip1,
-                               const struct mg_point tail,
-                               const struct mg_point tip2);
-
-/// Computes the interior angle between two segments of a ring.
-EXTERN bool mg_interior_angle(const struct mg_point p0,
-                              const struct mg_point p1,
-                              const struct mg_point p2);
-
-/// Box
 /// A rectangle defined by a minimum and maximum coordinates.
 struct mg_box {
     struct mg_point min;
     struct mg_point max;
 };
 
-/// Check two box is intersects
+/// @brief Check two box is intersects
+/// @param env1 the first Envelope
+/// @param env2 the second Envelope
+/// @return true if the two Envelopes intersect
 EXTERN bool mg_box_intersects(const struct mg_box env1,
                               const struct mg_box env2);
 
-/// Computes the intersection of two Envelopes
+/// @brief Computes the intersection of two Envelopes
+/// @param env1 the first Envelope
+/// @param env2 the second Envelope
+/// @return the intersection of the two Envelopes
 EXTERN struct mg_box mg_box_intersection(const struct mg_box env1,
                                          const struct mg_box env2);
 
-/// Enlarges the boundary of the Envelope so that it contains
+/// @brief Enlarges the boundary of the Envelope so that it contains
+/// @param env1 the original Envelope
+/// @param env2 the Envelope to be contained
+/// @return the enlarged Envelope
 EXTERN struct mg_box mg_box_union(const struct mg_box env1,
                                   const struct mg_box env2);
+
+/// @brief Convert mg_box object to mg_object
+/// @param e the mg_box object
+/// @param gdim the geometry dimension
+/// @return the mg_object object
+EXTERN struct mg_object *mg_stroke_box(struct mg_box e, int gdim);
+
+/* ---------------------------- Ellipse & Cricle ---------------------------- */
 
 /// mg_ ellipse is used to describe an ellipse or circle.
 /// Before V1.0, it would be treated as a regular geometric shape and
@@ -110,13 +158,8 @@ struct mg_ellipse {
 /// circles. They are also the inscribed circles of a triangle
 #define MG_CONSTRUCT_CIRCLE_ICT            3
 
-/// Calculate the ellipse attribute. \a flags are a combination of
-/// \a MG_ELLIPSE_PROP macro series. When passing in \a values externally, the
-/// data structure needs to be organized by oneself. The algorithm will write
-/// the calculation result in sequence based on the bits of the flag.
-EXTERN void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
-                                  double *values);
-
+/// @brief Construct circles according to different calculation methods.
+///
 /// Construct circles according to different calculation methods. \a t is
 /// determined based on the \a MG_CONSTRUCT_CIRCLE series macros.
 /// For MG_CONSTRUCT_CIRCLE_2P andMG_CONSTRUCT_CIRCLE_3P, a circle will
@@ -127,21 +170,48 @@ EXTERN void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
 /// executed, the number of circles generated is transmitted out. External CS
 /// needs to create an array of sufficient size according to requirements to
 /// receive the return value.
+///
+/// @param p points
+/// @param t calculation method
+/// @param es circles
+/// @param n number of circles
+/// @return
 EXTERN void mg_construct_circle(const struct mg_point *p, int t,
                                 struct mg_ellipse *es, int *n);
 
+/// @brief query ellipse attribute
+///
+/// Calculate the ellipse attribute. \a flags are a combination of
+/// \a MG_ELLIPSE_PROP macro series. When passing in \a values externally, the
+/// data structure needs to be organized by oneself. The algorithm will write
+/// the calculation result in sequence based on the bits of the flag.
+///
+/// @param ell ellipse
+/// @param flags query flag
+/// @param values query result
+/// @return
+EXTERN void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
+                                  double *values);
+
+/// @brief stroke ellipse to mg_object
+/// @param e ellipse
+/// @param gdim geometry dimension 1: line 2: area
+/// @return mg_object
+EXTERN struct mg_object *mg_stroke_ellipse(struct mg_ellipse e, int gdim);
+
+/* ----------------------------------- Arc ---------------------------------- */
+
+/// Arc segment
 struct mg_arc {
     struct mg_point start;
     struct mg_point along;
     struct mg_point end;
 };
 
-/// Convert mg_box object to mg_object
-EXTERN struct mg_object *mg_stroke_box(struct mg_box e, int gdim);
-
-EXTERN struct mg_object *mg_stroke_ellipse(struct mg_ellipse e, int gdim);
-
-/// stroke arc to mg_object
+/// @brief stroke arc to mg_object
+/// @param arc arc
+/// @param maxAngleStepSizeDegress max angle step size
+/// @return mg_object
 EXTERN struct mg_object *mg_stroke_arc(struct mg_arc arc,
                                        double maxAngleStepSizeDegress);
 

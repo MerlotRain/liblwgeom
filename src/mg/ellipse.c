@@ -77,6 +77,16 @@ static bool pri_is_perpendicular(const struct mg_point pt1,
     return false;
 }
 
+static void pri_from_2parallels_line(const struct mg_point pt1_par1,
+                                     const struct mg_point pt2_par1,
+                                     const struct mg_point pt1_par2,
+                                     const struct mg_point pt2_par2,
+                                     const struct mg_point pt1_line1,
+                                     const struct mg_point pt2_line1,
+                                     struct mg_ellipse *rs, int *n)
+{
+}
+
 void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
                            double *values)
 {
@@ -134,6 +144,17 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
 {
     assert(p);
     assert(rs);
+
+    ///
+    /// Constructs a circle by 2 points on the circle.
+    /// The center point can have m value which is the result from the midpoint
+    /// operation between \a pt1 and \a pt2. Z dimension is also supported and
+    /// is retrieved from the first 3D point amongst \a pt1 and \a pt2.
+    /// The radius is calculated from the 2D distance between \a pt1 and \a pt2.
+    /// The azimuth is the angle between \a pt1 and \a pt2.
+    /// @param pt1 First point.
+    /// @param pt2 Second point.
+    ///
     if (MG_CONSTRUCT_CIRCLE_2P == t) {
         struct mg_point pt1 = p[0];
         struct mg_point pt2 = p[1];
@@ -150,6 +171,17 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
         rs[0].azimuth = azimuth;
         *n = 1;
     }
+    ///
+    /// Constructs a circle by 3 points on the circle.
+    /// M value is dropped for the center point.
+    /// Z dimension is supported and is retrieved from the first 3D point
+    /// amongst \a pt1, \a pt2 and \a pt3.
+    /// The azimuth always takes the default value.
+    /// If the points are colinear an empty circle is returned.
+    /// @param pt1 First point.
+    /// @param pt2 Second point.
+    /// @param pt3 Third point.
+    ///
     else if (MG_CONSTRUCT_CIRCLE_3P == t) {
         struct mg_point p1, p2, p3;
         struct mg_point pt1 = p[0];
@@ -206,8 +238,7 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
             struct mg_point center;
             center.x = 0.5 * (p2.x + p3.x);
             center.y = 0.5 * (p1.y + p2.y);
-            double radius =
-                sqrt(pow((center.x - pt1.x), 2) + pow((center.y - pt1.y), 2));
+            double radius = MG_POINTDISTANCE2(center, pt1);
 
             rs[0].center = center;
             rs[0].major = radius;
@@ -226,15 +257,77 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
                    (2.0 * (bSlope - aSlope));
         center.y = -1.0 * (center.x - (p1.x + p2.x) / 2.0) / aSlope +
                    (p1.y + p2.y) / 2.0;
-        double radius =
-            sqrt(pow((center.x - pt1.x), 2) + pow((center.y - pt1.y), 2));
+        double radius = MG_POINTDISTANCE2(center, pt1);
         rs[0].center = center;
         rs[0].major = radius;
         rs[0].minor = radius;
         rs[0].azimuth = 0.0;
         *n = 1;
     }
+    ///
+    /// Constructs a circle by 3 tangents on the circle (aka inscribed circle of
+    /// a triangle). Z and m values are dropped for the center point. The
+    /// azimuth always takes the default value.
+    /// @param pt1_tg1 First point of the first tangent.
+    /// @param pt2_tg1 Second point of the first tangent.
+    /// @param pt1_tg2 First point of the second tangent.
+    /// @param pt2_tg2 Second point of the second tangent.
+    /// @param pt1_tg3 First point of the third tangent.
+    /// @param pt2_tg3 Second point of the third tangent.
+    /// @param epsilon Value used to compare point.
+    /// @param pos Point to determine which circle use in case of multi return.
+    /// If the solution is not unique and pos is an empty point, an empty circle
+    /// is returned. -- This case happens only when two tangents are parallels.
+    /// (since QGIS 3.18)
+    ///
     else if (MG_CONSTRUCT_CIRCLE_ICT == t) {
+        struct mg_point pt1_tg1 = p[0];
+        struct mg_point pt2_tg1 = p[1];
+        struct mg_point pt1_tg2 = p[2];
+        struct mg_point pt2_tg2 = p[3];
+        struct mg_point pt1_tg3 = p[4];
+        struct mg_point pt2_tg3 = p[5];
+
+        struct mg_point p1, p2, p3;
+        bool isIntersect_tg1tg2 = false;
+        bool isIntersect_tg1tg3 = false;
+        bool isIntersect_tg2tg3 = false;
+        mg_segment_intersection(pt1_tg1, pt2_tg1, pt1_tg2, pt2_tg2, &p1,
+                                &isIntersect_tg1tg2);
+        mg_segment_intersection(pt1_tg1, pt2_tg1, pt1_tg3, pt2_tg3, &p2,
+                                &isIntersect_tg1tg3);
+        mg_segment_intersection(pt1_tg2, pt2_tg2, pt1_tg3, pt2_tg3, &p3,
+                                &isIntersect_tg2tg3);
+
+        if (!isIntersect_tg1tg2 &&
+            !isIntersect_tg2tg3) // three lines are parallels
+        {
+            *n = 0;
+            return;
+        }
+
+        if (!isIntersect_tg1tg2) {
+            pri_from_2parallels_line(pt1_tg1, pt2_tg1, pt1_tg2, pt2_tg2,
+                                     pt1_tg3, pt2_tg3, rs, n);
+            return;
+        }
+        else if (!isIntersect_tg1tg3) {
+            pri_from_2parallels_line(pt1_tg1, pt2_tg1, pt1_tg3, pt2_tg3,
+                                     pt1_tg2, pt2_tg2, rs, n);
+            return;
+        }
+        else if (!isIntersect_tg2tg3) {
+            pri_from_2parallels_line(pt1_tg2, pt2_tg2, pt1_tg3, pt2_tg3,
+                                     pt1_tg1, pt1_tg1, rs, n);
+            return;
+        }
+
+        // 3 tangents are not parallels
+        // rs[0].center = center;
+        // rs[0].major = radius;
+        // rs[0].minor = radius;
+        // rs[0].azimuth = 0.0;
+        *n = 1;
     }
 }
 

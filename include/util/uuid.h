@@ -21,8 +21,8 @@ extern "C" {
 
 #define UUID_LEN 37
 
-int uuid_init();
-void uuid_generate(char *dst);
+EXTERN int uuid_init();
+EXTERN void uuid_generate(char *dst);
 
 #ifdef __cplusplus
 }

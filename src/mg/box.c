@@ -25,26 +25,24 @@
 
 bool mg_box_intersects(const struct mg_box env1, const struct mg_box env2)
 {
-      const double x1 = MAX(env1.min.x, env2.min.x);
-      const double x2 = MIN(env1.max.x, env2.max.x);
-      if ( x1 > x2 )
+    const double x1 = MAX(env1.min.x, env2.min.x);
+    const double x2 = MIN(env1.max.x, env2.max.x);
+    if (x1 > x2)
         return false;
-      const double y1 = MAX(env1.min.y, env2.min.y);
-      const double y2 = MIN(env1.max.y, env2.max.y);
-      return y1 <= y2;
+    const double y1 = MAX(env1.min.y, env2.min.y);
+    const double y2 = MIN(env1.max.y, env2.max.y);
+    return y1 <= y2;
 }
 
 struct mg_box mg_box_intersection(const struct mg_box env1,
                                   const struct mg_box env2)
 {
     MG_BOX_INIT(b)
-    if(MG_BOX_NULL(env1) || MG_BOX_NULL(env2))
-    {
+    if (MG_BOX_NULL(env1) || MG_BOX_NULL(env2)) {
         return b;
     }
 
-    if(mg_box_intersects(env1, env2))
-    {
+    if (mg_box_intersects(env1, env2)) {
         b.min.x = env1.min.x > env2.min.x ? env1.min.x : env2.min.x;
         b.min.y = env1.min.y > env2.min.y ? env1.min.y : env2.min.y;
         b.max.x = env1.max.x < env2.max.x ? env1.max.x : env2.max.x;
@@ -56,8 +54,7 @@ struct mg_box mg_box_intersection(const struct mg_box env1,
 struct mg_box mg_box_union(const struct mg_box env1, const struct mg_box env2)
 {
     MG_BOX_INIT(b)
-    if(MG_BOX_NULL(env1) || MG_BOX_NULL(env2))
-    {
+    if (MG_BOX_NULL(env1) || MG_BOX_NULL(env2)) {
         return b;
     }
     b.min.x = MIN(env1.min.x, env2.min.x);

@@ -119,3 +119,9 @@ double mg_dis_point_to_perpendicular(const struct mg_point P,
 {
     return 0;
 }
+
+void mg_segment_intersection(const struct mg_point p1, const struct mg_point p2,
+                             const struct mg_point p3, const struct mg_point p4,
+                             const struct mg_point *pin, bool *intersection)
+{
+}
