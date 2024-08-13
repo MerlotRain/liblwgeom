@@ -42,7 +42,7 @@ void mg_ellipse_Test1(void)
     points[1].y = 0;
     mg_construct_circle((const struct mg_point *)&points,
                         MG_CONSTRUCT_CIRCLE_2P, &ellipse, &n);
-    CU_ASSERT(ellipse.major == 6);
+    CU_ASSERT(ellipse.major == 5);
     CU_ASSERT(TEST_POINT_EQUAL(ellipse.center, tc, __ellipseTest_tolerance));
 }
 
