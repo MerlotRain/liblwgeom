@@ -105,23 +105,79 @@ bool mg_interior_angle(const struct mg_point p0, const struct mg_point p1,
     return pri_normalize_positive(angle_next - angle_prev);
 }
 
-double mg_dis_point_to_segment(const struct mg_point P, const struct mg_point A,
+double mg_dis_point_to_segment(const struct mg_point p, const struct mg_point A,
                                const struct mg_point B)
 {
-    if (MG_DOUBLE_NEARES(A.x, B.x) && MG_DOUBLE_NEARES(A.y, B.y)) {
-        return MG_POINTDISTANCE2(P, A);
+    if (MG_DOUBLE_NEARES2(A.x, B.x) && MG_DOUBLE_NEARES2(A.y, B.y)) {
+        return MG_POINTDISTANCE2(p, A);
     }
+
+    /*
+        (1)
+                        AC dot AB
+                    r = ---------
+                        ||AB||^2
+
+        r has the following meaning:
+        r=0 P = A
+        r=1 P = B
+        r<0 P is on the backward extension of AB
+        r>1 P is on the forward extension of AB
+        0<r<1 P is interior to AB
+    */
+
+    double r = ((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y)) /
+               ((B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y));
+
+    if (r <= 0.0) {
+        return MG_POINTDISTANCE2(p, A);
+    }
+    if (r >= 1.0) {
+        return MG_POINTDISTANCE2(p, B);
+    }
+
+    /*
+        (2)
+                (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay)
+            s = -----------------------------
+                            L^2
+
+        Then the distance from C to P = |s|*L.
+    */
+
+    double s = ((A.y - p.y) * (B.x - A.x) - (A.x - p.x) * (B.y - A.y)) /
+               ((B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y));
+
+    return fabs(s) *
+           sqrt(((B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y)));
     return 0;
 }
-double mg_dis_point_to_perpendicular(const struct mg_point P,
+double mg_dis_point_to_perpendicular(const struct mg_point p,
                                      const struct mg_point A,
                                      const struct mg_point B)
 {
-    return 0;
+    /*
+                (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay)
+            s = -----------------------------
+                                 L^2
+
+            Then the distance from C to P = |s|*L.
+    */
+
+    double s = ((A.y - p.y) * (B.x - A.x) - (A.x - p.x) * (B.y - A.y)) /
+               ((B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y));
+    return fabs(s) *
+           sqrt(((B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y)));
 }
 
 void mg_segment_intersection(const struct mg_point p1, const struct mg_point p2,
                              const struct mg_point p3, const struct mg_point p4,
                              const struct mg_point *pin, bool *intersection)
+{
+}
+
+void mg_angle_bisector(const struct mg_point A, const struct mg_point B,
+                       const struct mg_point C, const struct mg_point D,
+                       struct mg_point *p, double *angle)
 {
 }

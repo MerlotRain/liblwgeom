@@ -297,7 +297,7 @@ bool mg_check_single_ring(const struct mg_object *obj)
     double xn = obj->pp[(ptrdiff_t)(obj->npoints * obj->cdim)];
     double yn = obj->pp[(ptrdiff_t)(obj->npoints * obj->cdim + 1)];
 
-    return MG_DOUBLE_NEARES(x0, xn) && MG_DOUBLE_NEARES(y0, yn);
+    return MG_DOUBLE_NEARES2(x0, xn) && MG_DOUBLE_NEARES2(y0, yn);
 }
 
 bool mg_ccw(const struct mg_object *obj)

@@ -61,24 +61,37 @@ EXTERN bool mg_interior_angle(const struct mg_point p0,
                               const struct mg_point p1,
                               const struct mg_point p2);
 
+/// @brief The bisector segment of AB-CD is (point, projection of point by \a
+/// angle)
+/// @param A
+/// @param B
+/// @param C
+/// @param D
+/// @param p
+/// @param angle
+/// @return
+EXTERN void mg_angle_bisector(const struct mg_point A, const struct mg_point B,
+                              const struct mg_point C, const struct mg_point D,
+                              struct mg_point *p, double *angle);
+
 /* --------------------------------- Segment -------------------------------- */
 
 /// @brief Computes the distance from a point p to a line segment AB
-/// @param P the point to compute the distance for
+/// @param p the point to compute the distance for
 /// @param A one point of the line
 /// @param B another point of the line (must be different to A)
 /// @return the distance from p to line segment AB
-EXTERN double mg_dis_point_to_segment(const struct mg_point P,
+EXTERN double mg_dis_point_to_segment(const struct mg_point p,
                                       const struct mg_point A,
                                       const struct mg_point B);
 
 /// @brief Computes the perpendicular distance from a point p to the (infinite)
 /// line containing the points AB
-/// @param P the point to compute the distance for
+/// @param p the point to compute the distance for
 /// @param A one point of the line
 /// @param B another point of the line (must be different to A)
 /// @return the distance from p to line segment AB
-EXTERN double mg_dis_point_to_perpendicular(const struct mg_point P,
+EXTERN double mg_dis_point_to_perpendicular(const struct mg_point p,
                                             const struct mg_point A,
                                             const struct mg_point B);
 
@@ -87,8 +100,7 @@ mg_segment_intersection(const struct mg_point p1, const struct mg_point p2,
                         const struct mg_point p3, const struct mg_point p4,
                         const struct mg_point *pin, bool *intersection);
 
-/* ----------------------------------- Box
-   ---------------------------------- */
+/* ----------------------------------- Box ---------------------------------- */
 
 /// A rectangle defined by a minimum and maximum coordinates.
 struct mg_box {

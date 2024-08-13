@@ -39,7 +39,10 @@ extern double tolerence();
 #define MG_POINT_ANGLE(A)       (atan2((A).y, (A).x))
 
 /// @brief check double value is equal
-#define MG_DOUBLE_NEARES(A, B)  (fabs((A) - (B)) < MG_TOLERANCE)
+#define MG_DOUBLE_NEARES(A)     (fabs((A)) < MG_TOLERANCE)
+
+/// @brief check double value is equal
+#define MG_DOUBLE_NEARES2(A, B) (fabs((A) - (B)) < MG_TOLERANCE)
 
 /* ---------------------------- mg kernel struct ---------------------------- */
 

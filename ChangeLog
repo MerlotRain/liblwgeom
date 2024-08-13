@@ -1,0 +1,367 @@
+MerlotRain <merlotrain@gmail.com>	2024-08-13
+
+    update ellipse
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-08-12
+
+    finish box module
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-08-12
+
+    add box function and iconv
+
+MerlotRain <merlotrain@gmail.com>	2024-08-12
+
+    change douglas simplify function name
+
+MerlotRain <merlotrain@gmail.com>	2024-08-12
+
+    finish bitset
+
+MerlotRain <merlotrain@gmail.com>	2024-08-11
+
+    add bitset
+
+MerlotRain <merlotrain@gmail.com>	2024-08-10
+
+    change cmake file and clusters
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-08-09
+
+    ora help
+
+MerlotRain <merlotrain@gmail.com>	2024-08-09
+
+    add comment
+
+merlot <merlotrain@gmail.com>	2024-08-09
+
+    rebuild mg module
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-08-08
+
+    update geometry algorithm
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-08-08
+
+    change mg_pbject
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-08-06
+
+    add algorithm files
+
+merlot <merlotrain@gmail.com>	2024-08-03
+
+    Compile in Windows environment
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-08-02
+
+    update nmea struct
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-08-01
+
+    update mathse and add nmea parser
+
+MerlotRain <merlotrain@gmail.com>	2024-07-31
+
+    Completed Mac platform compilation
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-31
+
+    read wkt
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-31
+
+    add error about function
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-31
+
+    construct circle function 2p and 3p
+
+MerlotRain <merlotrain@gmail.com>	2024-07-31
+
+    format code
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-30
+
+    update point test suite
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-30
+
+    add ellipse algorithm
+
+MerlotRain <merlotrain@gmail.com>	2024-07-30
+
+    mg function
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-29
+
+    update alg
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-29
+
+    add logging
+
+MerlotRain <merlotrain@gmail.com>	2024-07-29
+
+    add tg module
+
+MerlotRain <merlotrain@gmail.com>	2024-07-28
+
+    complie in MacOSX with gcc
+
+merlot <merlotrain@gmail.com>	2024-07-28
+
+    mv stream header file
+
+merlot <merlotrain@gmail.com>	2024-07-28
+
+    update util
+
+merlot <merlotrain@gmail.com>	2024-07-27
+
+    update include directory
+
+merlot <merlotrain@gmail.com>	2024-07-27
+
+    add jsmn and cunit module
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-26
+
+    add logging
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-26
+
+    add programs files
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-26
+
+    update capi
+
+merlot <merlotrain@gmail.com>	2024-07-26
+
+    update io module
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-25
+
+    update capi
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-25
+
+    add c api
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-17
+
+    remove mathse cad
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-17
+
+    update mathse src folders
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-17
+
+    add mathse include folder
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-15
+
+    update algorithm
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-07-15
+
+    update mathse structures
+
+MerlotRain <merlotrain@gmail.com>	2024-07-14
+
+    add v1.0 code
+
+MerlotRain <merlotrain@gmail.com>	2024-06-01
+
+    coordinate file
+
+Merlot <merlotrain@gmail.com>	2024-04-11
+
+    commit mathse
+
+Merlot <merlotrain@gmail.com>	2024-03-18
+
+    add sbuf function
+
+Merlot <merlotrain@gmail.com>	2024-03-16
+
+    add sbuf
+
+Merlot <merlotrain@gmail.com>	2024-03-16
+
+    change mathse structure
+
+Merlot <merlotrain@gmail.com>	2024-03-15
+
+    change mathse
+
+Merlot <merlotrain@gmail.com>	2024-03-08
+
+    add io
+
+Merlot <merlotrain@gmail.com>	2024-01-24
+
+    change coordinate
+
+Merlot <merlotrain@gmail.com>	2024-01-17
+
+    add alg files
+
+Merlot <merlotrain@gmail.com>	2024-01-17
+
+    1. add angle alg
+
+Merlot <merlotrain@gmail.com>	2024-01-17
+
+    change matrix file
+
+Merlot <merlotrain@gmail.com>	2024-01-17
+
+    change define
+
+Merlot <merlotrain@gmail.com>	2024-01-17
+
+    add length alg
+
+Merlot <merlotrain@gmail.com>	2024-01-16
+
+    delete log
+
+Merlot <merlotrain@gmail.com>	2024-01-16
+
+    add thread pool
+
+Merlot <merlotrain@gmail.com>	2024-01-16
+
+    add base64
+
+Merlot <merlotrain@gmail.com>	2024-01-16
+
+    add base64 file
+
+Merlot <merlotrain@gmail.com>	2024-01-15
+
+    add some alg
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-01-15
+
+    Create zmalloc.h
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-01-15
+
+    Create math-private.h
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-01-15
+
+    Update coordinate.c
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-01-15
+
+    Update coordinate.h
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2024-01-15
+
+    Create lmz.h
+
+Merlot <merlotrain@gmail.com>	2024-01-14
+
+    整理结构
+
+Merlot <merlotrain@gmail.com>	2024-01-14
+
+    add function
+
+Merlot <merlotrain@gmail.com>	2024-01-14
+
+    1. add matrix
+
+Merlot <merlotrain@gmail.com>	2024-01-13
+
+    1.add mathSE
+
+Merlot <merlotrain@gmail.com>	2024-01-13
+
+    change mathSE
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-18
+
+    Update Makefile
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-18
+
+    Update Makefile
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-18
+
+    add byte swap
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-18
+
+    Update crs.h
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-18
+
+    Update geohash.c
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-18
+
+    Update crs.h
+
+Merlot <merlotrain@gmail.com>	2023-12-17
+
+    1.add sort and i4
+
+Merlot <merlotrain@gmail.com>	2023-12-16
+
+    1.change table
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-15
+
+    Update rw.h
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-15
+
+    Update index.h
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-15
+
+    Update index.h
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-15
+
+    Update geohash.c
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-15
+
+    Update geohash.h
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-15
+
+    Create geohash.c
+
+    geohash.c
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-15
+
+    Create geohash.h
+
+    add geohash
+
+Merlot <merlotrain@gmail.com>	2023-12-15
+
+    sync
+
+Merlot <merlotrain@gmail.com>	2023-12-15
+
+    几何模型的初步结构搭建。
+
+Merlot <merlotrain@gmail.com>	2023-12-14
+
+    math SE base file
+
+MerlotRain <122578849+MerlotRain@users.noreply.github.com>	2023-12-13
+
+    Initial commit

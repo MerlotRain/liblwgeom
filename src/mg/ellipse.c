@@ -58,20 +58,20 @@ static bool pri_is_perpendicular(const struct mg_point pt1,
     double yDelta_b = pt3.y - pt2.y;
     double xDelta_b = pt3.x - pt2.x;
 
-    if (MG_DOUBLE_NEARES(xDelta_a, 0.0) && MG_DOUBLE_NEARES(yDelta_b, 0.0)) {
+    if (MG_DOUBLE_NEARES(xDelta_a) && MG_DOUBLE_NEARES(yDelta_b)) {
         return false;
     }
 
-    if (MG_DOUBLE_NEARES(yDelta_a, 0.0)) {
+    if (MG_DOUBLE_NEARES(yDelta_a)) {
         return true;
     }
-    else if (MG_DOUBLE_NEARES(yDelta_b, 0.0)) {
+    else if (MG_DOUBLE_NEARES(yDelta_b)) {
         return true;
     }
-    else if (MG_DOUBLE_NEARES(xDelta_a, 0.0)) {
+    else if (MG_DOUBLE_NEARES(xDelta_a)) {
         return true;
     }
-    else if (MG_DOUBLE_NEARES(xDelta_b, 0.0)) {
+    else if (MG_DOUBLE_NEARES(xDelta_b)) {
         return true;
     }
     return false;
@@ -85,6 +85,55 @@ static void pri_from_2parallels_line(const struct mg_point pt1_par1,
                                      const struct mg_point pt2_line1,
                                      struct mg_ellipse *rs, int *n)
 {
+    const double radius =
+        mg_dis_point_to_perpendicular(pt1_par1, pt1_par2, pt2_par2) / 2.0;
+
+    bool isInter;
+    const struct mg_point ptInter;
+
+    struct mg_point ptInter_par1line1, ptInter_par2line1;
+    double angle1, angle2;
+    double x, y;
+    mg_angle_bisector(pt1_par1, pt2_par1, pt1_line1, pt2_line1,
+                      &ptInter_par1line1, &angle1);
+
+    mg_angle_bisector(pt1_par2, pt2_par2, pt1_line1, pt2_line1,
+                      &ptInter_par2line1, &angle2);
+
+    struct mg_point center;
+    mg_segment_intersection(
+        ptInter_par1line1, pri_point_project(ptInter_par1line1, 1.0, angle1),
+        ptInter_par2line1, pri_point_project(ptInter_par2line1, 1.0, angle2),
+        &center, &isInter);
+    if (isInter) {
+        // circles.append(QgsCircle(center, radius));
+    }
+
+    mg_segment_intersection(
+        ptInter_par1line1, pri_point_project(ptInter_par1line1, 1.0, angle1),
+        ptInter_par2line1,
+        pri_point_project(ptInter_par2line1, 1.0, angle2 + 90), &center,
+        &isInter);
+    if (isInter) {
+        // circles.append(QgsCircle(center, radius));
+    }
+
+    mg_segment_intersection(
+        ptInter_par1line1,
+        pri_point_project(ptInter_par1line1, 1.0, angle1 + 90),
+        ptInter_par2line1, pri_point_project(ptInter_par2line1, 1.0, angle2),
+        &center, &isInter);
+    // if (isInter && !circles.contains(QgsCircle(center, radius))) {
+    //     circles.append(QgsCircle(center, radius));
+    // }
+    mg_segment_intersection(
+        ptInter_par1line1,
+        pri_point_project(ptInter_par1line1, 1.0, angle1 + 90),
+        ptInter_par2line1, pri_point_project(ptInter_par2line1, 1.0, angle2),
+        &center, &isInter);
+    // if (isInter && !circles.contains(QgsCircle(center, radius))) {
+    //     circles.append(QgsCircle(center, radius));
+    // }
 }
 
 void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
@@ -226,15 +275,15 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
         const double yDelta_b = p3.y - p2.y;
         const double xDelta_b = p3.x - p2.x;
 
-        if (MG_DOUBLE_NEARES(xDelta_a, 0.0) ||
-            MG_DOUBLE_NEARES(xDelta_b, 0.0)) {
+        if (MG_DOUBLE_NEARES(xDelta_a) ||
+            MG_DOUBLE_NEARES(xDelta_b)) {
             *n = 0;
             return;
         }
         const double aSlope = yDelta_a / xDelta_a;
         const double bSlope = yDelta_b / xDelta_b;
-        if ((MG_DOUBLE_NEARES(xDelta_a, 0.0)) &&
-            (MG_DOUBLE_NEARES(yDelta_b, 0.0))) {
+        if ((MG_DOUBLE_NEARES(xDelta_a)) &&
+            (MG_DOUBLE_NEARES(yDelta_b))) {
             struct mg_point center;
             center.x = 0.5 * (p2.x + p3.x);
             center.y = 0.5 * (p1.y + p2.y);
@@ -247,7 +296,7 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
             *n = 1;
         }
 
-        if (MG_DOUBLE_NEARES(aSlope - bSlope, MG_TOLERANCE)) {
+        if (MG_DOUBLE_NEARES(aSlope - bSlope)) {
             *n = 0;
             return;
         }
