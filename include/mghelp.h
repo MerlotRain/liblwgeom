@@ -207,9 +207,18 @@ EXTERN void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
 
 /// @brief stroke ellipse to mg_object
 /// @param e ellipse
-/// @param gdim geometry dimension 1: line 2: area
+/// @param param geometry dim and segment count
+/// Use the highest bit of an integer to represent the geometric dimension, 1:
+/// line, 2: area. When passing other values, use the default dimension of 1;
+/// The remaining digits represent the interpolation number. When the input
+/// interpolation number is less than 3, the default interpolation number of 36
+/// will be used.
+/// @example
+/// param: 246 create a polygon, segment to 46 linesegments
+/// param: 52: error code, use default value
+///
 /// @return mg_object
-EXTERN struct mg_object *mg_stroke_ellipse(struct mg_ellipse e, int gdim);
+EXTERN struct mg_object *mg_stroke_ellipse(struct mg_ellipse e, uint32_t param);
 
 /* ----------------------------------- Arc ---------------------------------- */
 

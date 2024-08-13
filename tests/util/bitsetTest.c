@@ -34,7 +34,7 @@ int clean_bitset_suite(void)
     return CUE_SUCCESS;
 }
 
-void mg_bitset_Test1(void)
+void util_bitset_Test1(void)
 {
     CU_ASSERT(bitset_test(bs, 1) == true);
     CU_ASSERT(bitset_test(bs, 3) == true);
@@ -42,7 +42,7 @@ void mg_bitset_Test1(void)
     CU_ASSERT(bitset_test(bs, 17) == true);
 }
 
-void mg_bitset_Test2(void)
+void util_bitset_Test2(void)
 {
     CU_ASSERT(bitset_test(bs, 2) == false);
     CU_ASSERT(bitset_test(bs, 10) == false);
@@ -50,7 +50,7 @@ void mg_bitset_Test2(void)
     CU_ASSERT(bitset_test(bs, 20) == false);
 }
 
-void mg_bitset_Test3(void)
+void util_bitset_Test3(void)
 {
     CU_ASSERT(bitset_count(bs) == 4);
     bitset_flip(bs, 1);
@@ -58,21 +58,21 @@ void mg_bitset_Test3(void)
     CU_ASSERT(bitset_count(bs) == 3);
 }
 
-void mg_bitset_Test4(void)
+void util_bitset_Test4(void)
 {
     bitset_clear(bs, 2);
     CU_ASSERT(bitset_count(bs) == 3);
 }
 
-int mg_bitsetSuite()
+int util_bitsetSuite()
 {
     CU_pSuite pSuite = NULL;
     pSuite = CU_add_suite("util-bitset", init_bitset_suite, clean_bitset_suite);
 
-    if (NULL == CU_add_test(pSuite, "bitset Test1", mg_bitset_Test1) ||
-        NULL == CU_add_test(pSuite, "bitset Test2", mg_bitset_Test2) ||
-        NULL == CU_add_test(pSuite, "bitset Test3", mg_bitset_Test3) ||
-        NULL == CU_add_test(pSuite, "bitset Test4", mg_bitset_Test4)) {
+    if (NULL == CU_add_test(pSuite, "bitset Test1", util_bitset_Test1) ||
+        NULL == CU_add_test(pSuite, "bitset Test2", util_bitset_Test2) ||
+        NULL == CU_add_test(pSuite, "bitset Test3", util_bitset_Test3) ||
+        NULL == CU_add_test(pSuite, "bitset Test4", util_bitset_Test4)) {
         return CU_get_error();
     }
     return CUE_SUCCESS;

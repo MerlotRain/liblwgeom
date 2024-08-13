@@ -13,6 +13,38 @@
 #include "mghelp.h"
 #include "mgp.h"
 
+/// triangle inscribed circle
+static struct mg_ellipse pri_tri_inscribed_circle(const struct mg_point p1,
+                                                  const struct mg_point p2,
+                                                  const struct mg_point p3)
+{
+    double l[3] = {MG_POINTDISTANCE2(p1, p2), MG_POINTDISTANCE2(p2, p3),
+                   MG_POINTDISTANCE2(p3, p1)};
+    double per = l[0] + l[1] + l[2];
+    double x = (l[0] * p3.x + l[1] * p1.x + l[2] * p2.x) / per;
+    double y = (l[0] * p3.y + l[1] * p1.y + l[2] * p2.y) / per;
+
+    double r =
+        fabs((p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)) /
+        per;
+    struct mg_ellipse circle = {
+        .center = {.x = x, .y = y}, .major = r, .minor = r, .azimuth = 0};
+    return circle;
+}
+
+/// check cricle list contains one circle
+static bool pri_contains_circle(const struct mg_ellipse *es, int n,
+                                const struct mg_point c, double r)
+{
+    for (int i = 0; i < n; ++i) {
+        if (MG_POINTDISTANCE2(es[i].center, c) &&
+            MG_DOUBLE_NEARES2(es[i].major, r)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /// Returns a new point which corresponds to this point projected by a specified
 /// distance with specified angles
 static struct mg_point pri_point_project(const struct mg_point p, double dis,
@@ -85,6 +117,7 @@ static void pri_from_2parallels_line(const struct mg_point pt1_par1,
                                      const struct mg_point pt2_line1,
                                      struct mg_ellipse *rs, int *n)
 {
+    int _en = 0;
     const double radius =
         mg_dis_point_to_perpendicular(pt1_par1, pt1_par2, pt2_par2) / 2.0;
 
@@ -106,7 +139,12 @@ static void pri_from_2parallels_line(const struct mg_point pt1_par1,
         ptInter_par2line1, pri_point_project(ptInter_par2line1, 1.0, angle2),
         &center, &isInter);
     if (isInter) {
-        // circles.append(QgsCircle(center, radius));
+        _en++;
+        *n = _en;
+        rs[_en - 1].center = center;
+        rs[_en - 1].major = radius;
+        rs[_en - 1].minor = radius;
+        rs[_en - 1].azimuth = 0;
     }
 
     mg_segment_intersection(
@@ -115,7 +153,12 @@ static void pri_from_2parallels_line(const struct mg_point pt1_par1,
         pri_point_project(ptInter_par2line1, 1.0, angle2 + 90), &center,
         &isInter);
     if (isInter) {
-        // circles.append(QgsCircle(center, radius));
+        _en++;
+        *n = _en;
+        rs[_en - 1].center = center;
+        rs[_en - 1].major = radius;
+        rs[_en - 1].minor = radius;
+        rs[_en - 1].azimuth = 0;
     }
 
     mg_segment_intersection(
@@ -123,17 +166,28 @@ static void pri_from_2parallels_line(const struct mg_point pt1_par1,
         pri_point_project(ptInter_par1line1, 1.0, angle1 + 90),
         ptInter_par2line1, pri_point_project(ptInter_par2line1, 1.0, angle2),
         &center, &isInter);
-    // if (isInter && !circles.contains(QgsCircle(center, radius))) {
-    //     circles.append(QgsCircle(center, radius));
-    // }
+    if (isInter && !pri_contains_circle(rs, *n, center, radius)) {
+        _en++;
+        *n = _en;
+        rs[_en - 1].center = center;
+        rs[_en - 1].major = radius;
+        rs[_en - 1].minor = radius;
+        rs[_en - 1].azimuth = 0;
+    }
+
     mg_segment_intersection(
         ptInter_par1line1,
         pri_point_project(ptInter_par1line1, 1.0, angle1 + 90),
         ptInter_par2line1, pri_point_project(ptInter_par2line1, 1.0, angle2),
         &center, &isInter);
-    // if (isInter && !circles.contains(QgsCircle(center, radius))) {
-    //     circles.append(QgsCircle(center, radius));
-    // }
+    if (isInter && !pri_contains_circle(rs, *n, center, radius)) {
+        _en++;
+        *n = _en;
+        rs[_en - 1].center = center;
+        rs[_en - 1].major = radius;
+        rs[_en - 1].minor = radius;
+        rs[_en - 1].azimuth = 0;
+    }
 }
 
 void mg_ellipse_prop_value(const struct mg_ellipse ell, int flags,
@@ -211,7 +265,8 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
         struct mg_point center = {.x = ((pt1.x + pt2.x) / 2.0),
                                   .y = ((pt1.y + pt2.y) / 2.0)};
         double radius = sqrt((pt1.x - pt2.x) * (pt1.x - pt2.x) +
-                             (pt1.y - pt2.y) * (pt1.y - pt2.y));
+                             (pt1.y - pt2.y) * (pt1.y - pt2.y)) /
+                             2;
         double azimuth =
             pri_line_angle(pt1.x, pt1.y, pt2.x, pt2.y) * 180.0 / M_PI;
         rs[0].center = center;
@@ -372,14 +427,41 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
         }
 
         // 3 tangents are not parallels
-        // rs[0].center = center;
-        // rs[0].major = radius;
-        // rs[0].minor = radius;
-        // rs[0].azimuth = 0.0;
+        rs[0] = pri_tri_inscribed_circle(p1, p2, p3);
         *n = 1;
     }
 }
 
 struct mg_object *mg_stroke_ellipse(struct mg_ellipse e, int gdim)
 {
+    if (param < 1)
+        return NULL;
+
+    int gdim = param / (int)pow(10, (int)log10(param));
+    int nseg = param % (int)pow(10, (int)log10(param));
+    if (gdim < 2 || gdim > 3)
+        return NULL;
+    if (nseg < 3)
+        return NULL;
+
+    double *pp = (double *)calloc((nseg + 1) * 2, sizeof(double));
+    if (pp == NULL) {
+        return NULL;
+    }
+    
+    struct mg_point qu = pri_point_project(e.center, e.major, e.azimuth);
+    double az = atan2(qu.y - e.center.y, qu.x - e.center.x);
+
+    for (int i = 0; i < nseg; ++i) {
+        double t = (2 * M_PI - ((2 * M_PI) / nseg * i));
+        pp[i * 2] = e.center.x + e.major * cos(t) * cos(az) -
+                    e.minor * sin(t) * sin(az);
+        pp[i * 2 + 1] = e.center.y + e.major * cos(t) * sin(az) +
+                        e.minor * sin(t) * cos(az);
+    }
+
+    pp[nseg * 2] = pp[0];
+    pp[nseg * 2 + 1] = pp[1];
+
+    return mg_create_single(gdim, nseg + 1, 2, pp, 0);
 }
