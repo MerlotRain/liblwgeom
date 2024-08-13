@@ -109,7 +109,10 @@
     "texture": "c",
     "vertexarraystate": "c",
     "buffered_value": "c",
-    "fast_back_stack": "c"
+    "fast_back_stack": "c",
+    "mgp.h": "c",
+    "ratio": "c",
+    "random": "c"
   },
   "cmake.configureArgs": [
     "-DBUILD_TESTS=ON",

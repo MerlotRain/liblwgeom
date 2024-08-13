@@ -275,7 +275,7 @@ double mg_tolerance(double tol)
     return tmp;
 }
 
-double tolerance()
+double tolerence()
 {
     return g_tolerance;
 }
@@ -297,7 +297,7 @@ bool mg_check_single_ring(const struct mg_object *obj)
     double xn = obj->pp[(ptrdiff_t)(obj->npoints * obj->cdim)];
     double yn = obj->pp[(ptrdiff_t)(obj->npoints * obj->cdim + 1)];
 
-    return (fabs(x0 - xn) < g_tolerance) && (fabs(y0 - yn) < g_tolerance);
+    return MG_DOUBLE_NEARES2(x0, xn) && MG_DOUBLE_NEARES2(y0, yn);
 }
 
 bool mg_ccw(const struct mg_object *obj)

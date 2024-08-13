@@ -11,6 +11,7 @@
 /*****************************************************************************/
 
 #include "bitset.h"
+#include "CUnit/CUError.h"
 
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
@@ -19,24 +20,59 @@ struct bitset *bs;
 
 int init_bitset_suite(void)
 {
-    return 0;
+    bs = bitset_new(20); // 8 8 8 8
+    bitset_set(bs, 1);   // 0
+    bitset_set(bs, 3);   // 0
+    bitset_set(bs, 5);   // 0
+    bitset_set(bs, 17);  // 0
+    return CUE_SUCCESS;
 }
 
 int clean_bitset_suite(void)
 {
-    return 0;
+    bitset_free(bs);
+    return CUE_SUCCESS;
 }
 
-void mg_bitset_Test1(void)
+void util_bitset_Test1(void)
 {
+    CU_ASSERT(bitset_test(bs, 1) == true);
+    CU_ASSERT(bitset_test(bs, 3) == true);
+    CU_ASSERT(bitset_test(bs, 5) == true);
+    CU_ASSERT(bitset_test(bs, 17) == true);
 }
 
-int mg_bitsetSuite()
+void util_bitset_Test2(void)
+{
+    CU_ASSERT(bitset_test(bs, 2) == false);
+    CU_ASSERT(bitset_test(bs, 10) == false);
+    CU_ASSERT(bitset_test(bs, 15) == false);
+    CU_ASSERT(bitset_test(bs, 20) == false);
+}
+
+void util_bitset_Test3(void)
+{
+    CU_ASSERT(bitset_count(bs) == 4);
+    bitset_flip(bs, 1);
+    CU_ASSERT(bitset_test(bs, 1) == false);
+    CU_ASSERT(bitset_count(bs) == 3);
+}
+
+void util_bitset_Test4(void)
+{
+    bitset_clear(bs, 2);
+    CU_ASSERT(bitset_count(bs) == 3);
+}
+
+int util_bitsetSuite()
 {
     CU_pSuite pSuite = NULL;
-    pSuite = CU_add_suite("mg-bitset", init_bitset_suite, clean_bitset_suite);
+    pSuite = CU_add_suite("util-bitset", init_bitset_suite, clean_bitset_suite);
 
-    if (NULL == CU_add_test(pSuite, "bitset Test1", mg_bitset_Test1)) {
+    if (NULL == CU_add_test(pSuite, "bitset Test1", util_bitset_Test1) ||
+        NULL == CU_add_test(pSuite, "bitset Test2", util_bitset_Test2) ||
+        NULL == CU_add_test(pSuite, "bitset Test3", util_bitset_Test3) ||
+        NULL == CU_add_test(pSuite, "bitset Test4", util_bitset_Test4)) {
         return CU_get_error();
     }
     return CUE_SUCCESS;

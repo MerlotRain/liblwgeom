@@ -25,12 +25,12 @@
 /// corresponding test units based on file names.
 
 /// module util
-extern int mg_bitsetSuite();
+extern int util_bitsetSuite();
 
 /// collection of util suite
 static int util_suite()
 {
-    int r = mg_bitsetSuite();
+    int r = util_bitsetSuite();
     return r;
 }
 

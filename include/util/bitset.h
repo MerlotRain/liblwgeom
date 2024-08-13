@@ -19,26 +19,57 @@
 extern "C" {
 #endif
 
-#define BITSET_STATE_NONE 0
-#define BITSET_STATE_ALL  1
-#define BITSET_STATE_ANY  2
+#define BITSET_STATE_NONE 0 ///< All bits are false
+#define BITSET_STATE_ALL  1 ///< All bits are true
+#define BITSET_STATE_ANY  2 ///< Some bits are true
 
 struct bitset;
 
+/// @brief Create a new bitset.
+/// @param size The size of the bitset.
+/// @return Generate an 8-bit aligned bitset
 EXTERN struct bitset *bitset_new(size_t size);
 
+/// @brief Free a bitset.
+/// @param bs The bitset to free.
 EXTERN void bitset_free(struct bitset *bs);
 
-EXTERN bool bitset_set(struct bitset *bs, size_t index, bool value);
+/// @brief Set the \a index bit to true
+/// @param bs The bitset
+/// @param index The index of the bit
+/// @return
+EXTERN void bitset_set(struct bitset *bs, size_t index);
 
+/// @brief Clear the \a index bit to false
+/// @param bs The bitset
+/// @param index The index of the bit
+/// @return
+EXTERN void bitset_clear(struct bitset *bs, size_t index);
+
+/// @brief Test if the \a index bit is true or false
+/// @param bs The bitset
+/// @param index The index of the bit
 EXTERN bool bitset_test(struct bitset *bs, size_t index);
 
-EXTERN bool bitset_flip(struct bitset *bs, size_t index);
+/// @brief Flip the \a index bit
+/// @param bs The bitset
+/// @param index The index of the bit
+/// @return
+EXTERN void bitset_flip(struct bitset *bs, size_t index);
 
+/// @brief Get the state of the bitset
+/// @param bs The bitset
+/// @return The return value is a BITSET_STATE_* series macro
 EXTERN int bitset_state(struct bitset *bs);
 
+/// @brief Count the number of bits set to true
+/// @param bs The bitset
+/// @return The number of bits set to true
 EXTERN size_t bitset_count(struct bitset *bs);
 
+/// @brief Get the size of the bitset
+/// @param bs The bitset
+/// @return An 8-bit aligned value
 EXTERN size_t bitset_size(struct bitset *bs);
 
 #ifdef __cplusplus

@@ -30,8 +30,9 @@ int main(int argc, char **argv)
     if (argc == 1) {
         CU_basic_set_mode(CU_BRM_VERBOSE);
         CU_basic_run_tests();
+        int fc = CU_count_all_failures(CU_get_registry());
         CU_cleanup_registry();
-        return CU_get_error();
+        return fc;
     }
     else if (argc == 2) {
         char *sutie = argv[1];
@@ -42,8 +43,9 @@ int main(int argc, char **argv)
         else {
             CU_basic_set_mode(CU_BRM_VERBOSE);
             CU_basic_run_suite(pSuite);
+            int fc = CU_count_suite_failures(pSuite);
             CU_cleanup_registry();
-            return CU_get_error();
+            return fc;
         }
     }
     else {

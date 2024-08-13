@@ -10,22 +10,4 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#ifndef UUID_H
-#define UUID_H
-
-#include "mathse.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define UUID_LEN 37
-
-EXTERN int uuid_init();
-EXTERN void uuid_generate(char *dst);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
+#include "mgp.h"
