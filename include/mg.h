@@ -93,18 +93,20 @@ EXTERN int mg_point_n(const struct mg_object *obj);
 #define GEOMETRY_IO_WKT     0
 /// geometry IO type wkb
 #define GEOMETRY_IO_WKB     1
+/// geometry IO type wkb hex
+#define GEOMETRY_IO_WKB_HEX 2
 /// geometry IO type geojson
-#define GEOMETRY_IO_GEOJSON 2
+#define GEOMETRY_IO_GEOJSON 3
 /// geometry IO type ewkt
-#define GEOMETRY_IO_EWKT    3
+#define GEOMETRY_IO_EWKT    4
 /// geometry IO type ewkb
-#define GEOMETRY_IO_EWKB    4
+#define GEOMETRY_IO_EWKB    5
 /// geometry IO type kml
-#define GEOMETRY_IO_KML     5
+#define GEOMETRY_IO_KML     6
 /// geometry IO type gml2
-#define GEOMETRY_IO_GML2    6
+#define GEOMETRY_IO_GML2    7
 /// geometry IO type gml3
-#define GEOMETRY_IO_GML3    7
+#define GEOMETRY_IO_GML3    8
 
 EXTERN struct mg_object *mg_read(int flag, const char *data, int len);
 

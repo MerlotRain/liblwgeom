@@ -432,7 +432,7 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
     }
 }
 
-struct mg_object *mg_stroke_ellipse(struct mg_ellipse e, int gdim)
+struct mg_object *mg_stroke_ellipse(struct mg_ellipse e, uint32_t param)
 {
     if (param < 1)
         return NULL;

@@ -12,30 +12,7 @@
 
 #include "mgp.h"
 
-struct mg_sdo_elem_info {
-    int sdo_starting_offset;
-    int sdo_etype;
-    int sdo_interpretation;
-};
-
-struct mg_object *mg_read_ora(const struct sdo_geometry sdo, int flag)
-{
-    int dimension = 2 > (sdo.sdo_gtype / 1000) ? 2 : (sdo.sdo_gtype / 1000);
-
-    int tt = sdo.sdo_gtype % 100;
-    if (tt > 0 && tt < 4) {
-        struct mg_sdo_elem_info *pElemInfo =
-            (struct mg_sdo_elem_info *)sdo.sdo_elem_info;
-        for (int i = 0; i < sdo.sdo_elem_count / 3; i++) {
-        }
-    }
-    else if (tt > 4 && tt < 8) {
-        // multi mg_object
-    }
-    return NULL;
-}
-
-int mg_write_ora(const struct mg_object *obj, struct sdo_geometry* sdo)
+int mg_write_ewkt(const struct mg_object *g, char **data, int *len)
 {
     return 0;
 }

@@ -70,7 +70,7 @@ int stok_next_token(stok *tok)
         if (_pos == strlen(tok->pos))
             return STOK_EOF;
         else {
-            tok->pos = tok->head + _pos;
+            tok->pos = tok->pos + _pos;
             return stok_next_token(tok);
         }
     }
@@ -86,7 +86,8 @@ int stok_next_token(stok *tok)
             return STOK_EOF;
         }
     }
-    else {
+    else {        
+        memset(tok->stok, 0, strlen(tok->stok));
         memcpy(tok->stok, tok->pos, brk - tok->pos);
         tok->pos = brk;
     }
