@@ -106,39 +106,41 @@ int stok_next_token(stok *tok)
 
 int stok_peek_next_token(stok *tok)
 {
-    return STOK_WORD;
-    // if (tok->pos == '\0')
-    //     return STOK_EOF;
+    if (tok->pos == tok->end)
+        return STOK_EOF;
 
-    // int pos = strspn(tok->pos, " \n\r\t");
-    // if (pos == 0)
-    //     return STOK_EOF;
+    char stok[UCHAR_MAX] = {0};
+    size_t _pos = strspn(tok->pos, " \n\r\t");
+    if (_pos == strlen(tok->pos))
+        return STOK_EOF;
 
-    // switch (tok->pos[pos])
-    // case '(':
-    // case ')':
-    // case ',':
-    //     return tok->pos[pos];
+    switch (*tok->pos)
+    case '(':
+    case ')':
+    case ',':
+        return *tok->pos;
 
-    // pos = strpbrk(tok->pos++, "\n\r\t() ,");
-    // if (pos == 0) {
-    //     if (tok->pos != tok->end)
-    //         memcpy(tok->stok, tok->pos, strlen(tok->pos));
-    //     else
-    //         return STOK_EOF;
-    // }
-    // else {
-    //     memcpy(tok->stok, tok->pos, 0);
-    // }
+    char *brk = strpbrk(tok->pos + 1, "\n\r\t() ,");
+    if (brk == tok->end) {
+        if (tok->pos != tok->end)
+            memcpy(stok, tok->pos, strlen(tok->pos));
+        else
+            return STOK_EOF;
+    }
+    else {
+        memcpy(stok, tok->pos, brk - tok->pos);
+    }
 
-    // char *stopstring;
-    // double dbl = strtod_with_vc_fix(tok->stok, &stopstring);
-    // if (*stopstring == '\0') {
-    //     tok->ntok = dbl;
-    //     memset(tok->stok, 0, UCHAR_MAX);
-    //     return STOK_NUM;
-    // }
-    // else {
-    //     return STOK_WORD;
-    // }
+    char *stopstring;
+    double dbl = strtod_with_vc_fix(stok, &stopstring);
+    if (*stopstring == '\0') {
+        tok->ntok = dbl;
+        memset(tok->stok, 0, strlen(tok->stok));
+        return STOK_NUM;
+    }
+    else {
+        tok->ntok = 0.0;
+        memcpy(tok->stok, stok, strlen(stok));
+        return STOK_WORD;
+    }
 }
