@@ -10,40 +10,30 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include <mg.h>
-#include <string.h>
+#include "ordinate.h"
 
-#include <CUnit/CUnit.h>
-#include <CUnit/Basic.h>
-
-int init_wkt_suite(void)
+struct Ordinate ordinate_XY()
 {
-    return 0;
+    struct Ordinate flag;
+    flag.value = ORDINATE_VALUE_X | ORDINATE_VALUE_Y;
+    flag.changeAllowed = true;
+    return flag;
 }
 
-int clean_wkt_suite(void)
+void ordinate_setZ(struct Ordinate *o, bool v)
 {
-    return 0;
-}
-
-void io_wkt_Test1(void)
-{
-    char p[] = "POINT (30 10)";
-    struct mg_object *obj = mg_read(GEOMETRY_IO_WKT, p, strlen(p));
-    CU_ASSERT(obj != NULL);
-    CU_ASSERT(mg_dim_g(obj) == 0);
-    CU_ASSERT(mg_dim_c(obj) == 2);
-    CU_ASSERT(mg_point_n(obj) == 1);
-    mg_free_object(obj);
-}
-
-int io_wktSuite()
-{
-    CU_pSuite pSuite = NULL;
-    pSuite = CU_add_suite("io-wkt", init_wkt_suite, clean_wkt_suite);
-
-    if (NULL == CU_add_test(pSuite, "wkt Test1", io_wkt_Test1)) {
-        return CU_get_error();
+    if ((o->value & ORDINATE_VALUE_Z) != v) {
+        if (o->changeAllowed) {
+            o->value ^= ORDINATE_VALUE_Z;
+        }
     }
-    return CUE_SUCCESS;
+}
+
+void ordinate_setM(struct Ordinate *o, bool v)
+{
+    if ((o->value & ORDINATE_VALUE_M) != v) {
+        if (o->changeAllowed) {
+            o->value ^= ORDINATE_VALUE_M;
+        }
+    }
 }

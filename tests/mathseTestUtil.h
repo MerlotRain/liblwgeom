@@ -43,9 +43,18 @@ static int mg_suite()
     return r;
 }
 
+/// module io
+extern int io_wktSuite();
+/// collection of io suite
+static int io_suite()
+{
+    int r = io_wktSuite();
+    return r;
+}
+
 /// register all suites
 int register_suite()
 {
-    int sr = util_suite() + mg_suite();
+    int sr = util_suite() + mg_suite() + io_suite();
     return sr;
 }

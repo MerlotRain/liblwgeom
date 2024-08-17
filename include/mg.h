@@ -108,10 +108,10 @@ EXTERN int mg_point_n(const struct mg_object *obj);
 /// geometry IO type gml3
 #define GEOMETRY_IO_GML3    8
 
-EXTERN struct mg_object *mg_read(int flag, const char *data, int len);
+EXTERN struct mg_object *mg_read(int flag, const char *data, size_t len);
 
 EXTERN int mg_write(int flag, const struct mg_object *obj, char **data,
-                    int len);
+                    size_t *len);
 
 struct sdo_geometry {
     int sdo_gtype;

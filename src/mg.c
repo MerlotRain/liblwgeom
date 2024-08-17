@@ -27,6 +27,7 @@ struct mg_object *mg_create_single(int gdim, int pn, int cdim, const double *pp,
 
     obj->ngeoms = 1;
     obj->gdim = gdim;
+    obj->cdim = cdim;
     obj->npoints = pn;
     obj->flag = flag;
     if (flag == 0) {
@@ -182,12 +183,45 @@ int mg_point_n(const struct mg_object *obj)
 
 /* ------------------------------- geometry io ------------------------------ */
 
-struct mg_object *mg_read(int flag, const char *data, int len)
+struct mg_object *mg_read(int flag, const char *data, size_t len)
 {
+    assert(data);
+    switch (flag) {
+    case GEOMETRY_IO_WKT: {
+        return mg_read_wkt(data, len);
+        break;
+    }
+    case GEOMETRY_IO_WKB: {
+        break;
+    }
+    case GEOMETRY_IO_WKB_HEX: {
+        break;
+    }
+    case GEOMETRY_IO_GEOJSON: {
+        break;
+    }
+    case GEOMETRY_IO_EWKT: {
+        break;
+    }
+    case GEOMETRY_IO_EWKB: {
+        break;
+    }
+    case GEOMETRY_IO_KML: {
+        break;
+    }
+    case GEOMETRY_IO_GML2: {
+        break;
+    }
+    case GEOMETRY_IO_GML3: {
+        break;
+    }
+    default:
+        break;
+    }
     return NULL;
 }
 
-int mg_write(int flag, const struct mg_object *obj, char **data, int len)
+int mg_write(int flag, const struct mg_object *obj, char **data, size_t *len)
 {
     return 0;
 }

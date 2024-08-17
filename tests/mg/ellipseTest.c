@@ -11,28 +11,30 @@
 /*****************************************************************************/
 
 #include "mghelp.h"
+#include "mg.h"
+#include "../testbase.h"
 
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
-double __ellipseTest_tolerance = 0.000001;
+double s_ellipseTest_tolerance = 0.000001;
 
 int init_ellipse_suite(void)
 {
-    __ellipseTest_tolerance = mg_tolerance(__ellipseTest_tolerance);
+    s_ellipseTest_tolerance = mg_tolerance(s_ellipseTest_tolerance);
     return 0;
 }
 
 int clean_ellipse_suite(void)
-{    
-    mg_tolerance(__ellipseTest_tolerance);
+{
+    mg_tolerance(s_ellipseTest_tolerance);
     return 0;
 }
 
 void mg_ellipse_Test1(void)
 {
     printf("void mg_ellipse_Test1(void)\n");
-    struct mg_point tc = {.x = 0, .x = 0};
+    struct mg_point tc = {.x = 0, .y = 0};
     struct mg_ellipse ellipse;
     int n = 0;
     struct mg_point points[2];
@@ -43,7 +45,7 @@ void mg_ellipse_Test1(void)
     mg_construct_circle((const struct mg_point *)&points,
                         MG_CONSTRUCT_CIRCLE_2P, &ellipse, &n);
     CU_ASSERT(ellipse.major == 5);
-    CU_ASSERT(TEST_POINT_EQUAL(ellipse.center, tc, __ellipseTest_tolerance));
+    CU_ASSERT(TEST_POINT_EQUAL(ellipse.center, tc, s_ellipseTest_tolerance));
 }
 
 void mg_ellipse_Test2(void)
@@ -59,7 +61,8 @@ void mg_ellipse_Test2(void)
 int mg_ellipseSuite()
 {
     CU_pSuite pSuite = NULL;
-    pSuite = CU_add_suite("mg-ellipse", init_ellipse_suite, clean_ellipse_suite);
+    pSuite =
+        CU_add_suite("mg-ellipse", init_ellipse_suite, clean_ellipse_suite);
 
     if (NULL == CU_add_test(pSuite, "ellipse Test1", mg_ellipse_Test1) ||
         NULL == CU_add_test(pSuite, "ellipse Test2", mg_ellipse_Test2)) {

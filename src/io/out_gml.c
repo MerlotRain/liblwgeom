@@ -12,12 +12,12 @@
 
 #include "mgp.h"
 
-int mg_write_gml2(const struct mg_object *g, char **data, int *len)
+int mg_write_gml2(const struct mg_object *g, char **data, size_t *len)
 {
     return 0;
 }
 
-int mg_write_gml3(const struct mg_object *g, char **data, int *len)
+int mg_write_gml3(const struct mg_object *g, char **data, size_t *len)
 {
     return 0;
 }

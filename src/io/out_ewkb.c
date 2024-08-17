@@ -13,7 +13,7 @@
 #include "mgp.h"
 #include "mg.h"
 
-int mg_write_ewkb(const struct mg_object *g, char **data, int *len)
+int mg_write_ewkb(const struct mg_object *g, char **data, size_t *len)
 {
     return 0;
 }

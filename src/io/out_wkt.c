@@ -20,7 +20,7 @@
 
 /* -------------------------------- inner wkt ------------------------------- */
 
-int mg_write_wkt(const struct mg_object *obj, char **data, int *len)
+int mg_write_wkt(const struct mg_object *obj, char **data, size_t *len)
 {
     return 0;
 }

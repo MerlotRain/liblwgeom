@@ -12,7 +12,7 @@
 
 #include "mgp.h"
 
-struct mg_object *mg_read_ewkt(const char *data, int len)
+struct mg_object *mg_read_ewkt(const char *data, size_t len)
 {
     return NULL;
 }

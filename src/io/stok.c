@@ -61,7 +61,7 @@ int stok_next_token(stok *tok)
     case '(':
     case ')':
     case ',':
-        return *tok->pos;
+        return *tok->pos++;
     case '\n':
     case '\r':
     case '\t':
@@ -86,7 +86,7 @@ int stok_next_token(stok *tok)
             return STOK_EOF;
         }
     }
-    else {        
+    else {
         memset(tok->stok, 0, strlen(tok->stok));
         memcpy(tok->stok, tok->pos, brk - tok->pos);
         tok->pos = brk;

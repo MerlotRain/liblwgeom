@@ -12,12 +12,12 @@
 
 #include "mgp.h"
 
-struct mg_object *mg_read_gml2(const char *data, int len)
+struct mg_object *mg_read_gml2(const char *data, size_t len)
 {
     return NULL;
 }
 
-struct mg_object *mg_read_gml3(const char *data, int len)
+struct mg_object *mg_read_gml3(const char *data, size_t len)
 {
     return NULL;
 }

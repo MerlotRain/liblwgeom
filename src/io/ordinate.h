@@ -10,40 +10,31 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include <mg.h>
-#include <string.h>
+#ifndef ORDINATE_H
+#define ORDINATE_H
 
-#include <CUnit/CUnit.h>
-#include <CUnit/Basic.h>
+#include <mathse.h>
 
-int init_wkt_suite(void)
-{
-    return 0;
+#ifdef __cpluscplus
+extern "C" {
+#endif
+
+#define ORDINATE_VALUE_X (1)
+#define ORDINATE_VALUE_Y (2)
+#define ORDINATE_VALUE_Z (4)
+#define ORDINATE_VALUE_M (8)
+
+struct Ordinate {
+    uint8_t value;
+    bool changeAllowed; ///< allow change
+};
+
+struct Ordinate ordinate_XY();
+void ordinate_setZ(struct Ordinate *o, bool v);
+void ordinate_setM(struct Ordinate *o, bool v);
+
+#ifdef __cpluscplus
 }
+#endif
 
-int clean_wkt_suite(void)
-{
-    return 0;
-}
-
-void io_wkt_Test1(void)
-{
-    char p[] = "POINT (30 10)";
-    struct mg_object *obj = mg_read(GEOMETRY_IO_WKT, p, strlen(p));
-    CU_ASSERT(obj != NULL);
-    CU_ASSERT(mg_dim_g(obj) == 0);
-    CU_ASSERT(mg_dim_c(obj) == 2);
-    CU_ASSERT(mg_point_n(obj) == 1);
-    mg_free_object(obj);
-}
-
-int io_wktSuite()
-{
-    CU_pSuite pSuite = NULL;
-    pSuite = CU_add_suite("io-wkt", init_wkt_suite, clean_wkt_suite);
-
-    if (NULL == CU_add_test(pSuite, "wkt Test1", io_wkt_Test1)) {
-        return CU_get_error();
-    }
-    return CUE_SUCCESS;
-}
+#endif

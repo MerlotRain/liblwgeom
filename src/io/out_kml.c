@@ -12,7 +12,7 @@
 
 #include "mgp.h"
 
-int mg_write_kml(const struct mg_object *g, char **data, int *len)
+int mg_write_kml(const struct mg_object *g, char **data, size_t *len)
 {
     return 0;
 }

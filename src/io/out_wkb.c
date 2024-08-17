@@ -12,8 +12,7 @@
 
 #include "mgp.h"
 
-
-int mg_write_wkb(const struct mg_object *g, char **data, int *len)
+int mg_write_wkb(const struct mg_object *g, char **data, size_t *len)
 {
     return 0;
 }
