@@ -12,7 +12,7 @@
 
 #include "mgp.h"
 
-struct mg_object *mg_read_wkb(const char *data, size_t len)
+struct mg_object *mg_read_wkb(const char *data, size_t len, bool hex)
 {
     return NULL;
 }

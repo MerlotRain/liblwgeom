@@ -280,6 +280,13 @@ struct mg_object *pri_inwkt_read_point(stok *token, struct Ordinate *flag)
 
 struct mg_object *pri_inwkt_read_linestring(stok *token, struct Ordinate *flag)
 {
+    double *coord = NULL;
+    int n = 0;
+    pri_inwkt_get_coordinates(token, flag, &coord, &n);
+    if (coord && n > 1) {
+        return mg_create_single(0, n, (flag->value & ORDINATE_VALUE_Z) ? 3 : 2,
+                                coord, 0);
+    }
     return NULL;
 }
 

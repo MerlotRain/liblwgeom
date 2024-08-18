@@ -112,7 +112,8 @@
     "fast_back_stack": "c",
     "mgp.h": "c",
     "ratio": "c",
-    "random": "c"
+    "random": "c",
+    "hash.h": "c"
   },
   "cmake.configureArgs": [
     "-DBUILD_TESTS=ON",
