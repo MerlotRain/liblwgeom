@@ -10,15 +10,30 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mgp.h"
-#include "mg.h"
+#include "ordinate.h"
 
-struct mg_object *mg_read_ewkb(const char *data, int len)
+struct Ordinate ordinate_XY()
 {
-    return NULL;
+    struct Ordinate flag;
+    flag.value = ORDINATE_VALUE_X | ORDINATE_VALUE_Y;
+    flag.changeAllowed = true;
+    return flag;
 }
 
-int mg_write_ewkb(const struct mg_object *g, char **data, int *len)
+void ordinate_setZ(struct Ordinate *o, bool v)
 {
-    return 0;
+    if ((o->value & ORDINATE_VALUE_Z) != v) {
+        if (o->changeAllowed) {
+            o->value ^= ORDINATE_VALUE_Z;
+        }
+    }
+}
+
+void ordinate_setM(struct Ordinate *o, bool v)
+{
+    if ((o->value & ORDINATE_VALUE_M) != v) {
+        if (o->changeAllowed) {
+            o->value ^= ORDINATE_VALUE_M;
+        }
+    }
 }

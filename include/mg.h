@@ -93,23 +93,25 @@ EXTERN int mg_point_n(const struct mg_object *obj);
 #define GEOMETRY_IO_WKT     0
 /// geometry IO type wkb
 #define GEOMETRY_IO_WKB     1
+/// geometry IO type wkb hex
+#define GEOMETRY_IO_WKB_HEX 2
 /// geometry IO type geojson
-#define GEOMETRY_IO_GEOJSON 2
+#define GEOMETRY_IO_GEOJSON 3
 /// geometry IO type ewkt
-#define GEOMETRY_IO_EWKT    3
+#define GEOMETRY_IO_EWKT    4
 /// geometry IO type ewkb
-#define GEOMETRY_IO_EWKB    4
+#define GEOMETRY_IO_EWKB    5
 /// geometry IO type kml
-#define GEOMETRY_IO_KML     5
+#define GEOMETRY_IO_KML     6
 /// geometry IO type gml2
-#define GEOMETRY_IO_GML2    6
+#define GEOMETRY_IO_GML2    7
 /// geometry IO type gml3
-#define GEOMETRY_IO_GML3    7
+#define GEOMETRY_IO_GML3    8
 
-EXTERN struct mg_object *mg_read(int flag, const char *data, int len);
+EXTERN struct mg_object *mg_read(int flag, const char *data, size_t len);
 
 EXTERN int mg_write(int flag, const struct mg_object *obj, char **data,
-                    int len);
+                    size_t *len);
 
 struct sdo_geometry {
     int sdo_gtype;
@@ -134,19 +136,17 @@ EXTERN struct mg_object *mg_i4_object(struct mg_i4 *i4);
 
 EXTERN void mg_i4_propProp(const struct mg_i4 *i4, int *propSize, int **prop);
 
-EXTERN int mg_i4_prop_value(const struct mg_i4 *i4, int index);
+EXTERN int mg_i4_prop_value(const struct mg_i4 *i4, size_t index);
 
-EXTERN struct mg_reader2 *mg_create_reader(int size);
-
-EXTERN struct mg_reader2 *mg_create_writer();
+EXTERN struct mg_reader2 *mg_reader2_new(size_t size);
 
 EXTERN void mg_free_reader2(struct mg_reader2 *reader);
 
-EXTERN void mg_input_reader(struct mg_reader2 *reader,
+EXTERN void mg_reader2_push(struct mg_reader2 *reader,
                             const struct mg_object *obj, int propSize,
                             int *prop);
 
-EXTERN struct mg_i4 *mg_output_writer(struct mg_reader2 *writer);
+EXTERN struct mg_i4 *mg_reader2_iterator(struct mg_reader2 *writer);
 
 /* --------------------------- geometry algorithm --------------------------- */
 
@@ -288,6 +288,18 @@ EXTERN void mg_vertex_convex(const struct mg_object *obj, int index,
 /// within the algorithm
 /// @param np number of points
 EXTERN void mg_building_regularization(double *xy, int np);
+
+/// @brief K-means clustering
+///
+/// W only records the i4 attributes of P that conform to the classification.
+/// For example, if the i4 attribute of each object is the object ID, then the
+/// attribute in W is the ID of the classified object. Therefore, when calling
+/// this interface, the i4 attribute in P should be identifiable.
+///
+/// @param P input data
+/// @param n number of clusters
+/// @param W output data
+EXTERN void mg_kmeans(struct mg_reader2 *P, int n, struct mg_reader2 **W);
 
 #ifdef __cplusplus
 }

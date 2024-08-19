@@ -27,6 +27,7 @@ struct mg_object *mg_create_single(int gdim, int pn, int cdim, const double *pp,
 
     obj->ngeoms = 1;
     obj->gdim = gdim;
+    obj->cdim = cdim;
     obj->npoints = pn;
     obj->flag = flag;
     if (flag == 0) {
@@ -62,10 +63,17 @@ struct mg_object *mg_create_multi(int gdim, int snum, struct mg_object **subs)
         if (sub->ngeoms == 1) {
             if (sub->gdim == obj->gdim) {
                 obj->ngeoms++;
-                obj->objects = (struct mg_object **)realloc(
+
+                struct mg_object **tobjs = (struct mg_object **)realloc(
                     obj->objects, obj->ngeoms * sizeof(struct mg_object *));
+                if (tobjs == NULL) {
+                    mg_free_object(obj);
+                    return NULL;
+                }
+                obj->objects = tobjs;
+
                 if (obj->objects == NULL) {
-                    free(obj);
+                    mg_free_object(obj);
                     return NULL;
                 }
                 obj->objects[obj->ngeoms - 1] = sub;
@@ -79,10 +87,17 @@ struct mg_object *mg_create_multi(int gdim, int snum, struct mg_object **subs)
                     continue;
                 if (ssub->gdim == obj->gdim) {
                     obj->ngeoms++;
-                    obj->objects = (struct mg_object **)realloc(
+
+                    struct mg_object **tobjs = (struct mg_object **)realloc(
                         obj->objects, obj->ngeoms * sizeof(struct mg_object *));
+                    if (tobjs == NULL) {
+                        mg_free_object(obj);
+                        return NULL;
+                    }
+                    obj->objects = tobjs;
+
                     if (obj->objects == NULL) {
-                        free(obj);
+                        mg_free_object(obj);
                         return NULL;
                     }
                     obj->objects[obj->ngeoms - 1] = ssub;
@@ -182,12 +197,44 @@ int mg_point_n(const struct mg_object *obj)
 
 /* ------------------------------- geometry io ------------------------------ */
 
-struct mg_object *mg_read(int flag, const char *data, int len)
+struct mg_object *mg_read(int flag, const char *data, size_t len)
 {
+    assert(data);
+    switch (flag) {
+    case GEOMETRY_IO_WKT: {
+        return mg_read_wkt(data, len);
+    }
+    case GEOMETRY_IO_WKB: {
+        return mg_read_wkb(data, len, false);
+    }
+    case GEOMETRY_IO_WKB_HEX: {
+        return mg_read_wkb(data, len, true);
+    }
+    case GEOMETRY_IO_GEOJSON: {
+        return mg_read_geojson(data, len);
+    }
+    case GEOMETRY_IO_EWKT: {
+        return mg_read_ewkt(data, len);
+    }
+    case GEOMETRY_IO_EWKB: {
+        return mg_read_ewkb(data, len);
+    }
+    case GEOMETRY_IO_KML: {
+        return mg_read_kml(data, len);
+    }
+    case GEOMETRY_IO_GML2: {
+        return mg_read_gml2(data, len);
+    }
+    case GEOMETRY_IO_GML3: {
+        return mg_read_gml3(data, len);
+    }
+    default:
+        break;
+    }
     return NULL;
 }
 
-int mg_write(int flag, const struct mg_object *obj, char **data, int len)
+int mg_write(int flag, const struct mg_object *obj, char **data, size_t *len)
 {
     return 0;
 }
@@ -207,15 +254,17 @@ void mg_i4_propProp(const struct mg_i4 *i4, int *propSize, int **prop)
     *prop = i4->prop;
 }
 
-int mg_i4_prop_value(const struct mg_i4 *i4, int index)
+int mg_i4_prop_value(const struct mg_i4 *i4, size_t index)
 {
     assert(i4);
     assert(index < i4->propSize);
     return i4->prop[index];
 }
 
-struct mg_reader2 *mg_create_reader(int size)
+struct mg_reader2 *mg_reader2_new(size_t size)
 {
+    if (size == 0)
+        size = 10;
     struct mg_reader2 *reader =
         (struct mg_reader2 *)malloc(sizeof(struct mg_reader2));
     if (reader == NULL)
@@ -232,24 +281,6 @@ struct mg_reader2 *mg_create_reader(int size)
     return reader;
 }
 
-struct mg_reader2 *mg_create_writer()
-{
-    struct mg_reader2 *writer =
-        (struct mg_reader2 *)malloc(sizeof(struct mg_reader2));
-    if (writer == NULL)
-        return NULL;
-    writer->size = 10;
-    writer->objs = (struct mg_i4 **)calloc(10, sizeof(struct mg_i4 *));
-    if (writer->objs == NULL) {
-        free(writer);
-        return NULL;
-    }
-    writer->current = 0;
-    writer->index = NULL;
-
-    return writer;
-}
-
 void mg_free_reader2(struct mg_reader2 *reader)
 {
 }
@@ -259,7 +290,7 @@ void mg_input_reader(struct mg_reader2 *reader, const struct mg_object *obj,
 {
 }
 
-struct mg_i4 *mg_output_writer(struct mg_reader2 *writer)
+struct mg_i4 *mg_reader2_iterator(struct mg_reader2 *writer)
 {
     return NULL;
 }

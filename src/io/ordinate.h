@@ -10,14 +10,31 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mgp.h"
+#ifndef ORDINATE_H
+#define ORDINATE_H
 
-struct mg_object *mg_read_ewkt(const char *data, int len)
-{
-    return NULL;
-}
+#include <mathse.h>
 
-int mg_write_ewkt(const struct mg_object *g, char **data, int *len)
-{
-    return 0;
+#ifdef __cpluscplus
+extern "C" {
+#endif
+
+#define ORDINATE_VALUE_X (1)
+#define ORDINATE_VALUE_Y (2)
+#define ORDINATE_VALUE_Z (4)
+#define ORDINATE_VALUE_M (8)
+
+struct Ordinate {
+    uint8_t value;
+    bool changeAllowed; ///< allow change
+};
+
+struct Ordinate ordinate_XY();
+void ordinate_setZ(struct Ordinate *o, bool v);
+void ordinate_setM(struct Ordinate *o, bool v);
+
+#ifdef __cpluscplus
 }
+#endif
+
+#endif

@@ -266,7 +266,7 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
                                   .y = ((pt1.y + pt2.y) / 2.0)};
         double radius = sqrt((pt1.x - pt2.x) * (pt1.x - pt2.x) +
                              (pt1.y - pt2.y) * (pt1.y - pt2.y)) /
-                             2;
+                        2;
         double azimuth =
             pri_line_angle(pt1.x, pt1.y, pt2.x, pt2.y) * 180.0 / M_PI;
         rs[0].center = center;
@@ -330,15 +330,13 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
         const double yDelta_b = p3.y - p2.y;
         const double xDelta_b = p3.x - p2.x;
 
-        if (MG_DOUBLE_NEARES(xDelta_a) ||
-            MG_DOUBLE_NEARES(xDelta_b)) {
+        if (MG_DOUBLE_NEARES(xDelta_a) || MG_DOUBLE_NEARES(xDelta_b)) {
             *n = 0;
             return;
         }
         const double aSlope = yDelta_a / xDelta_a;
         const double bSlope = yDelta_b / xDelta_b;
-        if ((MG_DOUBLE_NEARES(xDelta_a)) &&
-            (MG_DOUBLE_NEARES(yDelta_b))) {
+        if ((MG_DOUBLE_NEARES(xDelta_a)) && (MG_DOUBLE_NEARES(yDelta_b))) {
             struct mg_point center;
             center.x = 0.5 * (p2.x + p3.x);
             center.y = 0.5 * (p1.y + p2.y);
@@ -448,7 +446,7 @@ struct mg_object *mg_stroke_ellipse(struct mg_ellipse e, uint32_t param)
     if (pp == NULL) {
         return NULL;
     }
-    
+
     struct mg_point qu = pri_point_project(e.center, e.major, e.azimuth);
     double az = atan2(qu.y - e.center.y, qu.x - e.center.x);
 
