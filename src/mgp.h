@@ -104,6 +104,8 @@ double mg_prop_width_value(const struct mg_object *obj);
 double mg_prop_height_value(const struct mg_object *obj);
 
 struct mg_object *mg_prop_geo_clone(const struct mg_object *obj);
+void mg_prop_geo_centriod(const struct mg_object *obj, double* xy);
+
 struct mg_object *
 mg_prop_geo_simpily_douglaspeucker(const struct mg_object *obj);
 
