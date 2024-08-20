@@ -274,6 +274,13 @@ EXTERN void mg_prop_geo2(const struct mg_object *obj, int mode, double *paras);
 /// tolerance; 1: left; 2: right
 EXTERN int mg_left_right(const struct mg_object *obj, double *xy);
 
+/// @brief Computes whether a ring defined by a geom::CoordinateSequence is
+/// oriented counter-clockwise.
+/// @param pp point pointer
+/// @param npoints point number
+/// @param cdim coordinate dim
+EXTERN bool mg_ccw(const double *pp, int npoints, int cdim);
+
 /// @brief Get the convexity of a vertex on a ring object
 /// @param obj single ring object
 /// @param index vertex index When index is -1, get the concave and convex
