@@ -44,6 +44,9 @@ static struct mg_object *pri_inwkt_read_point(stok *token,
 static struct mg_object *pri_inwkt_read_linestring(stok *token,
                                                    struct Ordinate *flag);
 
+static struct mg_object *pri_inwkt_read_linearring(stok *token,
+                                                   struct Ordinate *flag);
+
 static struct mg_object *pri_inwkt_read_polygon(stok *token,
                                                 struct Ordinate *flag);
 
@@ -94,9 +97,11 @@ struct mg_object *mg_read_wkt(const char *data, size_t len)
     if (strncmp(type, "POINT", 5) == 0) {
         return pri_inwkt_read_point(&token, &new_flags);
     }
-    else if (strncmp(type, "LINESTRING", 10) == 0 ||
-             strncmp(type, "LINEARRING", 10) == 0) {
+    else if (strncmp(type, "LINESTRING", 10) == 0) {
         return pri_inwkt_read_linestring(&token, &new_flags);
+    }
+    else if (strncmp(type, "LINEARRING ", 10) == 0) {
+        return pri_inwkt_read_linearring(&token, &new_flags);
     }
     else if (strncmp(type, "POLYGON", 7) == 0) {
         return pri_inwkt_read_polygon(&token, &new_flags);
@@ -284,7 +289,19 @@ struct mg_object *pri_inwkt_read_linestring(stok *token, struct Ordinate *flag)
     int n = 0;
     pri_inwkt_get_coordinates(token, flag, &coord, &n);
     if (coord && n > 1) {
-        return mg_create_single(0, n, (flag->value & ORDINATE_VALUE_Z) ? 3 : 2,
+        return mg_create_single(, n, (flag->value & ORDINATE_VALUE_Z) ? 3 : 2,
+                                coord, 0);
+    }
+    return NULL;
+}
+
+struct mg_object *pri_inwkt_read_linearring(stok *token, struct Ordinate *flag)
+{
+    double *coord = NULL;
+    int n = 0;
+    pri_inwkt_get_coordinates(token, flag, &coord, &n);
+    if (coord && n > 1) {
+        return mg_create_single(2, n, (flag->value & ORDINATE_VALUE_Z) ? 3 : 2,
                                 coord, 0);
     }
     return NULL;
@@ -292,6 +309,20 @@ struct mg_object *pri_inwkt_read_linestring(stok *token, struct Ordinate *flag)
 
 struct mg_object *pri_inwkt_read_polygon(stok *token, struct Ordinate *flag)
 {
+    char *nextToken = pri_inwkt_get_next_empty_or_opener(token, flag);
+    if (strncmp(nextToken, "EMPTY", 5) == 0)
+        return NULL;
+
+    struct mg_object **subs =
+        (struct mg_object **)calloc(1, sizeof(struct mg_object *));
+    if (subs == NULL)
+        return NULL;
+    struct mg_object *shell = pri_inwkt_read_linearring(token, flag);
+    subs[0] = shell;
+    nextToken = pri_inwkt_get_next_closer_comma(token);
+    while (strcmp(nextToken, ",") == 0) {
+    }
+
     return NULL;
 }
 
