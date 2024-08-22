@@ -12,7 +12,7 @@
 
 #include "mgp.h"
 
-double pri_mg_prop_length_value(const struct mg_object *obj)
+double _mg_prop_length_value(const struct mg_object *obj)
 {
     size_t n = obj->npoints;
     if (n <= 1) {
@@ -41,11 +41,11 @@ double mg_prop_length_value(const struct mg_object *obj)
 
     double sum = 0.0;
     if (obj->ngeoms == 0) {
-        sum = pri_mg_prop_length_value(obj);
+        sum = _mg_prop_length_value(obj);
     }
     else {
         for (int i = 0; i < obj->ngeoms; ++i) {
-            sum += pri_mg_prop_length_value(obj->objects[i]);
+            sum += _mg_prop_length_value(obj->objects[i]);
         }
     }
     return sum;

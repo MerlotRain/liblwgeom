@@ -22,41 +22,41 @@
 
 /* ----------------------------- static read wkt ---------------------------- */
 
-static char *pri_inwkt_next_word(stok *token);
+static char *_inwkt_next_word(stok *token);
 
-static double pri_inwkt_get_next_number(stok *token);
+static double _inwkt_get_next_number(stok *token);
 
-static void pri_inwkt_get_coordinates(stok *token, struct Ordinate *flag,
+static void _inwkt_get_coordinates(stok *token, struct Ordinate *flag,
                                       double **coordinates, int *num);
 
-static void pri_inwkt_get_precise_coordinates(stok *token,
+static void _inwkt_get_precise_coordinates(stok *token,
                                               struct Ordinate *flag,
                                               double *coordinates);
 
-static char *pri_inwkt_get_next_empty_or_opener(stok *token,
+static char *_inwkt_get_next_empty_or_opener(stok *token,
                                                 struct Ordinate *flag);
 
-static char *pri_inwkt_get_next_closer_comma(stok *token);
+static char *_inwkt_get_next_closer_comma(stok *token);
 
-static struct mg_object *pri_inwkt_read_point(stok *token,
+static struct mg_object *_inwkt_read_point(stok *token,
                                               struct Ordinate *flag);
 
-static struct mg_object *pri_inwkt_read_linestring(stok *token,
+static struct mg_object *_inwkt_read_linestring(stok *token,
                                                    struct Ordinate *flag);
 
-static struct mg_object *pri_inwkt_read_linearring(stok *token,
+static struct mg_object *_inwkt_read_linearring(stok *token,
                                                    struct Ordinate *flag);
 
-static struct mg_object *pri_inwkt_read_polygon(stok *token,
+static struct mg_object *_inwkt_read_polygon(stok *token,
                                                 struct Ordinate *flag);
 
-static struct mg_object *pri_inwkt_read_multipoint(stok *token,
+static struct mg_object *_inwkt_read_multipoint(stok *token,
                                                    struct Ordinate *flag);
 
-static struct mg_object *pri_inwkt_read_multilinestring(stok *token,
+static struct mg_object *_inwkt_read_multilinestring(stok *token,
                                                         struct Ordinate *flag);
 
-static struct mg_object *pri_inwkt_read_multipolygon(stok *token,
+static struct mg_object *_inwkt_read_multipolygon(stok *token,
                                                      struct Ordinate *flag);
 
 /* -------------------------------- inner wkt ------------------------------- */
@@ -71,7 +71,7 @@ struct mg_object *mg_read_wkt(const char *data, size_t len)
 
     struct Ordinate flags = ordinate_XY();
     struct Ordinate new_flags = ordinate_XY();
-    char *type = pri_inwkt_next_word(&token);
+    char *type = _inwkt_next_word(&token);
     if (strcmp(type, "EMPTY") == 0) {
         memcpy(&new_flags, &flags, sizeof(struct Ordinate));
     }
@@ -95,25 +95,25 @@ struct mg_object *mg_read_wkt(const char *data, size_t len)
     }
 
     if (strncmp(type, "POINT", 5) == 0) {
-        return pri_inwkt_read_point(&token, &new_flags);
+        return _inwkt_read_point(&token, &new_flags);
     }
     else if (strncmp(type, "LINESTRING", 10) == 0) {
-        return pri_inwkt_read_linestring(&token, &new_flags);
+        return _inwkt_read_linestring(&token, &new_flags);
     }
     else if (strncmp(type, "LINEARRING ", 10) == 0) {
-        return pri_inwkt_read_linearring(&token, &new_flags);
+        return _inwkt_read_linearring(&token, &new_flags);
     }
     else if (strncmp(type, "POLYGON", 7) == 0) {
-        return pri_inwkt_read_polygon(&token, &new_flags);
+        return _inwkt_read_polygon(&token, &new_flags);
     }
     else if (strncmp(type, "MULTIPOINT", 10) == 0) {
-        return pri_inwkt_read_multipoint(&token, &new_flags);
+        return _inwkt_read_multipoint(&token, &new_flags);
     }
     else if (strncmp(type, "MULTILINESTRING", 15) == 0) {
-        return pri_inwkt_read_multilinestring(&token, &new_flags);
+        return _inwkt_read_multilinestring(&token, &new_flags);
     }
     else if (strncmp(type, "MULTIPOLYGON", 12) == 0) {
-        return pri_inwkt_read_multipolygon(&token, &new_flags);
+        return _inwkt_read_multipolygon(&token, &new_flags);
     }
     // else if (strncmp(type, "CIRCULARSTRING", 14) == 0) {
     //     return NULL;
@@ -140,7 +140,7 @@ struct mg_object *mg_read_wkt(const char *data, size_t len)
 
 /* ----------------------------- static read wkt ---------------------------- */
 
-char *pri_inwkt_next_word(stok *token)
+char *_inwkt_next_word(stok *token)
 {
     int type = stok_next_token(token);
     switch (type) {
@@ -167,7 +167,7 @@ char *pri_inwkt_next_word(stok *token)
     return "";
 }
 
-double pri_inwkt_get_next_number(stok *token)
+double _inwkt_get_next_number(stok *token)
 {
     int type = stok_next_token(token);
     switch (type) {
@@ -179,15 +179,15 @@ double pri_inwkt_get_next_number(stok *token)
     return 0;
 }
 
-void pri_inwkt_get_coordinates(stok *token, struct Ordinate *flag,
+void _inwkt_get_coordinates(stok *token, struct Ordinate *flag,
                                double **coordinates, int *num)
 {
-    char *nexttok = pri_inwkt_get_next_empty_or_opener(token, flag);
+    char *nexttok = _inwkt_get_next_empty_or_opener(token, flag);
     if (strcmp(nexttok, "EMPTY") == 0) {
         return;
     }
     double c[4] = {0.0};
-    pri_inwkt_get_precise_coordinates(token, flag, c);
+    _inwkt_get_precise_coordinates(token, flag, c);
 
     // calloc coordinates with cdim
     int cdim = (flag->value & ORDINATE_VALUE_Z) ? 3 : 2;
@@ -198,10 +198,10 @@ void pri_inwkt_get_coordinates(stok *token, struct Ordinate *flag,
     *num = 1;
     memcpy(*coordinates, c, cdim * sizeof(double));
 
-    nexttok = pri_inwkt_get_next_closer_comma(token);
+    nexttok = _inwkt_get_next_closer_comma(token);
     while (strcmp(nexttok, ")") != 0) {
         memset(c, 0, sizeof(c));
-        pri_inwkt_get_precise_coordinates(token, flag, c);
+        _inwkt_get_precise_coordinates(token, flag, c);
         *coordinates = (double *)realloc(*coordinates,
                                          (*num + 1) * sizeof(double) * (cdim));
         if (*coordinates == NULL) {
@@ -212,22 +212,22 @@ void pri_inwkt_get_coordinates(stok *token, struct Ordinate *flag,
         }
         memcpy((*coordinates) + ((*num) * cdim), c, cdim * sizeof(double));
         (*num)++;
-        nexttok = pri_inwkt_get_next_closer_comma(token);
+        nexttok = _inwkt_get_next_closer_comma(token);
     }
 }
 
-char *pri_inwkt_get_next_empty_or_opener(stok *token, struct Ordinate *flag)
+char *_inwkt_get_next_empty_or_opener(stok *token, struct Ordinate *flag)
 {
-    char *nextword = pri_inwkt_next_word(token);
+    char *nextword = _inwkt_next_word(token);
     if (strcmp(nextword, "ZM") == 0) {
-        nextword = pri_inwkt_next_word(token);
+        nextword = _inwkt_next_word(token);
     }
     else {
         if (strcmp(nextword, "Z") == 0) {
-            nextword = pri_inwkt_next_word(token);
+            nextword = _inwkt_next_word(token);
         }
         if (strcmp(nextword, "M") == 0) {
-            nextword = pri_inwkt_next_word(token);
+            nextword = _inwkt_next_word(token);
         }
     }
 
@@ -237,28 +237,28 @@ char *pri_inwkt_get_next_empty_or_opener(stok *token, struct Ordinate *flag)
     return "";
 }
 
-char *pri_inwkt_get_next_closer_comma(stok *token)
+char *_inwkt_get_next_closer_comma(stok *token)
 {
-    char *nextWord = pri_inwkt_next_word(token);
+    char *nextWord = _inwkt_next_word(token);
     if (strcmp(nextWord, ",") == 0 || strcmp(nextWord, ")") == 0) {
         return nextWord;
     }
     return NULL;
 }
 
-static void pri_inwkt_get_precise_coordinates(stok *token,
+static void _inwkt_get_precise_coordinates(stok *token,
                                               struct Ordinate *flag,
                                               double *coordinates)
 {
-    coordinates[0] = pri_inwkt_get_next_number(token);
-    coordinates[1] = pri_inwkt_get_next_number(token);
+    coordinates[0] = _inwkt_get_next_number(token);
+    coordinates[1] = _inwkt_get_next_number(token);
 
     // Check for undeclared Z dimension
     if (flag->changeAllowed && (stok_peek_next_token(token) == STOK_NUM))
         ordinate_setZ(flag, true);
 
     if (flag->value & ORDINATE_VALUE_Z)
-        coordinates[2] = pri_inwkt_get_next_number(token);
+        coordinates[2] = _inwkt_get_next_number(token);
 
     // Check for undeclared M dimension
     if (flag->changeAllowed && (flag->value & ORDINATE_VALUE_Z) &&
@@ -266,16 +266,16 @@ static void pri_inwkt_get_precise_coordinates(stok *token,
         ordinate_setM(flag, true);
 
     if (flag->value & ORDINATE_VALUE_M)
-        coordinates[3] = pri_inwkt_get_next_number(token);
+        coordinates[3] = _inwkt_get_next_number(token);
 
     flag->changeAllowed = false;
 }
 
-struct mg_object *pri_inwkt_read_point(stok *token, struct Ordinate *flag)
+struct mg_object *_inwkt_read_point(stok *token, struct Ordinate *flag)
 {
     double *coord = NULL;
     int n = 0;
-    pri_inwkt_get_coordinates(token, flag, &coord, &n);
+    _inwkt_get_coordinates(token, flag, &coord, &n);
     if (coord && n == 1) {
         return mg_create_single(0, 1, (flag->value & ORDINATE_VALUE_Z) ? 3 : 2,
                                 coord, 0);
@@ -283,11 +283,11 @@ struct mg_object *pri_inwkt_read_point(stok *token, struct Ordinate *flag)
     return NULL;
 }
 
-struct mg_object *pri_inwkt_read_linestring(stok *token, struct Ordinate *flag)
+struct mg_object *_inwkt_read_linestring(stok *token, struct Ordinate *flag)
 {
     double *coord = NULL;
     int n = 0;
-    pri_inwkt_get_coordinates(token, flag, &coord, &n);
+    _inwkt_get_coordinates(token, flag, &coord, &n);
     if (coord && n > 1) {
         return mg_create_single(, n, (flag->value & ORDINATE_VALUE_Z) ? 3 : 2,
                                 coord, 0);
@@ -295,11 +295,11 @@ struct mg_object *pri_inwkt_read_linestring(stok *token, struct Ordinate *flag)
     return NULL;
 }
 
-struct mg_object *pri_inwkt_read_linearring(stok *token, struct Ordinate *flag)
+struct mg_object *_inwkt_read_linearring(stok *token, struct Ordinate *flag)
 {
     double *coord = NULL;
     int n = 0;
-    pri_inwkt_get_coordinates(token, flag, &coord, &n);
+    _inwkt_get_coordinates(token, flag, &coord, &n);
     if (coord && n > 1) {
         return mg_create_single(2, n, (flag->value & ORDINATE_VALUE_Z) ? 3 : 2,
                                 coord, 0);
@@ -307,9 +307,9 @@ struct mg_object *pri_inwkt_read_linearring(stok *token, struct Ordinate *flag)
     return NULL;
 }
 
-struct mg_object *pri_inwkt_read_polygon(stok *token, struct Ordinate *flag)
+struct mg_object *_inwkt_read_polygon(stok *token, struct Ordinate *flag)
 {
-    char *nextToken = pri_inwkt_get_next_empty_or_opener(token, flag);
+    char *nextToken = _inwkt_get_next_empty_or_opener(token, flag);
     if (strncmp(nextToken, "EMPTY", 5) == 0)
         return NULL;
 
@@ -317,27 +317,27 @@ struct mg_object *pri_inwkt_read_polygon(stok *token, struct Ordinate *flag)
         (struct mg_object **)calloc(1, sizeof(struct mg_object *));
     if (subs == NULL)
         return NULL;
-    struct mg_object *shell = pri_inwkt_read_linearring(token, flag);
+    struct mg_object *shell = _inwkt_read_linearring(token, flag);
     subs[0] = shell;
-    nextToken = pri_inwkt_get_next_closer_comma(token);
+    nextToken = _inwkt_get_next_closer_comma(token);
     while (strcmp(nextToken, ",") == 0) {
     }
 
     return NULL;
 }
 
-struct mg_object *pri_inwkt_read_multipoint(stok *token, struct Ordinate *flag)
+struct mg_object *_inwkt_read_multipoint(stok *token, struct Ordinate *flag)
 {
     return NULL;
 }
 
-struct mg_object *pri_inwkt_read_multilinestring(stok *token,
+struct mg_object *_inwkt_read_multilinestring(stok *token,
                                                  struct Ordinate *flag)
 {
     return NULL;
 }
 
-struct mg_object *pri_inwkt_read_multipolygon(stok *token,
+struct mg_object *_inwkt_read_multipolygon(stok *token,
                                               struct Ordinate *flag)
 {
     return NULL;

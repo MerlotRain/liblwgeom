@@ -60,7 +60,6 @@ extern "C" {
             HANDLER(OUTPUT, "ERROR: ");         \
             LOG(ERROR, __VA_ARGS__)             \
             HANDLER(OUTPUT, "\n");              \
-            abort();                            \
         }                                       \
     }
 

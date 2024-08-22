@@ -118,7 +118,7 @@ struct mg_object *mg_create_multi(int gdim, int snum, struct mg_object **subs)
     return obj;
 }
 
-void pri_mg_free_object(struct mg_object *g)
+void _mg_free_object(struct mg_object *g)
 {
     assert(g);
     if (g->flag != 0) {
@@ -131,14 +131,14 @@ void mg_free_object(struct mg_object *g)
 {
     assert(g);
     if (g->ngeoms == 1) {
-        pri_mg_free_object(g);
+        _mg_free_object(g);
     }
     else {
         for (int i = 0; i < g->ngeoms; ++i) {
             struct mg_object *sub = g->objects[i];
             if (sub == NULL)
                 continue;
-            pri_mg_free_object(sub);
+            _mg_free_object(sub);
         }
     }
 }
