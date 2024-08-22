@@ -16,4 +16,3 @@ struct mg_object *mg_read_geojson(const char *data, size_t len)
 {
     return NULL;
 }
-

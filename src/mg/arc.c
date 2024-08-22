@@ -13,7 +13,7 @@
 #include "mghelp.h"
 
 static int _arc_center(struct mg_point c0, struct mg_point c1,
-                          struct mg_point c2, struct mg_point *center)
+                       struct mg_point c2, struct mg_point *center)
 {
     if (c0.x == c2.x && c0.y == c2.y) {
         center->x = (c0.x + c1.x) / 2.0;

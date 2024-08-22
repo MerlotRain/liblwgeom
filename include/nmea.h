@@ -46,7 +46,6 @@ struct nmeaTIME {
     int msec; ///< Thousandths part of second - [0,999]
 };
 
-
 /**
  * \brief Get time now to nmeaTIME structure
  */
@@ -215,8 +214,8 @@ EXTERN void nmea_zero_GPVTG(struct nmeaGPVTG *pack);
  * Position data in fractional degrees or radians
  */
 struct nmeaPOS {
-    double lat; //!< Latitude
-    double lon; //!< Longitude
+    double lat; ///< Latitude
+    double lon; ///< Longitude
 };
 
 /**
@@ -225,9 +224,9 @@ struct nmeaPOS {
  * \see nmeaGPGSV
  */
 struct nmeaSATINFO {
-    int inuse;  //!< Number of satellites in use (not those in view)
-    int inview; //!< Total number of satellites in view
-    struct nmeaSATELLITE sat[NMEA_MAXSAT]; //!< Satellites information
+    int inuse;  ///< Number of satellites in use (not those in view)
+    int inview; ///< Total number of satellites in view
+    struct nmeaSATELLITE sat[NMEA_MAXSAT]; ///< Satellites information
 };
 
 /**
@@ -237,41 +236,41 @@ struct nmeaSATINFO {
  * \see nmea_GPGGA2info, nmea_...2info
  */
 struct nmeaINFO {
-    int smask; //!< Mask specifying types of packages from which data have been
-               //!< obtained
+    int smask; ///< Mask specifying types of packages from which data have been
+               ///< obtained
 
-    struct nmeaTIME utc; //!< UTC of position
+    struct nmeaTIME utc; ///< UTC of position
 
-    int sig; //!< GPS quality indicator (0 = Invalid; 1 = Fix; 2 = Differential,
-             //!< 3 = Sensitive)
-    int fix; //!< Operating mode, used for navigation (1 = Fix not available; 2
-             //!< = 2D; 3 = 3D)
+    int sig; ///< GPS quality indicator (0 = Invalid; 1 = Fix; 2 = Differential,
+             ///< 3 = Sensitive)
+    int fix; ///< Operating mode, used for navigation (1 = Fix not available; 2
+             ///< = 2D; 3 = 3D)
 
-    double PDOP; //!< Position Dilution Of Precision
-    double HDOP; //!< Horizontal Dilution Of Precision
-    double VDOP; //!< Vertical Dilution Of Precision
+    double PDOP; ///< Position Dilution Of Precision
+    double HDOP; ///< Horizontal Dilution Of Precision
+    double VDOP; ///< Vertical Dilution Of Precision
 
-    double lat; //!< Latitude in NDEG - +/-[degree][min].[sec/60]
-    double lon; //!< Longitude in NDEG - +/-[degree][min].[sec/60]
+    double lat; ///< Latitude in NDEG - +/-[degree][min].[sec/60]
+    double lon; ///< Longitude in NDEG - +/-[degree][min].[sec/60]
     double
-        elv; //!< Antenna altitude above/below mean sea level (geoid) in meters
-    double speed;       //!< Speed over the ground in kilometers/hour
-    double direction;   //!< Track angle in degrees True
-    double declination; //!< Magnetic variation degrees (Easterly var. subtracts
-                        //!< from true course)
-    double rms_pr; //!< RMS value of the pseudorange residuals; includes carrier
-                   //!< phase residuals during periods of RTK (float) and RTK
-                   //!< (fixed) processing
+        elv; ///< Antenna altitude above/below mean sea level (geoid) in meters
+    double speed;       ///< Speed over the ground in kilometers/hour
+    double direction;   ///< Track angle in degrees True
+    double declination; ///< Magnetic variation degrees (Easterly var. subtracts
+                        ///< from true course)
+    double rms_pr; ///< RMS value of the pseudorange residuals; includes carrier
+                   ///< phase residuals during periods of RTK (float) and RTK
+                   ///< (fixed) processing
     double
-        err_major; //!< Error ellipse semi-major axis 1 sigma error, in meters
+        err_major; ///< Error ellipse semi-major axis 1 sigma error, in meters
     double
-        err_minor;  //!< Error ellipse semi-minor axis 1 sigma error, in meters
-    double err_ori; //!< Error ellipse orientation, degrees from true north
-    double sig_lat; //!< Latitude 1 sigma error, in meters
-    double sig_lon; //!< Longitude 1 sigma error, in meters
-    double sig_alt; //!< Height 1 sigma error, in meters
+        err_minor;  ///< Error ellipse semi-minor axis 1 sigma error, in meters
+    double err_ori; ///< Error ellipse orientation, degrees from true north
+    double sig_lat; ///< Latitude 1 sigma error, in meters
+    double sig_lon; ///< Longitude 1 sigma error, in meters
+    double sig_alt; ///< Height 1 sigma error, in meters
 
-    struct nmeaSATINFO satinfo; //!< Satellites information
+    struct nmeaSATINFO satinfo; ///< Satellites information
 };
 
 void nmea_zero_INFO(struct nmeaINFO *info);
@@ -297,7 +296,7 @@ EXTERN int nmea_parse_GPGST(const char *buff, int buff_sz,
                             struct nmeaGPGST *pack);
 EXTERN int nmea_parse_GPHDT(const char *buff, int buff_sz,
                             struct nmeaGPHDT *pack);
-            
+
 EXTERN void nmea_GPGGA2info(struct nmeaGPGGA *pack, struct nmeaINFO *info);
 EXTERN void nmea_GPGST2info(struct nmeaGPGST *pack, struct nmeaINFO *info);
 EXTERN void nmea_GPGSA2info(struct nmeaGPGSA *pack, struct nmeaINFO *info);

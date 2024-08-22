@@ -18,14 +18,13 @@ struct _centriod {
 
     struct mg_point l_cent_sum;
     double total_length;
-        
+
     double total_area;
     double total_ax;
     double total_ay;
 };
 
-void _centriod_single(const struct mg_object *obj,
-                         struct _centriod *centriod)
+void _centriod_single(const struct mg_object *obj, struct _centriod *centriod)
 {
     assert(obj);
     if (obj->gdim == 0) {
@@ -62,8 +61,7 @@ void _centriod_single(const struct mg_object *obj,
         double area = mg_prop_area_value(obj);
         double tx = 0.0;
         double ty = 0.0;
-        for(int i = 0; i < obj->npoints; ++i)
-        {
+        for (int i = 0; i < obj->npoints; ++i) {
             tx += obj->pp[i * obj->cdim];
             ty += obj->pp[i * obj->cdim + 1];
         }
@@ -73,7 +71,7 @@ void _centriod_single(const struct mg_object *obj,
     }
 }
 
-void mg_prop_geo_centriod(const struct mg_object *obj, double* xy)
+void mg_prop_geo_centriod(const struct mg_object *obj, double *xy)
 {
     assert(obj);
     struct _centriod centriod;
@@ -86,19 +84,16 @@ void mg_prop_geo_centriod(const struct mg_object *obj, double* xy)
         }
     }
 
-    if(obj->gdim == 0)
-    {
+    if (obj->gdim == 0) {
         xy[0] = centriod.p_cent_sum.x / centriod.pt_num;
         xy[1] = centriod.p_cent_sum.y / centriod.pt_num;
     }
-    else if(obj->gdim == 1)
-    {
+    else if (obj->gdim == 1) {
         xy[0] = centriod.l_cent_sum.x / centriod.total_length;
-        xy[1] = centriod.l_cent_sum.y / centriod.total_length;  
+        xy[1] = centriod.l_cent_sum.y / centriod.total_length;
     }
-    else if(obj->gdim == 2)
-    {
+    else if (obj->gdim == 2) {
         xy[0] = centriod.total_area / centriod.total_ax;
-        xy[1] = centriod.total_area / centriod.total_ay; 
+        xy[1] = centriod.total_area / centriod.total_ay;
     }
 }

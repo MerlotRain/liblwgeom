@@ -12,7 +12,7 @@
 
 #include "mgp.h"
 
-int mg_write_ora(const struct mg_object *obj, struct sdo_geometry* sdo)
+int mg_write_ora(const struct mg_object *obj, struct sdo_geometry *sdo)
 {
     return 0;
 }

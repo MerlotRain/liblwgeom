@@ -33,9 +33,8 @@ bool sda_new(struct sda *a, size_t elem_size, deletor del)
     memset(a->data, 0, elem_size * SDA_DEFAULT_CAPACITY);
     return true;
 }
-      
 
-struct sda *sad_reserve(size_t size, deletor del)
+bool sad_reserve(struct sda *a, size_t elem_size, size_t size, deletor del)
 {
     return NULL;
 }
@@ -86,5 +85,4 @@ bool sda_isempty(const struct sda *a)
 
 void **sda_rawdata(const struct sda *a)
 {
-
 }

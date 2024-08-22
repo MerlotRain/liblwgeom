@@ -9,7 +9,6 @@ struct int_simplify_rdp {
 
 static void _simplify_section(int i, int j, struct int_simplify_rdp *intrdp)
 {
-    
 }
 
 static struct mg_object *_simplify_line(const struct mg_object *obj)

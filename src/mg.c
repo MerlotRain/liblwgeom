@@ -317,12 +317,13 @@ bool mg_check_single_ring(const double *pp, int npoints, int cdim)
 {
     assert(pp);
     // At least 4 points are required to form a ring
-    if (npoints < 4) return false;
+    if (npoints < 4)
+        return false;
 
     double x0 = pp[0];
     double y0 = pp[1];
-    double xn = pp[(ptrdiff_t) (npoints * cdim)];
-    double yn = pp[(ptrdiff_t) (npoints * cdim + 1)];
+    double xn = pp[(ptrdiff_t)(npoints * cdim)];
+    double yn = pp[(ptrdiff_t)(npoints * cdim + 1)];
 
     return MG_DOUBLE_NEARES2(x0, xn) && MG_DOUBLE_NEARES2(y0, yn);
 }
@@ -345,25 +346,23 @@ bool mg_ccw(const double *pp, int npoints, int cdim)
     // Search for the highest point
     double lowY = pp[1];
     int lowIndex = 0;
-    for (int i = 0; i < npoints; ++i)
-    {
-        double ty = pp[(ptrdiff_t) (i * cdim + 1)];
-        if (ty < lowY)
-        {
+    for (int i = 0; i < npoints; ++i) {
+        double ty = pp[(ptrdiff_t)(i * cdim + 1)];
+        if (ty < lowY) {
             lowIndex = i;
             lowY = ty;
         }
     }
 
-    double x1 = pp[(ptrdiff_t) ((lowIndex - 1) * cdim)];
-    double y1 = pp[(ptrdiff_t) ((lowIndex - 1) * cdim + 1)];
-    double x2 = pp[(ptrdiff_t) (lowIndex * cdim)];
-    double y2 = pp[(ptrdiff_t) (lowIndex * cdim + 1)];
-    double x3 = pp[(ptrdiff_t) (((lowIndex + 1) % npoints) * cdim)];
-    double y3 = pp[(ptrdiff_t) (((lowIndex + 1) % npoints) * cdim + 1)];
+    double x1 = pp[(ptrdiff_t)((lowIndex - 1) * cdim)];
+    double y1 = pp[(ptrdiff_t)((lowIndex - 1) * cdim + 1)];
+    double x2 = pp[(ptrdiff_t)(lowIndex * cdim)];
+    double y2 = pp[(ptrdiff_t)(lowIndex * cdim + 1)];
+    double x3 = pp[(ptrdiff_t)(((lowIndex + 1) % npoints) * cdim)];
+    double y3 = pp[(ptrdiff_t)(((lowIndex + 1) % npoints) * cdim + 1)];
 
     double r = (x2 - x1) * (y3 - y2) - (y2 - y1) * (x3 - x2);
-    return (r > 0) ? true : false; 
+    return (r > 0) ? true : false;
 }
 
 double mg_prop_value(const struct mg_object *obj, int mode)

@@ -15,8 +15,8 @@
 
 /// triangle inscribed circle
 static struct mg_ellipse _tri_inscribed_circle(const struct mg_point p1,
-                                                  const struct mg_point p2,
-                                                  const struct mg_point p3)
+                                               const struct mg_point p2,
+                                               const struct mg_point p3)
 {
     double l[3] = {MG_POINTDISTANCE2(p1, p2), MG_POINTDISTANCE2(p2, p3),
                    MG_POINTDISTANCE2(p3, p1)};
@@ -34,7 +34,7 @@ static struct mg_ellipse _tri_inscribed_circle(const struct mg_point p1,
 
 /// check cricle list contains one circle
 static bool _contains_circle(const struct mg_ellipse *es, int n,
-                                const struct mg_point c, double r)
+                             const struct mg_point c, double r)
 {
     for (int i = 0; i < n; ++i) {
         if (MG_POINTDISTANCE2(es[i].center, c) &&
@@ -48,7 +48,7 @@ static bool _contains_circle(const struct mg_ellipse *es, int n,
 /// Returns a new point which corresponds to this point projected by a specified
 /// distance with specified angles
 static struct mg_point _point_project(const struct mg_point p, double dis,
-                                         double azimuth)
+                                      double azimuth)
 {
     struct mg_point pr;
     const double rads = azimuth * M_PI / 180.0;
@@ -82,8 +82,8 @@ static double _line_angle(double x1, double y1, double x2, double y2)
 }
 
 static bool _is_perpendicular(const struct mg_point pt1,
-                                 const struct mg_point pt2,
-                                 const struct mg_point pt3)
+                              const struct mg_point pt2,
+                              const struct mg_point pt3)
 {
     double yDelta_a = pt2.y - pt1.y;
     double xDelta_a = pt2.x - pt1.x;
@@ -110,12 +110,12 @@ static bool _is_perpendicular(const struct mg_point pt1,
 }
 
 static void _from_2parallels_line(const struct mg_point pt1_par1,
-                                     const struct mg_point pt2_par1,
-                                     const struct mg_point pt1_par2,
-                                     const struct mg_point pt2_par2,
-                                     const struct mg_point pt1_line1,
-                                     const struct mg_point pt2_line1,
-                                     struct mg_ellipse *rs, int *n)
+                                  const struct mg_point pt2_par1,
+                                  const struct mg_point pt1_par2,
+                                  const struct mg_point pt2_par2,
+                                  const struct mg_point pt1_line1,
+                                  const struct mg_point pt2_line1,
+                                  struct mg_ellipse *rs, int *n)
 {
     int _en = 0;
     const double radius =
@@ -149,9 +149,8 @@ static void _from_2parallels_line(const struct mg_point pt1_par1,
 
     mg_segment_intersection(
         ptInter_par1line1, _point_project(ptInter_par1line1, 1.0, angle1),
-        ptInter_par2line1,
-        _point_project(ptInter_par2line1, 1.0, angle2 + 90), &center,
-        &isInter);
+        ptInter_par2line1, _point_project(ptInter_par2line1, 1.0, angle2 + 90),
+        &center, &isInter);
     if (isInter) {
         _en++;
         *n = _en;
@@ -162,8 +161,7 @@ static void _from_2parallels_line(const struct mg_point pt1_par1,
     }
 
     mg_segment_intersection(
-        ptInter_par1line1,
-        _point_project(ptInter_par1line1, 1.0, angle1 + 90),
+        ptInter_par1line1, _point_project(ptInter_par1line1, 1.0, angle1 + 90),
         ptInter_par2line1, _point_project(ptInter_par2line1, 1.0, angle2),
         &center, &isInter);
     if (isInter && !_contains_circle(rs, *n, center, radius)) {
@@ -176,8 +174,7 @@ static void _from_2parallels_line(const struct mg_point pt1_par1,
     }
 
     mg_segment_intersection(
-        ptInter_par1line1,
-        _point_project(ptInter_par1line1, 1.0, angle1 + 90),
+        ptInter_par1line1, _point_project(ptInter_par1line1, 1.0, angle1 + 90),
         ptInter_par2line1, _point_project(ptInter_par2line1, 1.0, angle2),
         &center, &isInter);
     if (isInter && !_contains_circle(rs, *n, center, radius)) {
@@ -267,8 +264,7 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
         double radius = sqrt((pt1.x - pt2.x) * (pt1.x - pt2.x) +
                              (pt1.y - pt2.y) * (pt1.y - pt2.y)) /
                         2;
-        double azimuth =
-            _line_angle(pt1.x, pt1.y, pt2.x, pt2.y) * 180.0 / M_PI;
+        double azimuth = _line_angle(pt1.x, pt1.y, pt2.x, pt2.y) * 180.0 / M_PI;
         rs[0].center = center;
         rs[0].major = radius;
         rs[0].minor = radius;
@@ -409,18 +405,18 @@ void mg_construct_circle(const struct mg_point *p, int t, struct mg_ellipse *rs,
         }
 
         if (!isIntersect_tg1tg2) {
-            _from_2parallels_line(pt1_tg1, pt2_tg1, pt1_tg2, pt2_tg2,
-                                     pt1_tg3, pt2_tg3, rs, n);
+            _from_2parallels_line(pt1_tg1, pt2_tg1, pt1_tg2, pt2_tg2, pt1_tg3,
+                                  pt2_tg3, rs, n);
             return;
         }
         else if (!isIntersect_tg1tg3) {
-            _from_2parallels_line(pt1_tg1, pt2_tg1, pt1_tg3, pt2_tg3,
-                                     pt1_tg2, pt2_tg2, rs, n);
+            _from_2parallels_line(pt1_tg1, pt2_tg1, pt1_tg3, pt2_tg3, pt1_tg2,
+                                  pt2_tg2, rs, n);
             return;
         }
         else if (!isIntersect_tg2tg3) {
-            _from_2parallels_line(pt1_tg2, pt2_tg2, pt1_tg3, pt2_tg3,
-                                     pt1_tg1, pt1_tg1, rs, n);
+            _from_2parallels_line(pt1_tg2, pt2_tg2, pt1_tg3, pt2_tg3, pt1_tg1,
+                                  pt1_tg1, rs, n);
             return;
         }
 
