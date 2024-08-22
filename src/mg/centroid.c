@@ -12,7 +12,7 @@
 
 #include "mgp.h"
 
-struct pri_centriod {
+struct _centriod {
     struct mg_point p_cent_sum;
     size_t pt_num;
 
@@ -24,8 +24,8 @@ struct pri_centriod {
     double total_ay;
 };
 
-void pri_centriod_single(const struct mg_object *obj,
-                         struct pri_centriod *centriod)
+void _centriod_single(const struct mg_object *obj,
+                         struct _centriod *centriod)
 {
     assert(obj);
     if (obj->gdim == 0) {
@@ -76,13 +76,13 @@ void pri_centriod_single(const struct mg_object *obj,
 void mg_prop_geo_centriod(const struct mg_object *obj, double* xy)
 {
     assert(obj);
-    struct pri_centriod centriod;
+    struct _centriod centriod;
     if (obj->ngeoms == 1) {
-        pri_centriod_single(obj, &centriod);
+        _centriod_single(obj, &centriod);
     }
     else {
         for (int i = 0; i < obj->ngeoms; ++i) {
-            pri_centriod_single(obj->objects[i], &centriod);
+            _centriod_single(obj->objects[i], &centriod);
         }
     }
 

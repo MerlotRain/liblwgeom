@@ -19,113 +19,134 @@
 #include <limits.h>
 #include <locale.h>
 #include <math.h>
+#include <logging.h>
 
 #if defined(_MSC_VER)
-# define NMEA_POSIX(x)  _##x
-# define NMEA_INLINE    __inline
+#define NMEA_POSIX(x) _##x
+#define NMEA_INLINE   __inline
 #else
-# define NMEA_POSIX(x)  x
-# define NMEA_INLINE    inline
+#define NMEA_POSIX(x) x
+#define NMEA_INLINE   inline
 #endif
 
-#define NMEA_TOKS_COMPARE   (1)
-#define NMEA_TOKS_PERCENT   (2)
-#define NMEA_TOKS_WIDTH     (3)
-#define NMEA_TOKS_TYPE      (4)
+#define NMEA_TOKS_COMPARE  (1)
+#define NMEA_TOKS_PERCENT  (2)
+#define NMEA_TOKS_WIDTH    (3)
+#define NMEA_TOKS_TYPE     (4)
 
-#define NMEA_CONVSTR_BUF    (256)
-#define NMEA_TIMEPARSE_BUF  (256)
+#define NMEA_CONVSTR_BUF   (256)
+#define NMEA_TIMEPARSE_BUF (256)
 
-static int     _nmea_calc_crc( const char *buff, int buff_sz )
+#define NMEA_FIX_BAD        (1)
+#define NMEA_FIX_2D         (2)
+#define NMEA_FIX_3D         (3)
+
+#define NMEA_SIG_BAD        (0)
+#define NMEA_SIG_LOW        (1)
+#define NMEA_SIG_MID        (2)
+#define NMEA_SIG_HIGH       (3)
+
+#define NMEA_TUD_YARDS     (1.0936) //!< Yeards, meter * NMEA_TUD_YARDS = yard
+#define NMEA_TUD_KNOTS     (1.852) //!< Knots, kilometer / NMEA_TUD_KNOTS = knot
+#define NMEA_TUD_MILES     (1.609) //!< Miles, kilometer / NMEA_TUD_MILES = mile
+
+#define NMEA_NSATPACKS     (NMEA_MAXSAT / NMEA_SATINPACK)
+
+#define NMEA_EARTHRADIUS_KM         (6378)                          //!< Earth's mean radius in km
+#define NMEA_EARTHRADIUS_M          (NMEA_EARTHRADIUS_KM * 1000)    //!< Earth's mean radius in m
+#define NMEA_EARTH_SEMIMAJORAXIS_M  (6378137.0)                     //!< Earth's semi-major axis in m according WGS84
+#define NMEA_EARTH_SEMIMAJORAXIS_KM (NMEA_EARTHMAJORAXIS_KM / 1000) //!< Earth's semi-major axis in km according WGS 84
+#define NMEA_EARTH_FLATTENING       (1 / 298.257223563)             //!< Earth's flattening according WGS 84
+#define NMEA_DOP_FACTOR             (5)                             //!< Factor for translating DOP to meters
+
+static int _nmea_calc_crc(const char *buff, int buff_sz)
 {
-  int chsum = 0,
-      it;
+    int chsum = 0, it;
 
-  for ( it = 0; it < buff_sz; ++it )
-    chsum ^= ( int )buff[it];
+    for (it = 0; it < buff_sz; ++it)
+        chsum ^= (int)buff[it];
 
-  return chsum;
+    return chsum;
 }
-static int     _nmea_atoi( const char *str, size_t str_sz, int radix )
+
+static int _nmea_atoi(const char *str, size_t str_sz, int radix)
 {
-  char *tmp_ptr = 0;
-  char buff[NMEA_CONVSTR_BUF];
-  int res = 0;
+    char *tmp_ptr = 0;
+    char buff[NMEA_CONVSTR_BUF];
+    int res = 0;
 
-  if ( str_sz < NMEA_CONVSTR_BUF )
-  {
-    memcpy( &buff[0], str, str_sz );
-    buff[str_sz] = '\0';
-    res = strtol( &buff[0], &tmp_ptr, radix );
-  }
+    if (str_sz < NMEA_CONVSTR_BUF) {
+        memcpy(&buff[0], str, str_sz);
+        buff[str_sz] = '\0';
+        res = strtol(&buff[0], &tmp_ptr, radix);
+    }
 
-  return res;
+    return res;
 }
-static double  _nmea_atof( const char *str, int str_sz )
+
+static double _nmea_atof(const char *str, int str_sz)
 {
-  char *tmp_ptr = 0;
-  char buff[NMEA_CONVSTR_BUF];
-  double res = 0;
+    char *tmp_ptr = 0;
+    char buff[NMEA_CONVSTR_BUF];
+    double res = 0;
 
-  if ( str_sz < NMEA_CONVSTR_BUF )
-  {
-    const char *oldlocale = setlocale( LC_NUMERIC, NULL );
+    if (str_sz < NMEA_CONVSTR_BUF) {
+        const char *oldlocale = setlocale(LC_NUMERIC, NULL);
 
-    memcpy( &buff[0], str, str_sz );
-    buff[str_sz] = '\0';
-    setlocale( LC_NUMERIC, "C" );
-    res = strtod( &buff[0], &tmp_ptr );
-    setlocale( LC_NUMERIC, oldlocale );
-  }
+        memcpy(&buff[0], str, str_sz);
+        buff[str_sz] = '\0';
+        setlocale(LC_NUMERIC, "C");
+        res = strtod(&buff[0], &tmp_ptr);
+        setlocale(LC_NUMERIC, oldlocale);
+    }
 
-  return res;
+    return res;
 }
-static int     _nmea_printf( char *buff, int buff_sz, const char *format, ... )
+
+static int _nmea_printf(char *buff, int buff_sz, const char *format, ...)
 {
   int retval, add = 0;
   va_list arg_ptr;
 
-  if ( buff_sz <= 0 )
-    return 0;
+    if (buff_sz <= 0)
+        return 0;
 
-  va_start( arg_ptr, format );
+    va_start(arg_ptr, format);
 
-  retval = NMEA_POSIX( vsnprintf )( buff, buff_sz, format, arg_ptr );
+    retval = NMEA_POSIX(vsnprintf)(buff, buff_sz, format, arg_ptr);
 
-  if ( retval > 0 )
-  {
-    add = NMEA_POSIX( snprintf )(
-            buff + retval, buff_sz - retval, "*%02x\r\n",
-            _nmea_calc_crc( buff + 1, retval - 1 ) );
-  }
+    if (retval > 0) {
+        add = NMEA_POSIX(snprintf)(buff + retval, buff_sz - retval, "*%02x\r\n",
+                                   _nmea_calc_crc(buff + 1, retval - 1));
+    }
 
-  retval += add;
+    retval += add;
 
-  if ( retval < 0 || retval > buff_sz )
-  {
-    memset( buff, ' ', buff_sz );
-    retval = buff_sz;
-  }
+    if (retval < 0 || retval > buff_sz) {
+        memset(buff, ' ', buff_sz);
+        retval = buff_sz;
+    }
 
-  va_end( arg_ptr );
+    va_end(arg_ptr);
 
-  return retval;
+    return retval;
 }
-static int     nmea_scanf( const char *buff, int buff_sz, const char *format, ... )
+
+static int _nmea_scanf(const char *buff, int buff_sz, const char *format, ...)
 {
-  const char *beg_tok = 0;
-  const char *end_buf = buff + buff_sz;
+    const char *beg_tok = 0;
+    const char *end_buf = buff + buff_sz;
 
-  va_list arg_ptr;
-  int tok_type = NMEA_TOKS_COMPARE;
-  int width = 0;
-  const char *beg_fmt = 0;
-  int snum = 0, unum = 0;
+    va_list arg_ptr;
+    int tok_type = NMEA_TOKS_COMPARE;
+    int width = 0;
+    const char *beg_fmt = 0;
+    int snum = 0, unum = 0;
 
-  int tok_count = 0;
-  void *parg_target = 0;
+    int tok_count = 0;
+    void *parg_target = 0;
 
-  va_start( arg_ptr, format );
+    va_start(arg_ptr, format);
 
   for ( ; *format && buff < end_buf; ++format )
   {
@@ -142,7 +163,7 @@ static int     nmea_scanf( const char *buff, int buff_sz, const char *format, ..
         beg_fmt = format;
         tok_type = NMEA_TOKS_WIDTH;
 
-        FALLTHROUGH()
+        FALLTHROUGH();
 
       case NMEA_TOKS_WIDTH:
       {
@@ -153,7 +174,7 @@ static int     nmea_scanf( const char *buff, int buff_sz, const char *format, ..
         if ( format > beg_fmt )
           width = _nmea_atoi( beg_fmt, ( int )( format - beg_fmt ), 10 );
 
-        FALLTHROUGH()
+        FALLTHROUGH();
       }
 
       case NMEA_TOKS_TYPE:
@@ -259,37 +280,37 @@ fail:
 }
 
 
-static int _nmea_parse_time( const char *buff, int buff_sz, nmeaTIME *res )
+static int _nmea_parse_time( const char *buff, int buff_sz, struct nmeaTIME *res )
 {
   int success = 0;
 
   switch ( buff_sz )
   {
     case sizeof( "hhmmss" ) - 1:
-      success = ( 3 == nmea_scanf( buff, buff_sz,
+      success = ( 3 == _nmea_scanf( buff, buff_sz,
                                    "%2d%2d%2d", &( res->hour ), &( res->min ), &( res->sec )
                                  ) );
       break;
     case sizeof( "hhmmss.s" ) - 1:
-      success = ( 4 == nmea_scanf( buff, buff_sz,
+      success = ( 4 == _nmea_scanf( buff, buff_sz,
                                    "%2d%2d%2d.%d", &( res->hour ), &( res->min ), &( res->sec ), &( res->msec )
                                  ) );
       res->msec = res->msec * 100;   // tenths sec * 100 = thousandths
       break;
     case sizeof( "hhmmss.ss" ) - 1:
-      success = ( 4 == nmea_scanf( buff, buff_sz,
+      success = ( 4 == _nmea_scanf( buff, buff_sz,
                                    "%2d%2d%2d.%d", &( res->hour ), &( res->min ), &( res->sec ), &( res->msec )
                                  ) );
       res->msec = res->msec * 10;   // hundredths sec * 10 = thousandths
       break;
     case sizeof( "hhmmss.sss" ) - 1:
-      success = ( 4 == nmea_scanf( buff, buff_sz,
+      success = ( 4 == _nmea_scanf( buff, buff_sz,
                                    "%2d%2d%2d.%d", &( res->hour ), &( res->min ), &( res->sec ), &( res->msec )
                                  ) );
       // already thousandths
       break;
     default:
-      nmea_error( "Parse of time error (format error)!" );
+      LOG_ERROR( "Parse of time error (format error)!" );
       success = 0;
       break;
   }
@@ -329,7 +350,7 @@ void nmea_zero_GPGSV(struct nmeaGPGSV *pack )
 
 void nmea_zero_GPRMC(struct nmeaGPRMC *pack )
 {
-  memset( pack, 0, sizeof( nmeaGPRMC ) );
+  memset( pack, 0, sizeof(struct  nmeaGPRMC ) );
   nmea_time_now( &pack->utc );
   pack->status = 'V';
   pack->ns = 'N';
@@ -374,7 +395,7 @@ int nmea_pack_type( const char *buff, int buff_sz )
   // BUFFER_SIZE = size(P_HEADS) - 1;
   int buffer_size = 8;
 
-  NMEA_ASSERT( buff );
+  assert( buff );
 
   if ( buff_sz < buffer_size )
     return GPNON;
@@ -415,7 +436,7 @@ int nmea_find_tail( const char *buff, int buff_sz, int *res_crc )
   int nread = 0;
   int crc = 0;
 
-  NMEA_ASSERT( buff && res_crc );
+  assert( buff && res_crc );
 
   *res_crc = -1;
 
@@ -430,7 +451,7 @@ int nmea_find_tail( const char *buff, int buff_sz, int *res_crc )
     {
       if ( buff + tail_sz <= end_buff && '\r' == buff[3] && '\n' == buff[4] )
       {
-        *res_crc = nmea_atoi( buff + 1, 2, 16 );
+        *res_crc = _nmea_atoi( buff + 1, 2, 16 );
         nread = buff_sz - ( int )( end_buff - ( buff + tail_sz ) );
         if ( *res_crc != crc )
         {
@@ -459,19 +480,17 @@ int nmea_find_tail( const char *buff, int buff_sz, int *res_crc )
  * @param pack a pointer of packet which will filled by function.
  * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
  */
-int nmea_parse_GPGGA( const char *buff, int buff_sz, nmeaGPGGA *pack )
+int nmea_parse_GPGGA( const char *buff, int buff_sz, struct nmeaGPGGA *pack )
 {
   char time_buff[NMEA_TIMEPARSE_BUF];
 
-  NMEA_ASSERT( buff && pack );
+  assert( buff && pack );
 
-  memset( pack, 0, sizeof( nmeaGPGGA ) );
-
-  nmea_trace_buff( buff, buff_sz );
+  memset( pack, 0, sizeof( struct nmeaGPGGA ) );
 
   char type;
 
-  if ( 15 != nmea_scanf( buff, buff_sz,
+  if ( 15 != _nmea_scanf( buff, buff_sz,
                          "$G%CGGA,%s,%f,%C,%f,%C,%d,%d,%f,%f,%C,%f,%C,%f,%d*",
                          &( type ),
                          &( time_buff[0] ),
@@ -479,19 +498,19 @@ int nmea_parse_GPGGA( const char *buff, int buff_sz, nmeaGPGGA *pack )
                          &( pack->sig ), &( pack->satinuse ), &( pack->HDOP ), &( pack->elv ), &( pack->elv_units ),
                          &( pack->diff ), &( pack->diff_units ), &( pack->dgps_age ), &( pack->dgps_sid ) ) )
   {
-    nmea_error( "G?GGA parse error!" );
+    LOG_ERROR( "G?GGA parse error!" );
     return 0;
   }
 
   if ( type != 'P' && type != 'N' )
   {
-    nmea_error( "G?GGA invalid type " );
+    LOG_ERROR( "G?GGA invalid type " );
     return 0;
   }
 
   if ( 0 != _nmea_parse_time( &time_buff[0], ( int )strlen( &time_buff[0] ), &( pack->utc ) ) )
   {
-    nmea_error( "GPGGA time parse error!" );
+    LOG_ERROR( "GPGGA time parse error!" );
     return 0;
   }
 
@@ -505,38 +524,36 @@ int nmea_parse_GPGGA( const char *buff, int buff_sz, nmeaGPGGA *pack )
  * @param pack a pointer of packet which will filled by function.
  * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
  */
-int nmea_parse_GPGST( const char *buff, int buff_sz, nmeaGPGST *pack )
+int nmea_parse_GPGST( const char *buff, int buff_sz, struct nmeaGPGST *pack )
 {
   char time_buff[NMEA_TIMEPARSE_BUF];
 
-  NMEA_ASSERT( buff && pack );
+  assert( buff && pack );
 
-  memset( pack, 0, sizeof( nmeaGPGST ) );
-
-  nmea_trace_buff( buff, buff_sz );
+  memset( pack, 0, sizeof( struct nmeaGPGST ) );
 
   char type;
 
-  if ( 9 != nmea_scanf( buff, buff_sz,
+  if ( 9 != _nmea_scanf( buff, buff_sz,
                         "$G%CGST,%s,%f,%f,%f,%f,%f,%f,%f*",
                         &( type ),
                         &( time_buff[0] ),
                         &( pack->rms_pr ), &( pack->err_major ), &( pack->err_minor ), &( pack->err_ori ),
                         &( pack->sig_lat ), &( pack->sig_lon ), &( pack->sig_alt ) ) )
   {
-    nmea_error( "G?GST parse error!" );
+    LOG_ERROR( "G?GST parse error!" );
     return 0;
   }
 
   if ( type != 'P' && type != 'N' )
   {
-    nmea_error( "G?GST invalid type " );
+    LOG_ERROR( "G?GST invalid type " );
     return 0;
   }
 
   if ( 0 != _nmea_parse_time( &time_buff[0], ( int )strlen( &time_buff[0] ), &( pack->utc ) ) )
   {
-    nmea_error( "G?GST time parse error!" );
+    LOG_ERROR( "G?GST time parse error!" );
     return 0;
   }
 
@@ -550,28 +567,28 @@ int nmea_parse_GPGST( const char *buff, int buff_sz, nmeaGPGST *pack )
  * @param pack a pointer of packet which will filled by function.
  * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
  */
-int nmea_parse_GPGSA( const char *buff, int buff_sz, nmeaGPGSA *pack )
+int nmea_parse_GPGSA( const char *buff, int buff_sz, struct nmeaGPGSA *pack )
 {
-  NMEA_ASSERT( buff && pack );
+  assert( buff && pack );
 
-  memset( pack, 0, sizeof( nmeaGPGSA ) );
+  memset( pack, 0, sizeof( struct nmeaGPGSA ) );
 
-  nmea_trace_buff( buff, buff_sz );
+  
 
-  if ( 18 != nmea_scanf( buff, buff_sz,
+  if ( 18 != _nmea_scanf( buff, buff_sz,
                          "$G%CGSA,%C,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%f,%f,%f*",
                          &( pack->pack_type ), &( pack->fix_mode ), &( pack->fix_type ),
                          &( pack->sat_prn[0] ), &( pack->sat_prn[1] ), &( pack->sat_prn[2] ), &( pack->sat_prn[3] ), &( pack->sat_prn[4] ), &( pack->sat_prn[5] ),
                          &( pack->sat_prn[6] ), &( pack->sat_prn[7] ), &( pack->sat_prn[8] ), &( pack->sat_prn[9] ), &( pack->sat_prn[10] ), &( pack->sat_prn[11] ),
                          &( pack->PDOP ), &( pack->HDOP ), &( pack->VDOP ) ) )
   {
-    nmea_error( "G?GSA parse error!" );
+    LOG_ERROR( "G?GSA parse error!" );
     return 0;
   }
 
   if ( pack->pack_type != 'P' && pack->pack_type != 'N' && pack->pack_type != 'L' )
   {
-    nmea_error( "G?GSA invalid type " );
+    LOG_ERROR( "G?GSA invalid type " );
     return 0;
   }
 
@@ -585,17 +602,17 @@ int nmea_parse_GPGSA( const char *buff, int buff_sz, nmeaGPGSA *pack )
  * @param pack a pointer of packet which will filled by function.
  * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
  */
-int nmea_parse_GPGSV( const char *buff, int buff_sz, nmeaGPGSV *pack )
+int nmea_parse_GPGSV( const char *buff, int buff_sz, struct nmeaGPGSV *pack )
 {
   int nsen, nsat;
 
-  NMEA_ASSERT( buff && pack );
+  assert( buff && pack );
 
-  memset( pack, 0, sizeof( nmeaGPGSV ) );
+  memset( pack, 0, sizeof( struct nmeaGPGSV ) );
 
-  nmea_trace_buff( buff, buff_sz );
+  
 
-  nsen = nmea_scanf( buff, buff_sz,
+  nsen = _nmea_scanf( buff, buff_sz,
                      "$G%CGSV,%d,%d,%d,"
                      "%d,%d,%d,%d,"
                      "%d,%d,%d,%d,"
@@ -614,13 +631,13 @@ int nmea_parse_GPGSV( const char *buff, int buff_sz, nmeaGPGSV *pack )
 
   if ( nsen - 1 < nsat || nsen - 1 > ( NMEA_SATINPACK * 4 + 3 ) )
   {
-    nmea_error( "G?GSV parse error!" );
+    LOG_ERROR( "G?GSV parse error!" );
     return 0;
   }
 
   if ( pack->pack_type != 'P' && pack->pack_type != 'N' && pack->pack_type != 'L' && pack->pack_type != 'A' && pack->pack_type != 'B' && pack->pack_type != 'Q' )
   {
-    nmea_error( "G?GSV invalid type " );
+    LOG_ERROR( "G?GSV invalid type " );
     return 0;
   }
 
@@ -634,19 +651,19 @@ int nmea_parse_GPGSV( const char *buff, int buff_sz, nmeaGPGSV *pack )
  * @param pack a pointer of packet which will filled by function.
  * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
  */
-int nmea_parse_GPRMC( const char *buff, int buff_sz, nmeaGPRMC *pack )
+int nmea_parse_GPRMC( const char *buff, int buff_sz, struct nmeaGPRMC *pack )
 {
   int nsen;
   char type;
   char time_buff[NMEA_TIMEPARSE_BUF];
 
-  NMEA_ASSERT( buff && pack );
+  assert( buff && pack );
 
-  memset( pack, 0, sizeof( nmeaGPRMC ) );
+  memset( pack, 0, sizeof( struct nmeaGPRMC ) );
 
-  nmea_trace_buff( buff, buff_sz );
+  
 
-  nsen = nmea_scanf( buff, buff_sz,
+  nsen = _nmea_scanf( buff, buff_sz,
                      "$G%CRMC,%s,%C,%f,%C,%f,%C,%f,%f,%2d%2d%2d,%f,%C,%C,%C*",
                      &( type ), &( time_buff[0] ),
                      &( pack->status ), &( pack->lat ), &( pack->ns ), &( pack->lon ), &( pack->ew ),
@@ -656,19 +673,19 @@ int nmea_parse_GPRMC( const char *buff, int buff_sz, nmeaGPRMC *pack )
 
   if ( nsen < 14 || nsen > 16 )
   {
-    nmea_error( "G?RMC parse error!" );
+    LOG_ERROR( "G?RMC parse error!" );
     return 0;
   }
 
   if ( type != 'P' && type != 'N' )
   {
-    nmea_error( "G?RMC invalid type " );
+    LOG_ERROR( "G?RMC invalid type " );
     return 0;
   }
 
   if ( 0 != _nmea_parse_time( &time_buff[0], ( int )strlen( &time_buff[0] ), &( pack->utc ) ) )
   {
-    nmea_error( "GPRMC time parse error!" );
+    LOG_ERROR( "GPRMC time parse error!" );
     return 0;
   }
 
@@ -686,35 +703,35 @@ int nmea_parse_GPRMC( const char *buff, int buff_sz, nmeaGPRMC *pack )
  * @param pack a pointer of packet which will filled by function.
  * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
  */
-int nmea_parse_GPHDT( const char *buff, int buff_sz, nmeaGPHDT *pack )
+int nmea_parse_GPHDT( const char *buff, int buff_sz, struct nmeaGPHDT *pack )
 {
-  NMEA_ASSERT( buff && pack );
+  assert( buff && pack );
 
-  memset( pack, 0, sizeof( nmeaGPHDT ) );
+  memset( pack, 0, sizeof( struct nmeaGPHDT ) );
 
-  nmea_trace_buff( buff, buff_sz );
+  
 
   char type;
   char talker_id;
 
-  if ( 3 != nmea_scanf( buff, buff_sz,
+  if ( 3 != _nmea_scanf( buff, buff_sz,
                         "$G%CHDT,%f,%C*",
                         &( talker_id ),
                         &( pack->heading ), &( type ) ) )
   {
-    nmea_error( "G?HDT parse error!" );
+    LOG_ERROR( "G?HDT parse error!" );
     return 0;
   }
 
   if ( talker_id != 'P' && talker_id != 'N' )
   {
-    nmea_error( "G?HDT invalid type " );
+    LOG_ERROR( "G?HDT invalid type " );
     return 0;
   }
 
   if ( type != 'T' )
   {
-    nmea_error( "G?HDT invalid type " );
+    LOG_ERROR( "G?HDT invalid type " );
     return 0;
   }
 
@@ -728,17 +745,17 @@ int nmea_parse_GPHDT( const char *buff, int buff_sz, nmeaGPHDT *pack )
  * @param pack a pointer of packet which will filled by function.
  * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
  */
-int nmea_parse_GPVTG( const char *buff, int buff_sz, nmeaGPVTG *pack )
+int nmea_parse_GPVTG( const char *buff, int buff_sz, struct nmeaGPVTG *pack )
 {
-  NMEA_ASSERT( buff && pack );
+  assert( buff && pack );
 
-  memset( pack, 0, sizeof( nmeaGPVTG ) );
+  memset( pack, 0, sizeof( struct nmeaGPVTG ) );
 
-  nmea_trace_buff( buff, buff_sz );
+  
 
   char type;
 
-  if ( 9 != nmea_scanf( buff, buff_sz,
+  if ( 9 != _nmea_scanf( buff, buff_sz,
                         "$G%CVTG,%f,%C,%f,%C,%f,%C,%f,%C*",
                         &type,
                         &( pack->dir ), &( pack->dir_t ),
@@ -746,13 +763,13 @@ int nmea_parse_GPVTG( const char *buff, int buff_sz, nmeaGPVTG *pack )
                         &( pack->spn ), &( pack->spn_n ),
                         &( pack->spk ), &( pack->spk_k ) ) )
   {
-    nmea_error( "G?VTG parse error!" );
+    LOG_ERROR( "G?VTG parse error!" );
     return 0;
   }
 
   if ( type != 'P' && type != 'N' )
   {
-    nmea_error( "G?VTG invalid type " );
+    LOG_ERROR( "G?VTG invalid type " );
     return 0;
   }
 
@@ -761,7 +778,7 @@ int nmea_parse_GPVTG( const char *buff, int buff_sz, nmeaGPVTG *pack )
        pack->spn_n != 'N' ||
        pack->spk_k != 'K' )
   {
-    nmea_error( "G?VTG parse error (format error)!" );
+    LOG_ERROR( "G?VTG parse error (format error)!" );
     return 0;
   }
 
@@ -775,33 +792,33 @@ int nmea_parse_GPVTG( const char *buff, int buff_sz, nmeaGPVTG *pack )
  * @param pack a pointer of packet which will filled by function.
  * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
  */
-int nmea_parse_HCHDG( const char *buff, int buff_sz, nmeaHCHDG *pack )
+int nmea_parse_HCHDG( const char *buff, int buff_sz, struct nmeaHCHDG *pack )
 {
-  NMEA_ASSERT( buff && pack );
+  assert( buff && pack );
 
-  memset( pack, 0, sizeof( nmeaHCHDG ) );
+  memset( pack, 0, sizeof( struct nmeaHCHDG ) );
 
-  nmea_trace_buff( buff, buff_sz );
+  
 
-  if ( 5 != nmea_scanf( buff, buff_sz,
+  if ( 5 != _nmea_scanf( buff, buff_sz,
                         "$HCHDG,%f,%f,%C,%f,%C*",
                         &( pack->mag_heading ), &( pack->mag_deviation ),
                         &( pack->ew_deviation ), &( pack->mag_variation ),
                         &( pack->ew_variation ) ) )
   {
-    nmea_error( "HCHDG parse error!" );
+    LOG_ERROR( "HCHDG parse error!" );
     return 0;
   }
 
   if ( pack->ew_deviation != 'E' && pack->ew_deviation != 'W' )
   {
-    nmea_error( "HCHDG invalid deviation direction" );
+    LOG_ERROR( "HCHDG invalid deviation direction" );
     return 0;
   }
 
   if ( pack->ew_variation != 'E' && pack->ew_variation != 'W' )
   {
-    nmea_error( "HCHDG invalid variation direction" );
+    LOG_ERROR( "HCHDG invalid variation direction" );
     return 0;
   }
 
@@ -815,23 +832,19 @@ int nmea_parse_HCHDG( const char *buff, int buff_sz, nmeaHCHDG *pack )
  * @param pack a pointer of packet which will filled by function.
  * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
  */
-int nmea_parse_HCHDT( const char *buff, int buff_sz, nmeaHCHDT *pack )
+int nmea_parse_HCHDT(const char *buff, int buff_sz, struct nmeaHCHDT *pack)
 {
-  NMEA_ASSERT( buff && pack );
+    assert(buff && pack);
 
-  memset( pack, 0, sizeof( nmeaHCHDT ) );
+    memset(pack, 0, sizeof(struct nmeaHCHDT));
 
-  nmea_trace_buff( buff, buff_sz );
+    if (2 != _nmea_scanf(buff, buff_sz, "$HCHDT,%f,%C*", &(pack->direction),
+                         &(pack->t_flag))) {
+        LOG_ERROR("HCHDT parse error!");
+        return 0;
+    }
 
-  if ( 2 != nmea_scanf( buff, buff_sz,
-                        "$HCHDT,%f,%C*",
-                        &( pack->direction ), &( pack->t_flag ) ) )
-  {
-    nmea_error( "HCHDT parse error!" );
-    return 0;
-  }
-
-  return 1;
+    return 1;
 }
 
 /**
@@ -839,9 +852,9 @@ int nmea_parse_HCHDT( const char *buff, int buff_sz, nmeaHCHDT *pack )
  * @param pack a pointer of packet structure.
  * @param info a pointer of summary information structure.
  */
-void nmea_GPGGA2info( nmeaGPGGA *pack, nmeaINFO *info )
+void nmea_GPGGA2info( struct nmeaGPGGA *pack, struct nmeaINFO *info )
 {
-  NMEA_ASSERT( pack && info );
+  assert( pack && info );
 
   info->utc.hour = pack->utc.hour;
   info->utc.min = pack->utc.min;
@@ -860,9 +873,9 @@ void nmea_GPGGA2info( nmeaGPGGA *pack, nmeaINFO *info )
  * @param pack a pointer of packet structure.
  * @param info a pointer of summary information structure.
  */
-void nmea_GPGST2info( nmeaGPGST *pack, nmeaINFO *info )
+void nmea_GPGST2info(struct  nmeaGPGST *pack,struct  nmeaINFO *info )
 {
-  NMEA_ASSERT( pack && info );
+  assert( pack && info );
 
   info->utc.hour = pack->utc.hour;
   info->utc.min = pack->utc.min;
@@ -883,11 +896,11 @@ void nmea_GPGST2info( nmeaGPGST *pack, nmeaINFO *info )
  * @param pack a pointer of packet structure.
  * @param info a pointer of summary information structure.
  */
-void nmea_GPGSA2info( nmeaGPGSA *pack, nmeaINFO *info )
+void nmea_GPGSA2info(struct  nmeaGPGSA *pack,struct  nmeaINFO *info )
 {
   int i, j, nuse = 0;
 
-  NMEA_ASSERT( pack && info );
+  assert( pack && info );
 
   info->fix = pack->fix_type;
   info->PDOP = pack->PDOP;
@@ -915,11 +928,11 @@ void nmea_GPGSA2info( nmeaGPGSA *pack, nmeaINFO *info )
  * @param pack a pointer of packet structure.
  * @param info a pointer of summary information structure.
  */
-void nmea_GPGSV2info( nmeaGPGSV *pack, nmeaINFO *info )
+void nmea_GPGSV2info(struct  nmeaGPGSV *pack,struct  nmeaINFO *info )
 {
   int isat, isi, nsat;
 
-  NMEA_ASSERT( pack && info );
+  assert( pack && info );
 
   if ( pack->pack_index > pack->pack_count ||
        pack->pack_index * NMEA_SATINPACK > NMEA_MAXSAT )
@@ -950,29 +963,27 @@ void nmea_GPGSV2info( nmeaGPGSV *pack, nmeaINFO *info )
  * @param pack a pointer of packet structure.
  * @param info a pointer of summary information structure.
  */
-void nmea_GPRMC2info( nmeaGPRMC *pack, nmeaINFO *info )
+void nmea_GPRMC2info(struct nmeaGPRMC *pack, struct nmeaINFO *info)
 {
-  NMEA_ASSERT( pack && info );
+    assert(pack && info);
 
-  if ( 'A' == pack->status )
-  {
-    if ( NMEA_SIG_BAD == info->sig )
-      info->sig = NMEA_SIG_MID;
-    if ( NMEA_FIX_BAD == info->fix )
-      info->fix = NMEA_FIX_2D;
-  }
-  else if ( 'V' == pack->status )
-  {
-    info->sig = NMEA_SIG_BAD;
-    info->fix = NMEA_FIX_BAD;
-  }
+    if ('A' == pack->status) {
+        if (NMEA_SIG_BAD == info->sig)
+            info->sig = NMEA_SIG_MID;
+        if (NMEA_FIX_BAD == info->fix)
+            info->fix = NMEA_FIX_2D;
+    }
+    else if ('V' == pack->status) {
+        info->sig = NMEA_SIG_BAD;
+        info->fix = NMEA_FIX_BAD;
+    }
 
-  info->utc = pack->utc;
-  info->lat = ( ( pack->ns == 'N' ) ? pack->lat : -( pack->lat ) );
-  info->lon = ( ( pack->ew == 'E' ) ? pack->lon : -( pack->lon ) );
-  info->speed = pack->speed * NMEA_TUD_KNOTS;
-  info->direction = pack->direction;
-  info->smask |= GPRMC;
+    info->utc = pack->utc;
+    info->lat = ((pack->ns == 'N') ? pack->lat : -(pack->lat));
+    info->lon = ((pack->ew == 'E') ? pack->lon : -(pack->lon));
+    info->speed = pack->speed * NMEA_TUD_KNOTS;
+    info->direction = pack->direction;
+    info->smask |= GPRMC; 
 }
 
 /**
@@ -980,42 +991,35 @@ void nmea_GPRMC2info( nmeaGPRMC *pack, nmeaINFO *info )
  * @param pack a pointer of packet structure.
  * @param info a pointer of summary information structure.
  */
-void nmea_GPVTG2info( nmeaGPVTG *pack, nmeaINFO *info )
+void nmea_GPVTG2info(struct nmeaGPVTG *pack, struct nmeaINFO *info)
 {
-  NMEA_ASSERT( pack && info );
+    assert(pack && info);
 
-  info->direction = pack->dir;
-  info->declination = pack->dec;
-  info->speed = pack->spk;
-  info->smask |= GPVTG;
+    info->direction = pack->dir;
+    info->declination = pack->dec;
+    info->speed = pack->spk;
+    info->smask |= GPVTG;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
+/* ------------------------------------------ nmea math ----------------------------------------- */
 
 /**
  * \fn nmea_degree2radian
  * \brief Convert degree to radian
  */
-double nmea_degree2radian( double val )
-{ return ( val * NMEA_PI180 ); }
+double nmea_degree2radian(double val)
+{
+    return (val * (M_PI / 180));
+}
 
 /**
  * \fn nmea_radian2degree
  * \brief Convert radian to degree
  */
-double nmea_radian2degree( double val )
-{ return ( val / NMEA_PI180 ); }
+double nmea_radian2degree(double val)
+{
+    return (val / (M_PI / 180));
+}
 
 /**
  * \brief Convert NDEG (NMEA degree) to fractional degree
@@ -1030,58 +1034,67 @@ double nmea_ndeg2degree( double val )
 /**
  * \brief Convert fractional degree to NDEG (NMEA degree)
  */
-double nmea_degree2ndeg( double val )
+double nmea_degree2ndeg(double val)
 {
-  double int_part;
-  double fra_part;
-  fra_part = modf( val, &int_part );
-  val = int_part * 100 + fra_part * 60;
-  return val;
+    double int_part;
+    double fra_part;
+    fra_part = modf(val, &int_part);
+    val = int_part * 100 + fra_part * 60;
+    return val;
 }
 
 /**
  * \fn nmea_ndeg2radian
  * \brief Convert NDEG (NMEA degree) to radian
  */
-double nmea_ndeg2radian( double val )
-{ return nmea_degree2radian( nmea_ndeg2degree( val ) ); }
+double nmea_ndeg2radian(double val)
+{
+    return nmea_degree2radian(nmea_ndeg2degree(val));
+}
 
 /**
  * \fn nmea_radian2ndeg
  * \brief Convert radian to NDEG (NMEA degree)
  */
-double nmea_radian2ndeg( double val )
-{ return nmea_degree2ndeg( nmea_radian2degree( val ) ); }
+double nmea_radian2ndeg(double val)
+{
+    return nmea_degree2ndeg(nmea_radian2degree(val));
+}
 
 /**
  * \brief Calculate PDOP (Position Dilution Of Precision) factor
  */
-double nmea_calc_pdop( double hdop, double vdop )
+double nmea_calc_pdop(double hdop, double vdop)
 {
-  return sqrt( pow( hdop, 2 ) + pow( vdop, 2 ) );
+    return sqrt(pow(hdop, 2) + pow(vdop, 2));
 }
 
-double nmea_dop2meters( double dop )
-{ return ( dop * NMEA_DOP_FACTOR ); }
+double nmea_dop2meters(double dop)
+{
+    return (dop * NMEA_DOP_FACTOR);
+}
 
-double nmea_meters2dop( double meters )
-{ return ( meters / NMEA_DOP_FACTOR ); }
+double nmea_meters2dop(double meters)
+{
+    return (meters / NMEA_DOP_FACTOR);
+}
 
 /**
  * \brief Calculate distance between two points
  * \return Distance in meters
  */
-double nmea_distance(
-  const nmeaPOS *from_pos,    //!< From position in radians
-  const nmeaPOS *to_pos       //!< To position in radians
+double
+nmea_distance(const struct nmeaPOS *from_pos, //!< From position in radians
+              const struct nmeaPOS *to_pos    //!< To position in radians
 )
 {
-  double dist = ( ( double )NMEA_EARTHRADIUS_M ) * acos(
-                  sin( to_pos->lat ) * sin( from_pos->lat ) +
-                  cos( to_pos->lat ) * cos( from_pos->lat ) * cos( to_pos->lon - from_pos->lon )
-                );
-  return dist;
+    double dist = ((double)NMEA_EARTHRADIUS_M) *
+                  acos(sin(to_pos->lat) * sin(from_pos->lat) +
+                       cos(to_pos->lat) * cos(from_pos->lat) *
+                           cos(to_pos->lon - from_pos->lon));
+    return dist;
 }
+                    
 
 /**
  * \brief Calculate distance between two points
@@ -1091,8 +1104,8 @@ double nmea_distance(
  * \return Distance in meters
  */
 double nmea_distance_ellipsoid(
-  const nmeaPOS *from_pos,    //!< From position in radians
-  const nmeaPOS *to_pos,      //!< To position in radians
+  const  struct nmeaPOS *from_pos,    //!< From position in radians
+  const  struct nmeaPOS *to_pos,      //!< To position in radians
   double *from_azimuth,       //!< (O) azimuth at "from" position in radians
   double *to_azimuth          //!< (O) azimuth at "to" position in radians
 )
@@ -1105,8 +1118,8 @@ double nmea_distance_ellipsoid(
   double sqr_u, A, B, delta_sigma;
 
   /* Check input */
-  NMEA_ASSERT( from_pos != 0 );
-  NMEA_ASSERT( to_pos != 0 );
+  assert( from_pos != 0 );
+  assert( to_pos != 0 );
 
   if ( ( from_pos->lat == to_pos->lat ) && ( from_pos->lon == to_pos->lon ) )
   {
@@ -1207,13 +1220,13 @@ double nmea_distance_ellipsoid(
  * \brief Horizontal move of point position
  */
 int nmea_move_horz(
-  const nmeaPOS *start_pos,   //!< Start position in radians
-  nmeaPOS *end_pos,           //!< Result position in radians
+  const  struct  nmeaPOS *start_pos,   //!< Start position in radians
+   struct  nmeaPOS *end_pos,           //!< Result position in radians
   double azimuth,             //!< Azimuth (degree) [0, 359]
   double distance             //!< Distance (km)
 )
 {
-  nmeaPOS p1 = *start_pos;
+   struct  nmeaPOS p1 = *start_pos;
   int RetVal = 1;
 
   distance /= NMEA_EARTHRADIUS_KM; /* Angular distance covered on earth's surface */
@@ -1241,8 +1254,8 @@ int nmea_move_horz(
  * http://www.ngs.noaa.gov/PUBS_LIB/inverse.pdf
  */
 int nmea_move_horz_ellipsoid(
-  const nmeaPOS *start_pos,   //!< Start position in radians
-  nmeaPOS *end_pos,           //!< (O) Result position in radians
+  const  struct  nmeaPOS *start_pos,   //!< Start position in radians
+  struct   nmeaPOS *end_pos,           //!< (O) Result position in radians
   double azimuth,             //!< Azimuth in radians
   double distance,            //!< Distance (km)
   double *end_azimuth         //!< (O) Azimuth at end position in radians
@@ -1257,8 +1270,8 @@ int nmea_move_horz_ellipsoid(
   double tmp1, phi2, lambda, C, L;
 
   /* Check input */
-  NMEA_ASSERT( start_pos != 0 );
-  NMEA_ASSERT( end_pos != 0 );
+  assert( start_pos != 0 );
+  assert( end_pos != 0 );
 
   if ( fabs( distance ) < 1e-12 )
   {
@@ -1299,7 +1312,7 @@ int nmea_move_horz_ellipsoid(
   cos_2_sigmam = cos( 2 * sigma1 + sigma );
   sqr_cos_2_sigmam = cos_2_sigmam * cos_2_sigmam;
   delta_sigma = 0;
-  sigma_prev = 2 * NMEA_PI;
+  sigma_prev = 2 * M_PI;
   remaining_steps = 20;
 
   while ( ( fabs( sigma - sigma_prev ) > 1e-12 ) && ( remaining_steps > 0 ) )
@@ -1336,81 +1349,79 @@ int nmea_move_horz_ellipsoid(
         ( cos_2_sigmam + C * cos_sigma * ( -1 + 2 * sqr_cos_2_sigmam ) )
       );
 
-  /* Result */
-  end_pos->lon = start_pos->lon + L;
-  end_pos->lat = phi2;
-  if ( end_azimuth != 0 )
-  {
-    *end_azimuth = atan2(
-                     sin_alpha, -sin_U1 * sin_sigma + cos_U1 * cos_sigma * cos_alpha1
-                   );
-  }
-  return !( NMEA_POSIX( isnan )( end_pos->lat ) || NMEA_POSIX( isnan )( end_pos->lon ) );
+    /* Result */
+    end_pos->lon = start_pos->lon + L;
+    end_pos->lat = phi2;
+    if (end_azimuth != 0) {
+        *end_azimuth = atan2(sin_alpha, -sin_U1 * sin_sigma +
+                                            cos_U1 * cos_sigma * cos_alpha1);
+    }
+    return !(NMEA_POSIX(isnan)(end_pos->lat) ||
+             NMEA_POSIX(isnan)(end_pos->lon));
 }
 
 /**
  * \brief Convert position from INFO to radians position
  */
-void nmea_info2pos( const nmeaINFO *info, nmeaPOS *pos )
+void nmea_info2pos(const struct nmeaINFO *info, struct nmeaPOS *pos)
 {
-  pos->lat = nmea_ndeg2radian( info->lat );
-  pos->lon = nmea_ndeg2radian( info->lon );
+    pos->lat = nmea_ndeg2radian(info->lat);
+    pos->lon = nmea_ndeg2radian(info->lon);
 }
 
 /**
  * \brief Convert radians position to INFOs position
  */
-void nmea_pos2info( const nmeaPOS *pos, nmeaINFO *info )
+void nmea_pos2info(const struct nmeaPOS *pos, struct nmeaINFO *info)
 {
-  info->lat = nmea_radian2ndeg( pos->lat );
-  info->lon = nmea_radian2ndeg( pos->lon );
+    info->lat = nmea_radian2ndeg(pos->lat);
+    info->lon = nmea_radian2ndeg(pos->lon);
 }
 
-
-
-
-void nmea_zero_INFO( nmeaINFO *info )
+void nmea_zero_INFO(struct nmeaINFO *info)
 {
-  memset( info, 0, sizeof( nmeaINFO ) );
-  nmea_time_now( &info->utc );
-  info->sig = NMEA_SIG_BAD;
-  info->fix = NMEA_FIX_BAD;
+    memset(info, 0, sizeof(struct nmeaINFO));
+    nmea_time_now(&info->utc);
+    info->sig = NMEA_SIG_BAD;
+    info->fix = NMEA_FIX_BAD;
 }
-
-
 
 #ifdef _WIN32
 
-void nmea_time_now( nmeaTIME *stm )
+#include <Windows.h>
+
+void nmea_time_now(struct nmeaTIME *stm)
 {
-  SYSTEMTIME st;
+    SYSTEMTIME st;
 
-  GetSystemTime( &st );
+    GetSystemTime(&st);
 
-  stm->year = st.wYear - 1900;
-  stm->mon = st.wMonth - 1;
-  stm->day = st.wDay;
-  stm->hour = st.wHour;
-  stm->min = st.wMinute;
-  stm->sec = st.wSecond;
-  stm->msec = st.wMilliseconds;
+    stm->year = st.wYear - 1900;
+    stm->mon = st.wMonth - 1;
+    stm->day = st.wDay;
+    stm->hour = st.wHour;
+    stm->min = st.wMinute;
+    stm->sec = st.wSecond;
+    stm->msec = st.wMilliseconds;
 }
 
 #else
 
-void nmea_time_now( nmeaTIME *stm )
+void nmea_time_now(struct nmeaTIME *stm)
 {
-  time_t lt;
-  struct tm *tt;
+    time_t lt;
+    struct tm *tt;
 
-  time( &lt );
-  tt = gmtime( &lt );
+    time(&lt);
+    tt = gmtime(&lt);
 
-  stm->year = tt->tm_year;
-  stm->mon = tt->tm_mon;
-  stm->day = tt->tm_mday;
-  stm->hour = tt->tm_hour;
-  stm->min = tt->tm_min;
-  stm->sec = tt->tm_sec;
-  stm->msec = 0;
+    stm->year = tt->tm_year;
+    stm->mon = tt->tm_mon;
+    stm->day = tt->tm_mday;
+    stm->hour = tt->tm_hour;
+    stm->min = tt->tm_min;
+    stm->sec = tt->tm_sec;
+    stm->msec = 0;
 }
+
+#endif
