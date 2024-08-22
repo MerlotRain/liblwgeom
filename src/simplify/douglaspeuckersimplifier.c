@@ -7,12 +7,12 @@ struct int_simplify_rdp {
     struct bitset *usef; ///< useful points
 };
 
-void pri_simplify_section(int i, int j, struct int_simplify_rdp *intrdp)
+static void _simplify_section(int i, int j, struct int_simplify_rdp *intrdp)
 {
     
 }
 
-static struct mg_object *pri_simplify_line(const struct mg_object *obj)
+static struct mg_object *_simplify_line(const struct mg_object *obj)
 {
     if (obj == NULL)
         return NULL;
@@ -32,7 +32,7 @@ static struct mg_object *pri_simplify_line(const struct mg_object *obj)
         return NULL;
     }
 
-    pri_simplify_section(0, obj->npoints - 1, intrdp);
+    _simplify_section(0, obj->npoints - 1, intrdp);
 
     return NULL;
 }

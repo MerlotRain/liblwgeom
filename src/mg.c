@@ -118,7 +118,7 @@ struct mg_object *mg_create_multi(int gdim, int snum, struct mg_object **subs)
     return obj;
 }
 
-void pri_mg_free_object(struct mg_object *g)
+void _mg_free_object(struct mg_object *g)
 {
     assert(g);
     if (g->flag != 0) {
@@ -131,14 +131,14 @@ void mg_free_object(struct mg_object *g)
 {
     assert(g);
     if (g->ngeoms == 1) {
-        pri_mg_free_object(g);
+        _mg_free_object(g);
     }
     else {
         for (int i = 0; i < g->ngeoms; ++i) {
             struct mg_object *sub = g->objects[i];
             if (sub == NULL)
                 continue;
-            pri_mg_free_object(sub);
+            _mg_free_object(sub);
         }
     }
 }
@@ -313,27 +313,23 @@ double tolerence()
 
 /* --------------------------- geometry algorithm --------------------------- */
 
-bool mg_check_single_ring(const struct mg_object *obj)
+bool mg_check_single_ring(const double *pp, int npoints, int cdim)
 {
-    assert(obj);
-    if (obj->ngeoms != 1)
-        return false;
-
+    assert(pp);
     // At least 4 points are required to form a ring
-    if (obj->npoints < 4)
-        return false;
+    if (npoints < 4) return false;
 
-    double x0 = obj->pp[0];
-    double y0 = obj->pp[1];
-    double xn = obj->pp[(ptrdiff_t)(obj->npoints * obj->cdim)];
-    double yn = obj->pp[(ptrdiff_t)(obj->npoints * obj->cdim + 1)];
+    double x0 = pp[0];
+    double y0 = pp[1];
+    double xn = pp[(ptrdiff_t) (npoints * cdim)];
+    double yn = pp[(ptrdiff_t) (npoints * cdim + 1)];
 
     return MG_DOUBLE_NEARES2(x0, xn) && MG_DOUBLE_NEARES2(y0, yn);
 }
 
-bool mg_ccw(const struct mg_object *obj)
+bool mg_ccw(const double *pp, int npoints, int cdim)
 {
-    if (!mg_check_single_ring(obj))
+    if (!mg_check_single_ring(pp, npoints, cdim))
         return false;
 
     // The ring must be a convex point at the vertex extreme value, which is the
@@ -346,24 +342,28 @@ bool mg_ccw(const struct mg_object *obj)
     // point on the ring is the same as that of the lowest point.
 
     // of points without closing endpoint
-    int inPts = obj->npoints - 1;
-    if (inPts < 3)
-        return false;
-
-    double upHeiPx = obj->pp[0];
-    double upHeiPy = obj->pp[1];
-    double upLowPx = 0;
-    double upLowPy = 0;
-
-    double prevY = upHeiPy;
-    for (int i = 1; i <= inPts; ++i) {
-        double py = obj->pp[(ptrdiff_t)(i * obj->cdim + 1)];
-        if (py > prevY) {
+    // Search for the highest point
+    double lowY = pp[1];
+    int lowIndex = 0;
+    for (int i = 0; i < npoints; ++i)
+    {
+        double ty = pp[(ptrdiff_t) (i * cdim + 1)];
+        if (ty < lowY)
+        {
+            lowIndex = i;
+            lowY = ty;
         }
-        prevY = py;
     }
 
-    return 0;
+    double x1 = pp[(ptrdiff_t) ((lowIndex - 1) * cdim)];
+    double y1 = pp[(ptrdiff_t) ((lowIndex - 1) * cdim + 1)];
+    double x2 = pp[(ptrdiff_t) (lowIndex * cdim)];
+    double y2 = pp[(ptrdiff_t) (lowIndex * cdim + 1)];
+    double x3 = pp[(ptrdiff_t) (((lowIndex + 1) % npoints) * cdim)];
+    double y3 = pp[(ptrdiff_t) (((lowIndex + 1) % npoints) * cdim + 1)];
+
+    double r = (x2 - x1) * (y3 - y2) - (y2 - y1) * (x3 - x2);
+    return (r > 0) ? true : false; 
 }
 
 double mg_prop_value(const struct mg_object *obj, int mode)
