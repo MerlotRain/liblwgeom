@@ -1,5 +1,4 @@
 /*****************************************************************************/
-/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
 /*                                                                           */
 /*  Copyright (C) 2013-2024 Merlot.Rain                                      */
 /*                                                                           */
@@ -10,7 +9,7 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mgp.h"
+#include "nvp.h"
 
 #include "ordinate.h"
 #include "stok.h"
@@ -37,29 +36,30 @@ static char *_inwkt_get_next_empty_or_opener(stok *token,
 
 static char *_inwkt_get_next_closer_comma(stok *token);
 
-static struct mg_object *_inwkt_read_point(stok *token, struct Ordinate *flag);
-
-static struct mg_object *_inwkt_read_linestring(stok *token,
-                                                struct Ordinate *flag);
-
-static struct mg_object *_inwkt_read_linearring(stok *token,
-                                                struct Ordinate *flag);
-
-static struct mg_object *_inwkt_read_polygon(stok *token,
+static struct nv_geobject *_inwkt_read_point(stok *token,
                                              struct Ordinate *flag);
 
-static struct mg_object *_inwkt_read_multipoint(stok *token,
-                                                struct Ordinate *flag);
-
-static struct mg_object *_inwkt_read_multilinestring(stok *token,
-                                                     struct Ordinate *flag);
-
-static struct mg_object *_inwkt_read_multipolygon(stok *token,
+static struct nv_geobject *_inwkt_read_linestring(stok *token,
                                                   struct Ordinate *flag);
+
+static struct nv_geobject *_inwkt_read_linearring(stok *token,
+                                                  struct Ordinate *flag);
+
+static struct nv_geobject *_inwkt_read_polygon(stok *token,
+                                               struct Ordinate *flag);
+
+static struct nv_geobject *_inwkt_read_multipoint(stok *token,
+                                                  struct Ordinate *flag);
+
+static struct nv_geobject *_inwkt_read_multilinestring(stok *token,
+                                                       struct Ordinate *flag);
+
+static struct nv_geobject *_inwkt_read_multipolygon(stok *token,
+                                                    struct Ordinate *flag);
 
 /* -------------------------------- inner wkt ------------------------------- */
 
-struct mg_object *mg_read_wkt(const char *data, size_t len)
+struct nv_geobject *mg_read_wkt(const char *data, size_t len)
 {
     char *p = setlocale(LC_NUMERIC, NULL);
     setlocale(LC_NUMERIC, "C");
@@ -268,7 +268,7 @@ static void _inwkt_get_precise_coordinates(stok *token, struct Ordinate *flag,
     flag->changeAllowed = false;
 }
 
-struct mg_object *_inwkt_read_point(stok *token, struct Ordinate *flag)
+struct nv_geobject *_inwkt_read_point(stok *token, struct Ordinate *flag)
 {
     double *coord = NULL;
     int n = 0;
@@ -280,7 +280,7 @@ struct mg_object *_inwkt_read_point(stok *token, struct Ordinate *flag)
     return NULL;
 }
 
-struct mg_object *_inwkt_read_linestring(stok *token, struct Ordinate *flag)
+struct nv_geobject *_inwkt_read_linestring(stok *token, struct Ordinate *flag)
 {
     double *coord = NULL;
     int n = 0;
@@ -292,7 +292,7 @@ struct mg_object *_inwkt_read_linestring(stok *token, struct Ordinate *flag)
     return NULL;
 }
 
-struct mg_object *_inwkt_read_linearring(stok *token, struct Ordinate *flag)
+struct nv_geobject *_inwkt_read_linearring(stok *token, struct Ordinate *flag)
 {
     double *coord = NULL;
     int n = 0;
@@ -304,17 +304,17 @@ struct mg_object *_inwkt_read_linearring(stok *token, struct Ordinate *flag)
     return NULL;
 }
 
-struct mg_object *_inwkt_read_polygon(stok *token, struct Ordinate *flag)
+struct nv_geobject *_inwkt_read_polygon(stok *token, struct Ordinate *flag)
 {
     char *nextToken = _inwkt_get_next_empty_or_opener(token, flag);
     if (strncmp(nextToken, "EMPTY", 5) == 0)
         return NULL;
 
-    struct mg_object **subs =
-        (struct mg_object **)calloc(1, sizeof(struct mg_object *));
+    struct nv_geobject **subs =
+        (struct nv_geobject **)calloc(1, sizeof(struct nv_geobject *));
     if (subs == NULL)
         return NULL;
-    struct mg_object *shell = _inwkt_read_linearring(token, flag);
+    struct nv_geobject *shell = _inwkt_read_linearring(token, flag);
     subs[0] = shell;
     nextToken = _inwkt_get_next_closer_comma(token);
     while (strcmp(nextToken, ",") == 0) {
@@ -323,18 +323,18 @@ struct mg_object *_inwkt_read_polygon(stok *token, struct Ordinate *flag)
     return NULL;
 }
 
-struct mg_object *_inwkt_read_multipoint(stok *token, struct Ordinate *flag)
+struct nv_geobject *_inwkt_read_multipoint(stok *token, struct Ordinate *flag)
 {
     return NULL;
 }
 
-struct mg_object *_inwkt_read_multilinestring(stok *token,
-                                              struct Ordinate *flag)
+struct nv_geobject *_inwkt_read_multilinestring(stok *token,
+                                                struct Ordinate *flag)
 {
     return NULL;
 }
 
-struct mg_object *_inwkt_read_multipolygon(stok *token, struct Ordinate *flag)
+struct nv_geobject *_inwkt_read_multipolygon(stok *token, struct Ordinate *flag)
 {
     return NULL;
 }

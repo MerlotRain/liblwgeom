@@ -1,5 +1,4 @@
 /*****************************************************************************/
-/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
 /*                                                                           */
 /*  Copyright (C) 2013-2024 Merlot.Rain                                      */
 /*                                                                           */
@@ -10,10 +9,9 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mgp.h"
-#include "mg.h"
+#include "nvp.h"
 
-struct mg_object *mg_read_ewkb(const char *data, size_t len)
+struct nv_geobject *mg_read_ewkb(const char *data, size_t len)
 {
     return NULL;
 }

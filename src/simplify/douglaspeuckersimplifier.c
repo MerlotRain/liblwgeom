@@ -1,5 +1,5 @@
-#include "mgp.h"
-#include "bitset.h"
+#include "nvp.h"
+#include <bitset.h>
 
 struct int_simplify_rdp {
     int np;              ///< number of points
@@ -11,7 +11,7 @@ static void _simplify_section(int i, int j, struct int_simplify_rdp *intrdp)
 {
 }
 
-static struct mg_object *_simplify_line(const struct mg_object *obj)
+static struct nv_geobject *_simplify_line(const struct nv_geobject *obj)
 {
     if (obj == NULL)
         return NULL;
@@ -36,8 +36,8 @@ static struct mg_object *_simplify_line(const struct mg_object *obj)
     return NULL;
 }
 
-struct mg_object *
-mg_prop_geo_simpily_douglaspeucker(const struct mg_object *obj)
+struct nv_geobject *
+mg_prop_geo_simpily_douglaspeucker(const struct nv_geobject *obj)
 {
     if (obj == NULL)
         return NULL;

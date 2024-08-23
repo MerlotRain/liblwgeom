@@ -1,5 +1,4 @@
 /*****************************************************************************/
-/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
 /*                                                                           */
 /*  Copyright (C) 2013-2024 Merlot.Rain                                      */
 /*                                                                           */
@@ -53,7 +52,8 @@ int io_wktSuite()
     CU_pSuite pSuite = NULL;
     pSuite = CU_add_suite("io-wkt", init_wkt_suite, clean_wkt_suite);
 
-    if (NULL == CU_add_test(pSuite, "wkt Test1", io_wkt_Test1) || NULL == CU_add_test(pSuite, "wkt Test2", io_wkt_Test2)) {
+    if (NULL == CU_add_test(pSuite, "wkt Test1", io_wkt_Test1) ||
+        NULL == CU_add_test(pSuite, "wkt Test2", io_wkt_Test2)) {
         return CU_get_error();
     }
     return CUE_SUCCESS;

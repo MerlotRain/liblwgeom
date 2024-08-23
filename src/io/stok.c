@@ -1,5 +1,4 @@
 /*****************************************************************************/
-/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
 /*                                                                           */
 /*  Copyright (C) 2013-2024 Merlot.Rain                                      */
 /*                                                                           */
@@ -12,6 +11,8 @@
 
 #include "stok.h"
 #include <limits.h>
+#include <stdlib.h>
+#include <string.h>
 
 static double strtod_with_vc_fix(const char *str, char **str_end)
 {

@@ -1,5 +1,4 @@
 /*****************************************************************************/
-/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
 /*                                                                           */
 /*  Copyright (C) 2013-2024 Merlot.Rain                                      */
 /*                                                                           */
@@ -13,7 +12,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
-#include "rtree.h"
+#include "nv.h"
 
 #define DIMS                2
 #define MAXITEMS            64

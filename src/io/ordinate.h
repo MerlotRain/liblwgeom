@@ -1,5 +1,4 @@
 /*****************************************************************************/
-/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
 /*                                                                           */
 /*  Copyright (C) 2013-2024 Merlot.Rain                                      */
 /*                                                                           */
@@ -13,7 +12,8 @@
 #ifndef ORDINATE_H
 #define ORDINATE_H
 
-#include <mathse.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cpluscplus
 extern "C" {

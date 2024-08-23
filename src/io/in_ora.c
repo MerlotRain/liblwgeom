@@ -1,5 +1,4 @@
 /*****************************************************************************/
-/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
 /*                                                                           */
 /*  Copyright (C) 2013-2024 Merlot.Rain                                      */
 /*                                                                           */
@@ -10,7 +9,7 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include "mgp.h"
+#include "nvp.h"
 
 struct mg_sdo_elem_info {
     int sdo_starting_offset;
@@ -18,7 +17,7 @@ struct mg_sdo_elem_info {
     int sdo_interpretation;
 };
 
-struct mg_object *mg_read_ora(const struct sdo_geometry sdo, int flag)
+struct nv_geobject *mg_read_ora(const struct sdo_geometry sdo, int flag)
 {
     int dimension = 2 > (sdo.sdo_gtype / 1000) ? 2 : (sdo.sdo_gtype / 1000);
 
@@ -30,7 +29,7 @@ struct mg_object *mg_read_ora(const struct sdo_geometry sdo, int flag)
         }
     }
     else if (tt > 4 && tt < 8) {
-        // multi mg_object
+        // multi nv_geobject
     }
     return NULL;
 }
