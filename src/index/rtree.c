@@ -114,6 +114,10 @@ static bool feq(double a, double b)
     return !(a < b || a > b);
 }
 
+// nv_rtree_set_udata sets the user-defined data.
+//
+// This should be called once after nv_rtree_new() and is only used for
+// the item callbacks as defined in nv_rtree_set_item_callbacks().
 void nv_rtree_set_udata(struct nv_rtree *tr, void *udata)
 {
     tr->udata = udata;
@@ -511,6 +515,9 @@ static bool node_insert(struct nv_rtree *tr, struct rect *nr, struct node *node,
     return node_insert(tr, nr, node, ir, item, depth, split);
 }
 
+// nv_rtree_new returns a new rtree
+//
+// Returns NULL if the system is out of memory.
 struct nv_rtree *nv_rtree_new(void)
 {
     struct nv_rtree *tr =
@@ -521,6 +528,14 @@ struct nv_rtree *nv_rtree_new(void)
     return tr;
 }
 
+// nv_rtree_set_item_callbacks sets the item clone and free callbacks that will
+// be called internally by the rtree when items are inserted and removed.
+//
+// These callbacks are optional but may be needed by programs that require
+// copy-on-write support by using the nv_rtree_clone function.
+//
+// The clone function should return true if the clone succeeded or false if the
+// system is out of memory.
 void nv_rtree_set_item_callbacks(struct nv_rtree *tr,
                                  bool (*clone)(const void *item, void **into,
                                                void *udata),
@@ -530,6 +545,17 @@ void nv_rtree_set_item_callbacks(struct nv_rtree *tr,
     tr->item_free = free;
 }
 
+// nv_rtree_insert inserts an item into the rtree.
+//
+// This operation performs a copy of the data that is pointed to in the second
+// and third arguments. The R-tree expects a rectangle, which is two arrays of
+// doubles. The first N values as the minimum corner of the rect, and the next
+// N values as the maximum corner of the rect, where N is the number of
+// dimensions.
+//
+// When inserting points, the max coordinates is optional (set to NULL).
+//
+// Returns false if the system is out of memory.
 bool nv_rtree_insert(struct nv_rtree *tr, const double *min, const double *max,
                      const void *data)
 {
@@ -593,6 +619,7 @@ bool nv_rtree_insert(struct nv_rtree *tr, const double *min, const double *max,
     return false;
 }
 
+// nv_rtree_free frees an rtree
 void nv_rtree_free(struct nv_rtree *tr)
 {
     if (tr->root) {
@@ -627,6 +654,10 @@ static bool node_search(struct node *node, struct rect *rect,
     return true;
 }
 
+// nv_rtree_search searches the rtree and iterates over each item that intersect
+// the provided rectangle.
+//
+// Returning false from the iter will stop the search.
 void nv_rtree_search(const struct nv_rtree *tr, const double min[],
                      const double max[],
                      bool (*iter)(const double min[], const double max[],
@@ -665,6 +696,9 @@ static bool node_scan(struct node *node,
     return true;
 }
 
+// nv_rtree_scan iterates over every item in the rtree.
+//
+// Returning false from the iter will stop the scan.
 void nv_rtree_scan(const struct nv_rtree *tr,
                    bool (*iter)(const double *min, const double *max,
                                 const void *data, void *udata),
@@ -675,6 +709,7 @@ void nv_rtree_scan(const struct nv_rtree *tr,
     }
 }
 
+// nv_rtree_count returns the number of items in the rtree.
 size_t nv_rtree_count(const struct nv_rtree *tr)
 {
     return tr->count;
@@ -822,12 +857,25 @@ static bool nv_rtree_delete0(
     return true;
 }
 
+// nv_rtree_delete deletes an item from the rtree.
+//
+// This searches the tree for an item that is contained within the provided
+// rectangle, and perform a binary comparison of its data to the provided
+// data. The first item that is found is deleted.
+//
+// Returns false if the system is out of memory.
 bool nv_rtree_delete(struct nv_rtree *tr, const double *min, const double *max,
                      const void *data)
 {
     return nv_rtree_delete0(tr, min, max, data, NULL, NULL);
 }
 
+// nv_rtree_delete_with_comparator deletes an item from the rtree.
+// This searches the tree for an item that is contained within the provided
+// rectangle, and perform a comparison of its data to the provided data using
+// a compare function. The first item that is found is deleted.
+//
+// Returns false if the system is out of memory.
 bool nv_rtree_delete_with_comparator(
     struct nv_rtree *tr, const double *min, const double *max, const void *data,
     int (*compare)(const void *a, const void *b, void *udata), void *udata)
@@ -835,6 +883,9 @@ bool nv_rtree_delete_with_comparator(
     return nv_rtree_delete0(tr, min, max, data, compare, udata);
 }
 
+// nv_rtree_clone makes an instant copy of the btree.
+//
+// This operation uses shadowing / copy-on-write.
 struct nv_rtree *nv_rtree_clone(struct nv_rtree *tr)
 {
     if (!tr)
@@ -849,6 +900,9 @@ struct nv_rtree *nv_rtree_clone(struct nv_rtree *tr)
     return tr2;
 }
 
+// nv_rtree_opt_relaxed_atomics activates memory_order_relaxed for all atomic
+// loads. This may increase performance for single-threaded programs.
+// Optionally, define RTREE_NOATOMICS to disbale all atomics.
 void nv_rtree_opt_relaxed_atomics(struct nv_rtree *tr)
 {
     tr->relaxed = true;

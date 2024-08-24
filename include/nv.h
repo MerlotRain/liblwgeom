@@ -408,453 +408,350 @@ NV_EXTERN void nv_kmeans(struct nv_reader2 *P, int n, struct nv_reader2 **W);
 
 /* ---------------------------------- RTree --------------------------------- */
 
-// nv_rtree_new returns a new rtree
-//
-// Returns NULL if the system is out of memory.
 NV_EXTERN struct nv_rtree *nv_rtree_new(void);
-
-// nv_rtree_free frees an rtree
 NV_EXTERN void nv_rtree_free(struct nv_rtree *tr);
-
-// nv_rtree_clone makes an instant copy of the btree.
-//
-// This operation uses shadowing / copy-on-write.
 NV_EXTERN struct nv_rtree *nv_rtree_clone(struct nv_rtree *tr);
-
-// nv_rtree_set_item_callbacks sets the item clone and free callbacks that will
-// be called internally by the rtree when items are inserted and removed.
-//
-// These callbacks are optional but may be needed by programs that require
-// copy-on-write support by using the nv_rtree_clone function.
-//
-// The clone function should return true if the clone succeeded or false if the
-// system is out of memory.
 NV_EXTERN void nv_rtree_set_item_callbacks(
     struct nv_rtree *tr,
     bool (*clone)(const void *item, void **into, void *udata),
     void (*free)(const void *item, void *udata));
-
-// nv_rtree_set_udata sets the user-defined data.
-//
-// This should be called once after nv_rtree_new() and is only used for
-// the item callbacks as defined in nv_rtree_set_item_callbacks().
 NV_EXTERN void nv_rtree_set_udata(struct nv_rtree *tr, void *udata);
-
-// nv_rtree_insert inserts an item into the rtree.
-//
-// This operation performs a copy of the data that is pointed to in the second
-// and third arguments. The R-tree expects a rectangle, which is two arrays of
-// doubles. The first N values as the minimum corner of the rect, and the next
-// N values as the maximum corner of the rect, where N is the number of
-// dimensions.
-//
-// When inserting points, the max coordinates is optional (set to NULL).
-//
-// Returns false if the system is out of memory.
 NV_EXTERN bool nv_rtree_insert(struct nv_rtree *tr, const double *min,
                                const double *max, const void *data);
-
-// nv_rtree_search searches the rtree and iterates over each item that intersect
-// the provided rectangle.
-//
-// Returning false from the iter will stop the search.
 NV_EXTERN void
 nv_rtree_search(const struct nv_rtree *tr, const double *min, const double *max,
                 bool (*iter)(const double *min, const double *max,
                              const void *data, void *udata),
                 void *udata);
-
-// nv_rtree_scan iterates over every item in the rtree.
-//
-// Returning false from the iter will stop the scan.
 NV_EXTERN void nv_rtree_scan(const struct nv_rtree *tr,
                              bool (*iter)(const double *min, const double *max,
                                           const void *data, void *udata),
                              void *udata);
-
-// nv_rtree_count returns the number of items in the rtree.
 NV_EXTERN size_t nv_rtree_count(const struct nv_rtree *tr);
-
-// nv_rtree_delete deletes an item from the rtree.
-//
-// This searches the tree for an item that is contained within the provided
-// rectangle, and perform a binary comparison of its data to the provided
-// data. The first item that is found is deleted.
-//
-// Returns false if the system is out of memory.
 NV_EXTERN bool nv_rtree_delete(struct nv_rtree *tr, const double *min,
                                const double *max, const void *data);
-
-// nv_rtree_delete_with_comparator deletes an item from the rtree.
-// This searches the tree for an item that is contained within the provided
-// rectangle, and perform a comparison of its data to the provided data using
-// a compare function. The first item that is found is deleted.
-//
-// Returns false if the system is out of memory.
 NV_EXTERN bool nv_rtree_delete_with_comparator(
     struct nv_rtree *tr, const double *min, const double *max, const void *data,
     int (*compare)(const void *a, const void *b, void *udata), void *udata);
-
-// nv_rtree_opt_relaxed_atomics activates memory_order_relaxed for all atomic
-// loads. This may increase performance for single-threaded programs.
-// Optionally, define RTREE_NOATOMICS to disbale all atomics.
 NV_EXTERN void nv_rtree_opt_relaxed_atomics(struct nv_rtree *tr);
 
 /* ---------------------------------- NMEA ---------------------------------- */
 
-// #define NMEA_NV_MAXSAT    (12)
-// #define NMEA_SATINPACK (4)
-// #define NMEA_NSATPACKS (NMEA_NV_MAXSAT / NMEA_SATINPACK)
+#define NMEA_MAXSAT    (12)
+#define NMEA_SATINPACK (4)
+#define NMEA_NSATPACKS (NMEA_MAXSAT / NMEA_SATINPACK)
+/**
+ * Information about satellite
+ * \see nmeaSATINFO
+ * \see nmeaGPGSV
+ */
+struct nmeaSATELLITE {
+    int id;      ///< Satellite PRN number
+    int in_use;  ///< Used in position fix
+    int elv;     ///< Elevation in degrees, 90 maximum
+    int azimuth; ///< Azimuth, degrees from true north, 000 to 359
+    int sig;     ///< Signal, 00-99 dB
+};
+struct nmeaTIME {
+    int year; ///< Years since 1900
+    int mon;  ///< Months since January - [0,11]
+    int day;  ///< Day of the month - [1,31]
+    int hour; ///< Hours since midnight - [0,23]
+    int min;  ///< Minutes after the hour - [0,59]
+    int sec;  ///< Seconds after the minute - [0,59]
+    int msec; ///< Thousandths part of second - [0,999]
+};
+/**
+ * \brief Get time now to nmeaTIME structure
+ */
+void nmea_time_now(struct nmeaTIME *t);
+/**
+ * NMEA packets type which parsed and generated by library
+ */
+enum nmeaPACKTYPE {
+    GPNON = 0x0000, //!< Unknown packet type.
+    GPGGA = 0x0001, //!< GGA - Essential fix data which provide 3D location and
+                    //!< accuracy data.
+    GPGSA = 0x0002, //!< GSA - GPS receiver operating mode, SVs used for
+                    //!< navigation, and DOP values.
+    GPGSV = 0x0004, //!< GSV - Number of SVs in view, PRN numbers, elevation,
+                    //!< azimuth & SNR values.
+    GPRMC = 0x0008, //!< RMC - Recommended Minimum Specific GPS/TRANSIT Data.
+    GPVTG = 0x0010, //!< VTG - Actual track made good and speed over ground.
+    GPGST = 0x0012, //!< GST - GPS Pseudorange Noise Statistics
+    HCHDG = 0x0020, //!< HDG - Heading, Deviation and Variation
+    HCHDT = 0x0100, //!< HDT - Heading reference to true north
+};
 
-// /**
-//  * Information about satellite
-//  * \see nmeaSATINFO
-//  * \see nmeaGPGSV
-//  */
-// struct nmeaSATELLITE {
-//     int id;      ///< Satellite PRN number
-//     int in_use;  ///< Used in position fix
-//     int elv;     ///< Elevation in degrees, 90 maximum
-//     int azimuth; ///< Azimuth, degrees from true north, 000 to 359
-//     int sig;     ///< Signal, 00-99 dB
-// };
+/**
+ * GGA packet information structure (Global Positioning System Fix Data)
+ */
+struct nmeaGPGGA {
+    struct nmeaTIME utc; //!< UTC of position (just time)
+    double lat;          //!< Latitude in NDEG - [degree][min].[sec/60]
+    char ns;             //!< [N]orth or [S]outh
+    double lon;          //!< Longitude in NDEG - [degree][min].[sec/60]
+    char ew;             //!< [E]ast or [W]est
+    int sig; //!< GPS quality indicator (0 = Invalid; 1 = Fix; 2 = Differential,
+             //!< 3 = Sensitive)
+    int satinuse;   //!< Number of satellites in use (not those in view)
+    double HDOP;    //!< Horizontal dilution of precision
+    double elv;     //!< Antenna altitude above/below mean sea level (geoid)
+    char elv_units; //!< [M]eters (Antenna height unit)
+    double diff; //!< Geoidal separation (Diff. between WGS-84 earth ellipsoid
+                 //!< and mean sea level. '-' = geoid is below WGS-84 ellipsoid)
+    char diff_units; //!< [M]eters (Units of geoidal separation)
+    double dgps_age; //!< Time in seconds since last DGPS update
+    int dgps_sid;    //!< DGPS station ID number
+};
+/**
+ * GST packet information structure (GPS Pseudorange Noise Statistics)
+ */
+struct nmeaGPGST {
+    struct nmeaTIME utc; //!< UTC of position fix
+    double rms_pr; //!< RMS value of the pseudorange residuals; Includes carrier
+                   //!< phase residuals during periods of RTK (float) and RTK
+                   //!< (fixed) processing
+    double
+        err_major; //!< Error ellipse semi-major axis 1 sigma error, in meters
+    double
+        err_minor;  //!< Error ellipse semi-minor axis 1 sigma error, in meters
+    double err_ori; //!< Error ellipse orientation, degrees from true north
+    double sig_lat; //!< Latitude 1 sigma error, in meters
+    double sig_lon; //!< Longitude 1 sigma error, in meters
+    double sig_alt; //!< Height 1 sigma error, in meters
+};
+/**
+ * GSA packet information structure (Satellite status)
+ */
+struct nmeaGPGSA {
+    char fix_mode; //!< Mode (M = Manual, forced to operate in 2D or 3D; A =
+                   //!< Automatic, 3D/2D)
+    int fix_type; //!< Type, used for navigation (1 = Fix not available; 2 = 2D;
+                  //!< 3 = 3D)
+    int sat_prn[NMEA_MAXSAT]; //!< PRNs of satellites used in position fix (null
+                              //!< for unused fields)
+    double PDOP;              //!< Dilution of precision
+    double HDOP;              //!< Horizontal dilution of precision
+    double VDOP;              //!< Vertical dilution of precision
+    char pack_type;           //!< P=GPS, N=generic, L=GLONASS
+} nmeaGPGSA;
+/**
+ * GSV packet information structure (Satellites in view)
+ */
+struct nmeaGPGSV {
+    int pack_count; ///< Total number of messages of this type in this cycle
+    int pack_index; ///< Message number
+    int sat_count;  ///< Total number of satellites in view
+    char pack_type; ///< P=GPS - S=SBas - N=generic - L=GLONAS - A=GALILEO -
+                    ///< B=BEIDOU - Q=QZSS
+    struct nmeaSATELLITE sat_data[NMEA_SATINPACK];
+};
+/**
+ * RMC packet information structure (Recommended Minimum sentence C)
+ */
+struct nmeaGPRMC {
+    struct nmeaTIME utc; ///< UTC of position
+    char status;         //!< Status (A = active or V = void)
+    double lat;          //!< Latitude in NDEG - [degree][min].[sec/60]
+    char ns;             //!< [N]orth or [S]outh
+    double lon;          //!< Longitude in NDEG - [degree][min].[sec/60]
+    char ew;             //!< [E]ast or [W]est
+    double speed;        //!< Speed over the ground in knots
+    double direction;    //!< Track angle in degrees True
+    double declination; //!< Magnetic variation degrees (Easterly var. subtracts
+                        //!< from true course)
+    char declin_ew;     //!< [E]ast or [W]est
+    char mode;          //!< Mode indicator of fix type (A = autonomous, D =
+               //!< differential, E = estimated, N = not valid, S = simulator)
+    char navstatus; //!< NMEA v4.1 - Navigation Status type (S = Safe, C =
+                    //!< Caution, U = Unsafe, V = Navigational status not valid)
+};
+/**
+ * VTG packet information structure (Track made good and ground speed)
+ */
+struct nmeaGPVTG {
+    double dir; //!< True track made good (degrees)
+    char dir_t; //!< Fixed text 'T' indicates that track made good is relative
+                //!< to true north
+    double dec; //!< Magnetic track made good
+    char dec_m; //!< Fixed text 'M'
+    double spn; //!< Ground speed, knots
+    char spn_n; //!< Fixed text 'N' indicates that speed over ground is in knots
+    double spk; //!< Ground speed, kilometers per hour
+    char spk_k; //!< Fixed text 'K' indicates that speed over ground is in
+                //!< kilometers/hour
+};
+/**
+ * HDT packet information structure (Heading from True North)
+ */
+struct nmeaGPHDT {
+    double heading; //!< Heading in degrees
+    char t_flag; //!< Fixed text 'T' indicates that heading is relative to true
+                 //!< north
+};
+/**
+ * HCHDG packet information structure (magnetic heading)
+ */
+struct nmeaHCHDG {
+    double mag_heading;   ///< Magnetic sensor heading (degrees)
+    double mag_deviation; ///< Magnetic deviation (degrees)
+    char ew_deviation;    ///< [E]ast or [W]est
+    double mag_variation; ///< Magnetic variation (degrees)
+    char ew_variation;    ///< [E]ast or [W]est
+};
+/**
+ * HDT packet information structure (Heading, )
+ */
+struct nmeaHCHDT {
+    double direction; ///< Heading respect to true north (degrees)
+    char t_flag;      ///< Static text [T]
+};
 
-// struct nmeaTIME {
-//     int year; ///< Years since 1900
-//     int mon;  ///< Months since January - [0,11]
-//     int day;  ///< Day of the month - [1,31]
-//     int hour; ///< Hours since midnight - [0,23]
-//     int min;  ///< Minutes after the hour - [0,59]
-//     int sec;  ///< Seconds after the minute - [0,59]
-//     int msec; ///< Thousandths part of second - [0,999]
-// };
+NV_EXTERN void nmea_zero_GPGGA(struct nmeaGPGGA *pack);
+NV_EXTERN void nmea_zero_GPGST(struct nmeaGPGST *pack);
+NV_EXTERN void nmea_zero_GPGSA(struct nmeaGPGSA *pack);
+NV_EXTERN void nmea_zero_GPGSV(struct nmeaGPGSV *pack);
+NV_EXTERN void nmea_zero_GPRMC(struct nmeaGPRMC *pack);
+NV_EXTERN void nmea_zero_GPVTG(struct nmeaGPVTG *pack);
 
-// /**
-//  * \brief Get time now to nmeaTIME structure
-//  */
-// void nmea_time_now(struct nmeaTIME *t);
+/**
+ * Position data in fractional degrees or radians
+ */
+struct nmeaPOS {
+    double lat; ///< Latitude
+    double lon; ///< Longitude
+};
 
-// /**
-//  * NMEA packets type which parsed and generated by library
-//  */
-// enum nmeaPACKTYPE {
-//     GPNON = 0x0000, ///< Unknown packet type.
-//     GPGGA = 0x0001, ///< GGA - Essential fix data which provide 3D location
-//     and
-//                     ///< accuracy data.
-//     GPGSA = 0x0002, ///< GSA - GPS receiver operating mode, SVs used for
-//                     ///< navigation, and DOP values.
-//     GPGSV = 0x0004, ///< GSV - Number of SVs in view, PRN numbers, elevation,
-//                     ///< azimuth & SNR values.
-//     GPRMC = 0x0008, ///< RMC - Recommended Minimum Specific GPS/TRANSIT Data.
-//     GPVTG = 0x0010, ///< VTG - Actual track made good and speed over ground.
-//     GPGST = 0x0012, ///< GST - GPS Pseudorange Noise Statistics
-//     HCHDG = 0x0020, ///< HDG - Heading, Deviation and Variation
-//     HCHDT = 0x0100, ///< HDT - Heading reference to true north
-// };
+/**
+ * Information about all satellites in view
+ * \see nmeaINFO
+ * \see nmeaGPGSV
+ */
+struct nmeaSATINFO {
+    int inuse;  ///< Number of satellites in use (not those in view)
+    int inview; ///< Total number of satellites in view
+    struct nmeaSATELLITE sat[NMEA_MAXSAT]; ///< Satellites information
+};
+/**
+ * Summary GPS information from all parsed packets,
+ * used also for generating NMEA stream
+ * \see nmea_parse
+ * \see nmea_GPGGA2info, nmea_...2info
+ */
+struct nmeaINFO {
 
-// /**
-//  * GGA packet information structure (Global Positioning System Fix Data)
-//  */
-// struct nmeaGPGGA {
-//     struct nmeaTIME utc; ///< UTC of position (just time)
-//     double lat;          ///< Latitude in NDEG - [degree][min].[sec/60]
-//     char ns;             ///< [N]orth or [S]outh
-//     double lon;          ///< Longitude in NDEG - [degree][min].[sec/60]
-//     char ew;             ///< [E]ast or [W]est
-//     int sig; ///< GPS quality indicator (0 = Invalid; 1 = Fix; 2 =
-//     Differential,
-//              ///< 3 = Sensitive)
-//     int satinuse;   ///< Number of satellites in use (not those in view)
-//     double HDOP;    ///< Horizontal dilution of precision
-//     double elv;     ///< Antenna altitude above/below mean sea level (geoid)
-//     char elv_units; ///< [M]eters (Antenna height unit)
-//     double diff; ///< Geoidal separation (Diff. between WGS-84 earth
-//     ellipsoid
-//                  ///< and mean sea level. '-' = geoid is below WGS-84
-//                  ellipsoid)
-//     char diff_units; ///< [M]eters (Units of geoidal separation)
-//     double dgps_age; ///< Time in seconds since last DGPS update
-//     int dgps_sid;    ///< DGPS station ID number
-// };
+    int smask; //!< Mask specifying types of packages from which data have been
+               //!< obtained
 
-// /**
-//  * GST packet information structure (GPS Pseudorange Noise Statistics)
-//  */
-// struct nmeaGPGST {
-//     struct nmeaTIME utc; ///< UTC of position fix
-//     double rms_pr; ///< RMS value of the pseudorange residuals; Includes
-//     carrier
-//                    ///< phase residuals during periods of RTK (float) and RTK
-//                    ///< (fixed) processing
-//     double
-//         err_major; ///< Error ellipse semi-major axis 1 sigma error, in
-//         meters
-//     double
-//         err_minor;  ///< Error ellipse semi-minor axis 1 sigma error, in
-//         meters
-//     double err_ori; ///< Error ellipse orientation, degrees from true north
-//     double sig_lat; ///< Latitude 1 sigma error, in meters
-//     double sig_lon; ///< Longitude 1 sigma error, in meters
-//     double sig_alt; ///< Height 1 sigma error, in meters
-// };
+    struct nmeaTIME utc; //!< UTC of position
 
-// /**
-//  * GSA packet information structure (Satellite status)
-//  */
-// struct nmeaGPGSA {
-//     char fix_mode; ///< Mode (M = Manual, forced to operate in 2D or 3D; A =
-//                    ///< Automatic, 3D/2D)
-//     int fix_type; ///< Type, used for navigation (1 = Fix not available; 2 =
-//     2D;
-//                   ///< 3 = 3D)
-//     int sat_prn[NMEA_NV_MAXSAT]; ///< PRNs of satellites used in position fix
-//     (null
-//                               ///< for unused fields)
-//     double PDOP;              ///< Dilution of precision
-//     double HDOP;              ///< Horizontal dilution of precision
-//     double VDOP;              ///< Vertical dilution of precision
-//     char pack_type;           ///< P=GPS, N=generic, L=GLONASS
+    int sig; //!< GPS quality indicator (0 = Invalid; 1 = Fix; 2 = Differential,
+             //!< 3 = Sensitive)
+    int fix; //!< Operating mode, used for navigation (1 = Fix not available; 2
+             //!< = 2D; 3 = 3D)
 
-// } nmeaGPGSA;
+    double PDOP; //!< Position Dilution Of Precision
+    double HDOP; //!< Horizontal Dilution Of Precision
+    double VDOP; //!< Vertical Dilution Of Precision
 
-// /**
-//  * GSV packet information structure (Satellites in view)
-//  */
-// struct nmeaGPGSV {
-//     int pack_count; ///< Total number of messages of this type in this cycle
-//     int pack_index; ///< Message number
-//     int sat_count;  ///< Total number of satellites in view
-//     char pack_type; ///< P=GPS - S=SBas - N=generic - L=GLONAS - A=GALILEO -
-//                     ///< B=BEIDOU - Q=QZSS
-//     struct nmeaSATELLITE sat_data[NMEA_SATINPACK];
-// };
+    double lat; //!< Latitude in NDEG - +/-[degree][min].[sec/60]
+    double lon; //!< Longitude in NDEG - +/-[degree][min].[sec/60]
+    double
+        elv; //!< Antenna altitude above/below mean sea level (geoid) in meters
+    double speed;       //!< Speed over the ground in kilometers/hour
+    double direction;   //!< Track angle in degrees True
+    double declination; //!< Magnetic variation degrees (Easterly var. subtracts
+                        //!< from true course)
+    double rms_pr; //!< RMS value of the pseudorange residuals; includes carrier
+                   //!< phase residuals during periods of RTK (float) and RTK
+                   //!< (fixed) processing
+    double
+        err_major; //!< Error ellipse semi-major axis 1 sigma error, in meters
+    double
+        err_minor;  //!< Error ellipse semi-minor axis 1 sigma error, in meters
+    double err_ori; //!< Error ellipse orientation, degrees from true north
+    double sig_lat; //!< Latitude 1 sigma error, in meters
+    double sig_lon; //!< Longitude 1 sigma error, in meters
+    double sig_alt; //!< Height 1 sigma error, in meters
 
-// /**
-//  * RMC packet information structure (Recommended Minimum sentence C)
-//  */
-// struct nmeaGPRMC {
-//     struct nmeaTIME utc; ///< UTC of position
-//     char status;         ///< Status (A = active or V = void)
-//     double lat;          ///< Latitude in NDEG - [degree][min].[sec/60]
-//     char ns;             ///< [N]orth or [S]outh
-//     double lon;          ///< Longitude in NDEG - [degree][min].[sec/60]
-//     char ew;             ///< [E]ast or [W]est
-//     double speed;        ///< Speed over the ground in knots
-//     double direction;    ///< Track angle in degrees True
-//     double declination; ///< Magnetic variation degrees (Easterly var.
-//     subtracts
-//                         ///< from true course)
-//     char declin_ew;     ///< [E]ast or [W]est
-//     char mode;          ///< Mode indicator of fix type (A = autonomous, D =
-//                ///< differential, E = estimated, N = not valid, S =
-//                simulator)
-//     char navstatus; ///< NMEA v4.1 - Navigation Status type (S = Safe, C =
-//                     ///< Caution, U = Unsafe, V = Navigational status not
-//                     valid)
-// };
+    struct nmeaSATINFO satinfo; //!< Satellites information
+};
 
-// /**
-//  * VTG packet information structure (Track made good and ground speed)
-//  */
-// struct nmeaGPVTG {
-//     double dir; ///< True track made good (degrees)
-//     char dir_t; ///< Fixed text 'T' indicates that track made good is
-//     relative
-//                 ///< to true north
-//     double dec; ///< Magnetic track made good
-//     char dec_m; ///< Fixed text 'M'
-//     double spn; ///< Ground speed, knots
-//     char spn_n; ///< Fixed text 'N' indicates that speed over ground is in
-//     knots double spk; ///< Ground speed, kilometers per hour char spk_k; ///<
-//     Fixed text 'K' indicates that speed over ground is in
-//                 ///< kilometers/hour
-// };
+void nmea_zero_INFO(struct nmeaINFO *info);
 
-// /**
-//  * HDT packet information structure (Heading from True North)
-//  */
-// struct nmeaGPHDT {
-//     double heading; ///< Heading in degrees
-//     char t_flag; ///< Fixed text 'T' indicates that heading is relative to
-//     true
-//                  ///< north
-// };
+NV_EXTERN int nmea_pack_type(const char *buff, int buff_sz);
+NV_EXTERN int nmea_find_tail(const char *buff, int buff_sz, int *res_crc);
 
-// /**
-//  * HCHDG packet information structure (magnetic heading)
-//  */
-// struct nmeaHCHDG {
-//     double mag_heading;   ///< Magnetic sensor heading (degrees)
-//     double mag_deviation; ///< Magnetic deviation (degrees)
-//     char ew_deviation;    ///< [E]ast or [W]est
-//     double mag_variation; ///< Magnetic variation (degrees)
-//     char ew_variation;    ///< [E]ast or [W]est
-// };
+NV_EXTERN int nmea_parse_GPGGA(const char *buff, int buff_sz,
+                               struct nmeaGPGGA *pack);
+NV_EXTERN int nmea_parse_GPGSA(const char *buff, int buff_sz,
+                               struct nmeaGPGSA *pack);
+NV_EXTERN int nmea_parse_GPGSV(const char *buff, int buff_sz,
+                               struct nmeaGPGSV *pack);
+NV_EXTERN int nmea_parse_GPRMC(const char *buff, int buff_sz,
+                               struct nmeaGPRMC *pack);
+NV_EXTERN int nmea_parse_GPVTG(const char *buff, int buff_sz,
+                               struct nmeaGPVTG *pack);
+NV_EXTERN int nmea_parse_HCHDG(const char *buff, int buff_sz,
+                               struct nmeaHCHDG *pack);
+NV_EXTERN int nmea_parse_HCHDT(const char *buff, int buff_sz,
+                               struct nmeaHCHDT *pack);
+NV_EXTERN int nmea_parse_GPGST(const char *buff, int buff_sz,
+                               struct nmeaGPGST *pack);
+NV_EXTERN int nmea_parse_GPHDT(const char *buff, int buff_sz,
+                               struct nmeaGPHDT *pack);
 
-// /**
-//  * HDT packet information structure (Heading, )
-//  */
-// struct nmeaHCHDT {
-//     double direction; ///< Heading respect to true north (degrees)
-//     char t_flag;      ///< Static text [T]
-// };
+NV_EXTERN void nmea_GPGGA2info(struct nmeaGPGGA *pack, struct nmeaINFO *info);
+NV_EXTERN void nmea_GPGST2info(struct nmeaGPGST *pack, struct nmeaINFO *info);
+NV_EXTERN void nmea_GPGSA2info(struct nmeaGPGSA *pack, struct nmeaINFO *info);
+NV_EXTERN void nmea_GPGSV2info(struct nmeaGPGSV *pack, struct nmeaINFO *info);
+NV_EXTERN void nmea_GPRMC2info(struct nmeaGPRMC *pack, struct nmeaINFO *info);
+NV_EXTERN void nmea_GPVTG2info(struct nmeaGPVTG *pack, struct nmeaINFO *info);
 
-// NV_EXTERN void nmea_zero_GPGGA(struct nmeaGPGGA *pack);
-// NV_EXTERN void nmea_zero_GPGST(struct nmeaGPGST *pack);
-// NV_EXTERN void nmea_zero_GPGSA(struct nmeaGPGSA *pack);
-// NV_EXTERN void nmea_zero_GPGSV(struct nmeaGPGSV *pack);
-// NV_EXTERN void nmea_zero_GPRMC(struct nmeaGPRMC *pack);
-// NV_EXTERN void nmea_zero_GPVTG(struct nmeaGPVTG *pack);
+/*
+ * degree VS radian
+ */
+NV_EXTERN double nmea_degree2radian(double val);
+NV_EXTERN double nmea_radian2degree(double val);
 
-// /**
-//  * Position data in fractional degrees or radians
-//  */
-// struct nmeaPOS {
-//     double lat; ///< Latitude
-//     double lon; ///< Longitude
-// };
+/*
+ * NDEG (NMEA degree)
+ */
+NV_EXTERN double nmea_ndeg2degree(double val);
+NV_EXTERN double nmea_degree2ndeg(double val);
 
-// /**
-//  * Information about all satellites in view
-//  * \see nmeaINFO
-//  * \see nmeaGPGSV
-//  */
-// struct nmeaSATINFO {
-//     int inuse;  ///< Number of satellites in use (not those in view)
-//     int inview; ///< Total number of satellites in view
-//     struct nmeaSATELLITE sat[NMEA_NV_MAXSAT]; ///< Satellites information
-// };
+NV_EXTERN double nmea_ndeg2radian(double val);
+NV_EXTERN double nmea_radian2ndeg(double val);
 
-// /**
-//  * Summary GPS information from all parsed packets,
-//  * used also for generating NMEA stream
-//  * \see nmea_parse
-//  * \see nmea_GPGGA2info, nmea_...2info
-//  */
-// struct nmeaINFO {
-//     int smask; ///< Mask specifying types of packages from which data have
-//     been
-//                ///< obtained
+/*
+ * DOP
+ */
+NV_EXTERN double nmea_calc_pdop(double hdop, double vdop);
+NV_EXTERN double nmea_dop2meters(double dop);
+NV_EXTERN double nmea_meters2dop(double meters);
 
-//     struct nmeaTIME utc; ///< UTC of position
+/*
+ * positions work
+ */
+NV_EXTERN void nmea_info2pos(const struct nmeaINFO *info, struct nmeaPOS *pos);
+NV_EXTERN void nmea_pos2info(const struct nmeaPOS *pos, struct nmeaINFO *info);
 
-//     int sig; ///< GPS quality indicator (0 = Invalid; 1 = Fix; 2 =
-//     Differential,
-//              ///< 3 = Sensitive)
-//     int fix; ///< Operating mode, used for navigation (1 = Fix not available;
-//     2
-//              ///< = 2D; 3 = 3D)
+NV_EXTERN double nmea_distance(const struct nmeaPOS *from_pos,
+                               const struct nmeaPOS *to_pos);
 
-//     double PDOP; ///< Position Dilution Of Precision
-//     double HDOP; ///< Horizontal Dilution Of Precision
-//     double VDOP; ///< Vertical Dilution Of Precision
+NV_EXTERN double nmea_distance_ellipsoid(const struct nmeaPOS *from_pos,
+                                         const struct nmeaPOS *to_pos,
+                                         double *from_azimuth,
+                                         double *to_azimuth);
 
-//     double lat; ///< Latitude in NDEG - +/-[degree][min].[sec/60]
-//     double lon; ///< Longitude in NDEG - +/-[degree][min].[sec/60]
-//     double
-//         elv; ///< Antenna altitude above/below mean sea level (geoid) in
-//         meters
-//     double speed;       ///< Speed over the ground in kilometers/hour
-//     double direction;   ///< Track angle in degrees True
-//     double declination; ///< Magnetic variation degrees (Easterly var.
-//     subtracts
-//                         ///< from true course)
-//     double rms_pr; ///< RMS value of the pseudorange residuals; includes
-//     carrier
-//                    ///< phase residuals during periods of RTK (float) and RTK
-//                    ///< (fixed) processing
-//     double
-//         err_major; ///< Error ellipse semi-major axis 1 sigma error, in
-//         meters
-//     double
-//         err_minor;  ///< Error ellipse semi-minor axis 1 sigma error, in
-//         meters
-//     double err_ori; ///< Error ellipse orientation, degrees from true north
-//     double sig_lat; ///< Latitude 1 sigma error, in meters
-//     double sig_lon; ///< Longitude 1 sigma error, in meters
-//     double sig_alt; ///< Height 1 sigma error, in meters
+NV_EXTERN int nmea_move_horz(const struct nmeaPOS *start_pos,
+                             struct nmeaPOS *end_pos, double azimuth,
+                             double distance);
 
-//     struct nmeaSATINFO satinfo; ///< Satellites information
-// };
-
-// void nmea_zero_INFO(struct nmeaINFO *info);
-
-// NV_EXTERN int nmea_pack_type(const char *buff, int buff_sz);
-// NV_EXTERN int nmea_find_tail(const char *buff, int buff_sz, int *res_crc);
-
-// NV_EXTERN int nmea_parse_GPGGA(const char *buff, int buff_sz,
-//                                struct nmeaGPGGA *pack);
-// NV_EXTERN int nmea_parse_GPGSA(const char *buff, int buff_sz,
-//                                struct nmeaGPGSA *pack);
-// NV_EXTERN int nmea_parse_GPGSV(const char *buff, int buff_sz,
-//                                struct nmeaGPGSV *pack);
-// NV_EXTERN int nmea_parse_GPRMC(const char *buff, int buff_sz,
-//                                struct nmeaGPRMC *pack);
-// NV_EXTERN int nmea_parse_GPVTG(const char *buff, int buff_sz,
-//                                struct nmeaGPVTG *pack);
-// NV_EXTERN int nmea_parse_HCHDG(const char *buff, int buff_sz,
-//                                struct nmeaHCHDG *pack);
-// NV_EXTERN int nmea_parse_HCHDT(const char *buff, int buff_sz,
-//                                struct nmeaHCHDT *pack);
-// NV_EXTERN int nmea_parse_GPGST(const char *buff, int buff_sz,
-//                                struct nmeaGPGST *pack);
-// NV_EXTERN int nmea_parse_GPHDT(const char *buff, int buff_sz,
-//                                struct nmeaGPHDT *pack);
-
-// NV_EXTERN void nmea_GPGGA2info(struct nmeaGPGGA *pack, struct nmeaINFO
-// *info); NV_EXTERN void nmea_GPGST2info(struct nmeaGPGST *pack, struct
-// nmeaINFO *info); NV_EXTERN void nmea_GPGSA2info(struct nmeaGPGSA *pack,
-// struct nmeaINFO *info); NV_EXTERN void nmea_GPGSV2info(struct nmeaGPGSV
-// *pack, struct nmeaINFO *info); NV_EXTERN void nmea_GPRMC2info(struct
-// nmeaGPRMC *pack, struct nmeaINFO *info); NV_EXTERN void
-// nmea_GPVTG2info(struct nmeaGPVTG *pack, struct nmeaINFO *info);
-
-// /*
-//  * degree VS radian
-//  */
-// NV_EXTERN double nmea_degree2radian(double val);
-// NV_EXTERN double nmea_radian2degree(double val);
-
-// /*
-//  * NDEG (NMEA degree)
-//  */
-// NV_EXTERN double nmea_ndeg2degree(double val);
-// NV_EXTERN double nmea_degree2ndeg(double val);
-
-// NV_EXTERN double nmea_ndeg2radian(double val);
-// NV_EXTERN double nmea_radian2ndeg(double val);
-
-// /*
-//  * DOP
-//  */
-// NV_EXTERN double nmea_calc_pdop(double hdop, double vdop);
-// NV_EXTERN double nmea_dop2meters(double dop);
-// NV_EXTERN double nmea_meters2dop(double meters);
-
-// /*
-//  * positions work
-//  */
-// NV_EXTERN void nmea_info2pos(const struct nmeaINFO *info, struct nmeaPOS
-// *pos); NV_EXTERN void nmea_pos2info(const struct nmeaPOS *pos, struct
-// nmeaINFO *info);
-
-// NV_EXTERN double nmea_distance(const struct nmeaPOS *from_pos,
-//                                const struct nmeaPOS *to_pos);
-
-// NV_EXTERN double nmea_distance_ellipsoid(const struct nmeaPOS *from_pos,
-//                                          const struct nmeaPOS *to_pos,
-//                                          double *from_azimuth,
-//                                          double *to_azimuth);
-
-// NV_EXTERN int nmea_move_horz(const struct nmeaPOS *start_pos,
-//                              struct nmeaPOS *end_pos, double azimuth,
-//                              double distance);
-
-// NV_EXTERN int nmea_move_horz_ellipsoid(const struct nmeaPOS *start_pos,
-//                                        struct nmeaPOS *end_pos, double
-//                                        azimuth, double distance, double
-//                                        *end_azimuth);
+NV_EXTERN int nmea_move_horz_ellipsoid(const struct nmeaPOS *start_pos,
+                                       struct nmeaPOS *end_pos, double azimuth,
+                                       double distance, double *end_azimuth);
 
 /* Direction north */
 #define GEOHASH_DIRECTION_NORTH      0
