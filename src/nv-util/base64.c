@@ -20,12 +20,11 @@
  * IN THE SOFTWARE.
  */
 
-#include <nv.h>
+#include <nv-common.h>
 #include "encode.h"
 #include <assert.h>
 #include <limits.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define RETURN_VAL_IF_FAIL(expr, ret) \
@@ -269,7 +268,7 @@ char *base64_encode(const unsigned char *data, size_t len)
        +1 is needed for trailing \0, also check for unlikely integer overflow */
     RETURN_VAL_IF_FAIL(len < ((ULONG_MAX - 1) / 4 - 1) * 3, NULL);
 
-    out = (char *)malloc((len / 3 + 1) * 4 + 1);
+    out = (char *)nv__malloc((len / 3 + 1) * 4 + 1);
 
     outlen = base64_encode_step(data, len, false, out, &state, &save);
     outlen += base64_encode_close(false, out + outlen, &state, &save);
@@ -292,7 +291,7 @@ unsigned char *base64_decode(const char *text, size_t *out_len)
 
     /* We can use a smaller limit here, since we know the saved state is 0,
        +1 used to avoid calling g_malloc0(0), and hence returning NULL */
-    ret = (unsigned char *)malloc((input_length / 4) * 3 + 1);
+    ret = (unsigned char *)nv__malloc((input_length / 4) * 3 + 1);
 
     *out_len = base64_decode_step(text, input_length, ret, &state, &save);
 

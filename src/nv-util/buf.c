@@ -22,7 +22,7 @@
 
 #include "buf.h"
 #include <string.h>
-#include <stdlib.h>
+#include <nv-common.h>
 
 // buf_append appends data to buffer. To append a null-terminated c-string
 // specify -1 for the len.
@@ -36,12 +36,12 @@ bool buf_append(struct buf *buf, const char *data, ssize_t len)
         while (buf->len + len > cap) {
             cap *= 2;
         }
-        char *data = (char *)malloc(cap + 1);
+        char *data = (char *)nv__malloc(cap + 1);
         if (!data) {
             return false;
         }
         memcpy(data, buf->data, buf->len);
-        free(buf->data);
+        nv__free(buf->data);
         buf->data = data;
         buf->cap = cap;
     }
@@ -68,7 +68,7 @@ bool buf_append_byte(struct buf *buf, char ch)
 void buf_clear(struct buf *buf)
 {
     if (buf->data) {
-        free(buf->data);
+        nv__free(buf->data);
     }
     memset(buf, 0, sizeof(struct buf));
 }

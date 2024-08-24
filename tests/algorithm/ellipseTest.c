@@ -63,8 +63,8 @@ void algorithm_ellipse_Test2(void)
         .center = {.x = 0, .y = 0}, .major = 5, .minor = 2, .azimuth = 0};
 
     struct nv_geobject *obj =
-        nv_stroke_ellipse(ellipse, 24); // gdim = 2, nseg = 4
-    CU_ASSERT(nv_point_n(obj) == 5);
+        nv_ellipse_stroke(ellipse, 24); // gdim = 2, nseg = 4
+    CU_ASSERT(nv_geo_point_n(obj) == 5);
 }
 
 int algorithm_ellipseSuite()

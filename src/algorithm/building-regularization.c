@@ -22,7 +22,6 @@
 
 #include "nv-common.h"
 #include <float.h>
-#include <stdlib.h>
 
 struct bbr_seg {
     int index;
@@ -51,7 +50,7 @@ void nv_building_regularization(double *xy, int np)
 
     // segments
     struct bbr_seg *segs =
-        (struct bbr_seg *)calloc(rdp_np - 1, sizeof(struct bbr_seg));
+        (struct bbr_seg *)nv__calloc(rdp_np - 1, sizeof(struct bbr_seg));
     if (segs == NULL) {
         return;
     }

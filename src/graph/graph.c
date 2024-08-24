@@ -1,18 +1,18 @@
 #include "graph.h"
 #include <stddef.h>
-#include <stdlib.h>
+#include <nv-common.h>
 
 struct un_graph *graph_delaunay(double *pp, int num_points)
 {
     struct un_graph *delanuay =
-        (struct un_graph *)malloc(sizeof(struct un_graph));
+        (struct un_graph *)nv__malloc(sizeof(struct un_graph));
     if (delanuay == NULL)
         return NULL;
 
     delanuay->nodes =
-        (struct ung_node *)malloc(num_points * sizeof(struct ung_node));
+        (struct ung_node *)nv__malloc(num_points * sizeof(struct ung_node));
     if (delanuay->nodes == NULL) {
-        free(delanuay);
+        nv__free(delanuay);
         return NULL;
     }
     delanuay->pp = pp;

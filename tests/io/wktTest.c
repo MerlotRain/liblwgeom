@@ -39,23 +39,23 @@ int clean_wkt_suite(void)
 void io_wkt_Test1(void)
 {
     char p[] = "POINT (30 10)";
-    struct nv_geobject *obj = nv_read(GEOMETRY_IO_WKT, p, strlen(p));
+    struct nv_geobject *obj = nv_geo_read(NV_GEOMETRY_IO_WKT, p, strlen(p));
     CU_ASSERT(obj != NULL);
-    CU_ASSERT(nv_dim_g(obj) == 0);
-    CU_ASSERT(nv_dim_c(obj) == 2);
-    CU_ASSERT(nv_point_n(obj) == 1);
-    nv_free_object(obj);
+    CU_ASSERT(nv_geo_dim_g(obj) == 0);
+    CU_ASSERT(nv_geo_dim_c(obj) == 2);
+    CU_ASSERT(nv_geo_point_n(obj) == 1);
+    nv_geo_free(obj);
 }
 
 void io_wkt_Test2(void)
 {
     char p[] = "LINESTRING (30 10, 10 30, 40 40)";
-    struct nv_geobject *obj = nv_read(GEOMETRY_IO_WKT, p, strlen(p));
+    struct nv_geobject *obj = nv_geo_read(NV_GEOMETRY_IO_WKT, p, strlen(p));
     CU_ASSERT(obj != NULL);
-    CU_ASSERT(nv_dim_g(obj) == 1);
-    CU_ASSERT(nv_dim_c(obj) == 2);
-    CU_ASSERT(nv_point_n(obj) == 3);
-    nv_free_object(obj);
+    CU_ASSERT(nv_geo_dim_g(obj) == 1);
+    CU_ASSERT(nv_geo_dim_c(obj) == 2);
+    CU_ASSERT(nv_geo_point_n(obj) == 3);
+    nv_geo_free(obj);
 }
 
 int io_wktSuite()

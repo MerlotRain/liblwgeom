@@ -27,7 +27,7 @@ struct nv_geobject *nv_prop_geo_clone(const struct nv_geobject *obj)
     assert(obj);
 
     struct nv_geobject *clone =
-        (struct nv_geobject *)malloc(sizeof(struct nv_geobject));
+        (struct nv_geobject *)nv__malloc(sizeof(struct nv_geobject));
     if (clone == NULL) {
         return NULL;
     }

@@ -21,7 +21,7 @@
  */
 
 #include "nv-common.h"
-#include <stdlib.h>
+#include <string.h>
 
 /* ---------------------------- geometry factory ---------------------------- */
 
@@ -36,7 +36,7 @@ struct nv_geobject *nv_geo_create_single(int gdim, int pn, int cdim,
 {
     assert(pp);
     struct nv_geobject *obj =
-        (struct nv_geobject *)malloc(sizeof(struct nv_geobject));
+        (struct nv_geobject *)nv__malloc(sizeof(struct nv_geobject));
     if (obj == NULL)
         return NULL;
     memset(obj, 0, sizeof(struct nv_geobject));
@@ -50,7 +50,7 @@ struct nv_geobject *nv_geo_create_single(int gdim, int pn, int cdim,
         obj->pp = (double *)pp;
     }
     else {
-        obj->pp = (double *)malloc(sizeof(double) * pn * cdim);
+        obj->pp = (double *)nv__malloc(sizeof(double) * pn * cdim);
         if (obj->pp == NULL) {
             nv_geo_free(obj);
             return NULL;
@@ -76,7 +76,7 @@ struct nv_geobject *nv_geo_create_multi(int gdim, int snum,
 {
     assert(subs);
     struct nv_geobject *obj =
-        (struct nv_geobject *)malloc(sizeof(struct nv_geobject));
+        (struct nv_geobject *)nv__malloc(sizeof(struct nv_geobject));
     if (obj == NULL)
         return NULL;
     memset(obj, 0, sizeof(struct nv_geobject));
@@ -92,7 +92,7 @@ struct nv_geobject *nv_geo_create_multi(int gdim, int snum,
             if (sub->gdim == obj->gdim) {
                 obj->ngeoms++;
 
-                struct nv_geobject **tobjs = (struct nv_geobject **)realloc(
+                struct nv_geobject **tobjs = (struct nv_geobject **)nv__realloc(
                     obj->objects, obj->ngeoms * sizeof(struct nv_geobject *));
                 if (tobjs == NULL) {
                     nv_geo_free(obj);
@@ -116,9 +116,10 @@ struct nv_geobject *nv_geo_create_multi(int gdim, int snum,
                 if (ssub->gdim == obj->gdim) {
                     obj->ngeoms++;
 
-                    struct nv_geobject **tobjs = (struct nv_geobject **)realloc(
-                        obj->objects,
-                        obj->ngeoms * sizeof(struct nv_geobject *));
+                    struct nv_geobject **tobjs =
+                        (struct nv_geobject **)nv__realloc(
+                            obj->objects,
+                            obj->ngeoms * sizeof(struct nv_geobject *));
                     if (tobjs == NULL) {
                         nv_geo_free(obj);
                         return NULL;
@@ -140,8 +141,8 @@ struct nv_geobject *nv_geo_create_multi(int gdim, int snum,
         obj->flag = obj->objects[0]->flag;
         obj->npoints = obj->objects[0]->npoints;
         obj->pp = obj->objects[0]->pp;
-        free(obj->objects[0]);
-        free(obj->objects);
+        nv__free(obj->objects[0]);
+        nv__free(obj->objects);
         obj->objects = NULL;
     }
     return obj;
@@ -151,9 +152,9 @@ void nv__geo_free(struct nv_geobject *g)
 {
     assert(g);
     if (g->flag != 0) {
-        free(g->pp);
+        nv__free(g->pp);
     }
-    free(g);
+    nv__free(g);
 }
 
 /// @brief free geometry object
@@ -317,13 +318,13 @@ struct nv_geo_reader2 *nv_geo_reader2_new(size_t size)
     if (size == 0)
         size = 10;
     struct nv_geo_reader2 *reader =
-        (struct nv_geo_reader2 *)malloc(sizeof(struct nv_geo_reader2));
+        (struct nv_geo_reader2 *)nv__malloc(sizeof(struct nv_geo_reader2));
     if (reader == NULL)
         return NULL;
     reader->size = size;
-    reader->objs = (struct nv_i4 **)calloc(size, sizeof(struct nv_i4 *));
+    reader->objs = (struct nv_i4 **)nv__calloc(size, sizeof(struct nv_i4 *));
     if (reader->objs == NULL) {
-        free(reader);
+        nv__free(reader);
         return NULL;
     }
     reader->current = 0;

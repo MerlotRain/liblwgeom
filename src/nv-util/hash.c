@@ -22,9 +22,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <nv-common.h>
 #include "hash.h"
 
 #define GROW_AT   0.60 /* 60% */
@@ -149,7 +149,7 @@ hashmap_new(size_t elsize, size_t cap, uint64_t seed0, uint64_t seed1,
     }
     // hashmap + spare + edata
     size_t size = sizeof(struct hashmap) + bucketsz * 2;
-    struct hashmap *map = (struct hashmap *)malloc(size);
+    struct hashmap *map = (struct hashmap *)nv__malloc(size);
     if (!map) {
         return NULL;
     }
@@ -167,9 +167,9 @@ hashmap_new(size_t elsize, size_t cap, uint64_t seed0, uint64_t seed1,
     map->cap = cap;
     map->nbuckets = cap;
     map->mask = map->nbuckets - 1;
-    map->buckets = malloc(map->bucketsz * map->nbuckets);
+    map->buckets = nv__malloc(map->bucketsz * map->nbuckets);
     if (!map->buckets) {
-        free(map);
+        nv__free(map);
         return NULL;
     }
     memset(map->buckets, 0, map->bucketsz * map->nbuckets);
@@ -205,9 +205,9 @@ void hashmap_clear(struct hashmap *map, bool update_cap)
         map->cap = map->nbuckets;
     }
     else if (map->nbuckets != map->cap) {
-        void *new_buckets = malloc(map->bucketsz * map->cap);
+        void *new_buckets = nv__malloc(map->bucketsz * map->cap);
         if (new_buckets) {
-            free(map->buckets);
+            nv__free(map->buckets);
             map->buckets = new_buckets;
         }
         map->nbuckets = map->cap;
@@ -247,13 +247,13 @@ static bool resize0(struct hashmap *map, size_t new_cap)
             entry->dib += 1;
         }
     }
-    free(map->buckets);
+    nv__free(map->buckets);
     map->buckets = map2->buckets;
     map->nbuckets = map2->nbuckets;
     map->mask = map2->mask;
     map->growat = map2->growat;
     map->shrinkat = map2->shrinkat;
-    free(map2);
+    nv__free(map2);
     return true;
 }
 
@@ -425,8 +425,8 @@ void hashmap_free(struct hashmap *map)
     if (!map)
         return;
     free_elements(map);
-    free(map->buckets);
-    free(map);
+    nv__free(map->buckets);
+    nv__free(map);
 }
 
 // hashmap_oom returns true if the last hashmap_set() call failed due to the

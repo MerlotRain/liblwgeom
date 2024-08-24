@@ -22,7 +22,7 @@
 
 #include "nv-common.h"
 #include <math.h>
-#include <stdlib.h>
+#include <string.h>
 
 /// triangle inscribed circle
 static struct nv_ellipse nv__tri_inscribed_circle(const struct nv_point p1,
@@ -495,7 +495,7 @@ struct nv_geobject *nv_ellipse_stroke(struct nv_ellipse e, uint32_t param)
     if (nseg < 3)
         return NULL;
 
-    double *pp = (double *)calloc((nseg + 1) * 2, sizeof(double));
+    double *pp = (double *)nv__calloc((nseg + 1) * 2, sizeof(double));
     if (pp == NULL) {
         return NULL;
     }

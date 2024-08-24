@@ -21,14 +21,13 @@
  */
 
 #include "sort.h"
+#include <nv-common.h>
 
 #ifdef _WIN32
 #include <malloc.h>
 #else
 #include <alloca.h>
 #endif
-
-#include <stdlib.h>
 
 struct qsort_param {
     size_t s;
@@ -53,7 +52,7 @@ static void quick_sort_r(void *b, size_t n, size_t s,
         p.t = (char *)alloca(size);
     }
     else {
-        tmp = (char *)malloc(size);
+        tmp = (char *)nv__malloc(size);
         if (tmp != NULL) {
             p.t = tmp;
         }

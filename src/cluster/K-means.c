@@ -32,15 +32,8 @@
 /// @param P input data
 /// @param n number of clusters
 /// @param W output data
-void nv_kmeans(struct nv_geo_reader2 *P, int n, struct nv_geo_reader2 **W)
+void nv_kmeans(struct nv_reader2 *P, int n, struct nv_reader2 **W)
 {
     assert(P);
     assert(n > 1);
-
-    struct nv_i4 *obj = nv_geo_reader2_iterator(P);
-    while (obj) {
-        double point[2] = {0};
-        nv_prop_geo2(obj->obj, NV_GEOMETRY_PROP_GEO_CENTROID, point);
-        obj = nv_geo_reader2_iterator(P);
-    }
 }

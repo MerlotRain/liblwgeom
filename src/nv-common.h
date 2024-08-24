@@ -24,7 +24,16 @@
 #define NV_COMMON_H
 
 #include <stdio.h>
+#include <math.h>
 #include <nv.h>
+
+/* Allocator prototypes */
+void *nv__calloc(size_t count, size_t size);
+void *nv__malloc(size_t size);
+void nv__free(void *ptr);
+void *nv__realloc(void *ptr, size_t size);
+
+/* ---------------------------- mg kernel struct ---------------------------- */
 
 /// It is a geometric description that is consistent with sdo-geometry in the
 /// coordinate dimension, and any constructed geometry does not have an M value,
@@ -87,7 +96,10 @@ extern double tolerence();
 /// @brief check double value is equal
 #define NV_DOUBLE_NEARES2(A, B) (fabs((A) - (B)) < NV_TOLERANCE)
 
-/* ---------------------------- mg kernel struct ---------------------------- */
+/// @brief return coordinate X in point i
+#define NV_PP_X(obj, i)         ((obj)->pp[(i) * (obj)->cdim])
+/// @brief return coordinate Y in point i
+#define NV_PP_Y(obj, i)         ((obj)->pp[(i) * (obj)->cdim + 1])
 
 /* ----------------------- geometry IO extern function ---------------------- */
 

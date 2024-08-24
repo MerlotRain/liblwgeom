@@ -21,9 +21,9 @@
  */
 
 #include <stdbool.h>
-#include <stdlib.h>
 #include <string.h>
 #include "btree.h"
+#include <nv-common.h>
 
 enum btree_delact {
     BTREE_DELKEY,
@@ -283,7 +283,7 @@ struct btree *btree_new(size_t elsize, size_t max_items,
     // normalize max_items
     size_t spare_elsize;
     size_t size = btree_memsize(elsize, &spare_elsize);
-    struct btree *btree = malloc(size);
+    struct btree *btree = nv__malloc(size);
     if (!btree) {
         return NULL;
     }
@@ -322,7 +322,7 @@ static struct btree_node *btree_node_new(struct btree *btree, bool leaf)
 {
     size_t items_offset;
     size_t size = btree_node_size(btree, leaf, &items_offset);
-    struct btree_node *node = (struct btree_node *)malloc(size);
+    struct btree_node *node = (struct btree_node *)nv__malloc(size);
     if (!node) {
         return NULL;
     }
@@ -348,7 +348,7 @@ static void btree_node_free(struct btree *btree, struct btree_node *node)
             btree->item_free(item, btree->udata);
         }
     }
-    free(node);
+    nv__free(node);
 }
 
 static struct btree_node *btree_node_copy(struct btree *btree,
@@ -395,7 +395,7 @@ failed:
             btree->item_free(item, btree->udata);
         }
     }
-    free(node2);
+    nv__free(node2);
     return NULL;
 }
 
@@ -425,7 +425,7 @@ void btree_clear(struct btree *btree)
 void btree_free(struct btree *btree)
 {
     btree_clear(btree);
-    free(btree);
+    nv__free(btree);
 }
 
 void btree_set_item_callbacks(struct btree *btree,
@@ -443,7 +443,7 @@ struct btree *btree_clone(struct btree *btree)
         return NULL;
     }
     size_t size = btree_memsize(btree->elsize, NULL);
-    struct btree *btree2 = (struct btree *)malloc(size);
+    struct btree *btree2 = (struct btree *)nv__malloc(size);
     if (!btree2) {
         return NULL;
     }
@@ -590,7 +590,7 @@ set:
     void *median = NULL;
     btree_node_split(btree, old_root, &right, &median);
     if (!right) {
-        free(new_root);
+        nv__free(new_root);
         goto oom;
     }
     btree->root = new_root;
@@ -655,7 +655,7 @@ static void btree_node_rebalance(struct btree *btree, struct btree_node *node,
         btree_copy_item(btree, left, left->nitems, node, i);
         left->nitems++;
         btree_node_join(btree, left, right);
-        free(right);
+        nv__free(right);
         btree_node_shift_left(btree, node, i, true);
     }
     else if (left->nitems > right->nitems) {
@@ -802,7 +802,7 @@ static void *btree_delete0(struct btree *btree, enum btree_delact act,
         else {
             btree->root = NULL;
         }
-        free(old_root);
+        nv__free(old_root);
         btree->height--;
     }
     btree->count--;
@@ -1181,7 +1181,7 @@ struct btree_iter *btree_iter_new(const struct btree *btree)
         btree_align_size(sizeof(struct btree_iter) +
                          sizeof(struct btree_iter_stack_item) * btree->height);
     struct btree_iter *iter =
-        (struct btree_iter *)malloc(vsize + btree->elsize);
+        (struct btree_iter *)nv__malloc(vsize + btree->elsize);
     if (iter) {
         memset(iter, 0, vsize + btree->elsize);
         iter->btree = (void *)btree;
@@ -1192,7 +1192,7 @@ struct btree_iter *btree_iter_new(const struct btree *btree)
 
 void btree_iter_free(struct btree_iter *iter)
 {
-    free(iter);
+    nv__free(iter);
 }
 
 bool btree_iter_first(struct btree_iter *iter)

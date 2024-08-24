@@ -22,7 +22,7 @@
 
 #include "bitset.h"
 #include <string.h>
-#include <stdlib.h>
+#include <nv-common.h>
 
 struct bitset {
     size_t length;
@@ -39,7 +39,8 @@ struct bitset *bitset_new(size_t size)
         cap = (size + 7) & ~7; // round up to multiple of 8
     }
 
-    struct bitset *bs = malloc(sizeof(struct bitset) + cap / 8);
+    struct bitset *bs =
+        (struct bitset *)nv__malloc(sizeof(struct bitset) + cap / 8);
     if (bs == NULL) {
         return NULL;
     }
@@ -51,7 +52,7 @@ struct bitset *bitset_new(size_t size)
 
 void bitset_free(struct bitset *bs)
 {
-    free(bs);
+    nv__free(bs);
 }
 
 void bitset_set(struct bitset *bs, size_t index)

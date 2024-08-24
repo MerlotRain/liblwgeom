@@ -23,7 +23,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
-#include "nv.h"
+#include <nv-common.h>
 
 #define DIMS                2
 #define MAXITEMS            64
@@ -121,7 +121,7 @@ void nv_rtree_set_udata(struct nv_rtree *tr, void *udata)
 
 static struct node *node_new(struct nv_rtree *tr, enum kind kind)
 {
-    struct node *node = (struct node *)malloc(sizeof(struct node));
+    struct node *node = (struct node *)nv__malloc(sizeof(struct node));
     if (!node)
         return NULL;
     memset(node, 0, sizeof(struct node));
@@ -131,7 +131,7 @@ static struct node *node_new(struct nv_rtree *tr, enum kind kind)
 
 static struct node *node_copy(struct nv_rtree *tr, struct node *node)
 {
-    struct node *node2 = (struct node *)malloc(sizeof(struct node));
+    struct node *node2 = (struct node *)nv__malloc(sizeof(struct node));
     if (!node2)
         return NULL;
     memcpy(node2, node, sizeof(struct node));
@@ -160,7 +160,7 @@ static struct node *node_copy(struct nv_rtree *tr, struct node *node)
                         tr->item_free(node2->datas[i].data, tr->udata);
                     }
                 }
-                free(node2);
+                nv__free(node2);
                 return NULL;
             }
         }
@@ -184,7 +184,7 @@ static void node_free(struct nv_rtree *tr, struct node *node)
             }
         }
     }
-    free(node);
+    nv__free(node);
 }
 
 #define cow_node_or(rnode, code)                         \
@@ -513,7 +513,8 @@ static bool node_insert(struct nv_rtree *tr, struct rect *nr, struct node *node,
 
 struct nv_rtree *nv_rtree_new(void)
 {
-    struct nv_rtree *tr = (struct nv_rtree *)malloc(sizeof(struct nv_rtree));
+    struct nv_rtree *tr =
+        (struct nv_rtree *)nv__malloc(sizeof(struct nv_rtree));
     if (!tr)
         return NULL;
     memset(tr, 0, sizeof(struct nv_rtree));
@@ -574,7 +575,7 @@ bool nv_rtree_insert(struct nv_rtree *tr, const double *min, const double *max,
         }
         struct node *right;
         if (!node_split(tr, &tr->rect, tr->root, &right)) {
-            free(new_root);
+            nv__free(new_root);
             break;
         }
         new_root->rects[0] = node_rect_calc(tr->root);
@@ -597,7 +598,7 @@ void nv_rtree_free(struct nv_rtree *tr)
     if (tr->root) {
         node_free(tr, tr->root);
     }
-    free(tr);
+    nv__free(tr);
 }
 
 static bool node_search(struct node *node, struct rect *rect,
@@ -838,7 +839,8 @@ struct nv_rtree *nv_rtree_clone(struct nv_rtree *tr)
 {
     if (!tr)
         return NULL;
-    struct nv_rtree *tr2 = (struct nv_rtree *)malloc(sizeof(struct nv_rtree));
+    struct nv_rtree *tr2 =
+        (struct nv_rtree *)nv__malloc(sizeof(struct nv_rtree));
     if (!tr2)
         return NULL;
     memcpy(tr2, tr, sizeof(struct nv_rtree));

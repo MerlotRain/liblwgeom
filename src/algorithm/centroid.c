@@ -22,7 +22,7 @@
 
 #include "nv-common.h"
 
-struct _centriod {
+struct nv__centriod {
     struct nv_point p_cent_sum;
     size_t pt_num;
 
@@ -34,7 +34,8 @@ struct _centriod {
     double total_ay;
 };
 
-void _centriod_single(const struct nv_geobject *obj, struct _centriod *centriod)
+void nv__centriod_single(const struct nv_geobject *obj,
+                         struct nv__centriod *centriod)
 {
     assert(obj);
     if (obj->gdim == 0) {
@@ -84,13 +85,13 @@ void _centriod_single(const struct nv_geobject *obj, struct _centriod *centriod)
 void nv_prop_geo_centriod(const struct nv_geobject *obj, double *xy)
 {
     assert(obj);
-    struct _centriod centriod;
+    struct nv__centriod centriod;
     if (obj->ngeoms == 1) {
-        _centriod_single(obj, &centriod);
+        nv__centriod_single(obj, &centriod);
     }
     else {
         for (int i = 0; i < obj->ngeoms; ++i) {
-            _centriod_single(obj->objects[i], &centriod);
+            nv__centriod_single(obj->objects[i], &centriod);
         }
     }
 

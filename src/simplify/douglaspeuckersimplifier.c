@@ -7,11 +7,11 @@ struct int_simplify_rdp {
     struct bitset *usef; ///< useful points
 };
 
-static void _simplify_section(int i, int j, struct int_simplify_rdp *intrdp)
+static void nv__simplify_section(int i, int j, struct int_simplify_rdp *intrdp)
 {
 }
 
-static struct nv_geobject *_simplify_line(const struct nv_geobject *obj)
+static struct nv_geobject *nv__simplify_line(const struct nv_geobject *obj)
 {
     if (obj == NULL)
         return NULL;
@@ -19,7 +19,7 @@ static struct nv_geobject *_simplify_line(const struct nv_geobject *obj)
     if (obj->npoints < 3)
         return nv_prop_geo_clone(obj);
 
-    struct int_simplify_rdp *intrdp = (struct int_simplify_rdp *)malloc(
+    struct int_simplify_rdp *intrdp = (struct int_simplify_rdp *)nv__malloc(
         sizeof(struct int_simplify_rdp) + obj->npoints * sizeof(uint8_t));
     if (intrdp == NULL)
         return NULL;
@@ -27,11 +27,11 @@ static struct nv_geobject *_simplify_line(const struct nv_geobject *obj)
     intrdp->pp = obj->pp;
     intrdp->usef = bitset_new(obj->npoints);
     if (intrdp->usef == NULL) {
-        free(intrdp);
+        nv__free(intrdp);
         return NULL;
     }
 
-    _simplify_section(0, obj->npoints - 1, intrdp);
+    nv__simplify_section(0, obj->npoints - 1, intrdp);
 
     return NULL;
 }

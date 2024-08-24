@@ -20,7 +20,7 @@
  * IN THE SOFTWARE.
  */
 
-#include <nv.h>
+#include <nv-common.h>
 
 /**
  * The GeoHash module defaults to using the WGS84 coordinate system and defines
@@ -91,7 +91,7 @@ struct geo_array *g_geo_array = NULL;
 void init_geo_point_buckets()
 {
     if (g_geo_array == NULL) {
-        g_geo_array = malloc(sizeof(struct geo_array));
+        g_geo_array = nv__malloc(sizeof(struct geo_array));
         if (g_geo_array == NULL)
             return;
     }

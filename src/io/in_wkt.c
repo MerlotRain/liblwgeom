@@ -26,7 +26,6 @@
 #include "stok.h"
 #include <assert.h>
 #include <ctype.h>
-#include <stdlib.h>
 #include <string.h>
 #include <locale.h>
 
@@ -202,7 +201,7 @@ void nv__wkt_get_coordinates(struct uv__stok *token, struct uv__ordinate *flag,
 
     // calloc coordinates with cdim
     int cdim = (flag->value & UV__ORDINATE_VALUE_Z) ? 3 : 2;
-    *coordinates = (double *)calloc(cdim, sizeof(double));
+    *coordinates = (double *)nv__calloc(cdim, sizeof(double));
     if (*coordinates == NULL) {
         return;
     }
@@ -213,10 +212,10 @@ void nv__wkt_get_coordinates(struct uv__stok *token, struct uv__ordinate *flag,
     while (strcmp(nexttok, ")") != 0) {
         memset(c, 0, sizeof(c));
         nv__wkt_get_precise_coordinates(token, flag, c);
-        *coordinates = (double *)realloc(*coordinates,
-                                         (*num + 1) * sizeof(double) * (cdim));
+        *coordinates = (double *)nv__realloc(
+            *coordinates, (*num + 1) * sizeof(double) * (cdim));
         if (*coordinates == NULL) {
-            free(*coordinates);
+            nv__free(*coordinates);
             *num = 0;
             // log error
             return;
@@ -331,7 +330,7 @@ struct nv_geobject *nv__wkt_read_polygon(struct uv__stok *token,
         return NULL;
 
     struct nv_geobject **subs =
-        (struct nv_geobject **)calloc(1, sizeof(struct nv_geobject *));
+        (struct nv_geobject **)nv__calloc(1, sizeof(struct nv_geobject *));
     if (subs == NULL)
         return NULL;
     struct nv_geobject *shell = nv__wkt_read_linearring(token, flag);

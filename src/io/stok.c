@@ -22,9 +22,9 @@
 
 #include "stok.h"
 #include <limits.h>
-#include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <stdlib.h>
 
 static double uv__strtod_with_vc_fix(const char *str, char **str_end)
 {
