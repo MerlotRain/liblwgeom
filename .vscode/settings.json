@@ -142,7 +142,8 @@
     "vec4ui": "c",
     "vec4us": "c",
     "viewport": "c",
-    "nv.h": "c"
+    "nv.h": "c",
+    "nv-common.h": "c"
   },
   "cmake.configureArgs": [
     "-DBUILD_TESTS=ON",

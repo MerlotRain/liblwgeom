@@ -1,17 +1,28 @@
-/*****************************************************************************/
-/*                                                                           */
-/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
-/*                                                                           */
-/*  This library is free software, licensed under the terms of the GNU       */
-/*  General Public License as published by the Free Software Foundation,     */
-/*  either version 3 of the License, or (at your option) any later version.  */
-/*  You should have received a copy of the GNU General Public License        */
-/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
-/*****************************************************************************/
+/**
+ * Copyright (c) 2023-present Merlot.Rain
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
 #include "nv-common.h"
 
-double _mg_prop_length_value(const struct nv_geobject *obj)
+double _nv_prop_length_value(const struct nv_geobject *obj)
 {
     size_t n = obj->npoints;
     if (n <= 1) {
@@ -34,17 +45,17 @@ double _mg_prop_length_value(const struct nv_geobject *obj)
 }
 
 /// calc geometry length
-double mg_prop_length_value(const struct nv_geobject *obj)
+double nv_prop_length_value(const struct nv_geobject *obj)
 {
     assert(obj);
 
     double sum = 0.0;
     if (obj->ngeoms == 0) {
-        sum = _mg_prop_length_value(obj);
+        sum = _nv_prop_length_value(obj);
     }
     else {
         for (int i = 0; i < obj->ngeoms; ++i) {
-            sum += _mg_prop_length_value(obj->objects[i]);
+            sum += _nv_prop_length_value(obj->objects[i]);
         }
     }
     return sum;

@@ -21,50 +21,45 @@
  */
 
 #include <nv.h>
-#include <string.h>
 
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
-int init_wkt_suite(void)
+int init_point_suite(void)
 {
     return 0;
 }
 
-int clean_wkt_suite(void)
+int clean_point_suite(void)
 {
     return 0;
 }
 
-void io_wkt_Test1(void)
+void algorithm_point_Test1(void)
 {
-    char p[] = "POINT (30 10)";
-    struct nv_geobject *obj = nv_read(GEOMETRY_IO_WKT, p, strlen(p));
-    CU_ASSERT(obj != NULL);
-    CU_ASSERT(nv_dim_g(obj) == 0);
-    CU_ASSERT(nv_dim_c(obj) == 2);
-    CU_ASSERT(nv_point_n(obj) == 1);
-    nv_free_object(obj);
+    struct nv_point p1 = {.x = 10.0, .y = 0};
+    struct nv_point p2 = {.x = 10.0, .y = 10.0};
+    struct nv_point p3 = {.x = 0.0, .y = 10.0};
+    struct nv_point p4 = {.x = -10.0, .y = 10.0};
+    struct nv_point p5 = {.x = -10.0, .y = 0};
+    struct nv_point p6 = {.x = -10.0, .y = -0.1};
+    struct nv_point p7 = {.x = -10.0, .y = -10.0};
+    CU_ASSERT_EQUAL(0.0, nv_angle(p1));
+    CU_ASSERT_EQUAL(M_PI / 4.0, nv_angle(p2));
+    CU_ASSERT_EQUAL(M_PI / 2.0, nv_angle(p3));
+    CU_ASSERT_EQUAL(0.75 * M_PI, nv_angle(p4));
+    CU_ASSERT_EQUAL(M_PI, nv_angle(p5));
+    CU_ASSERT_EQUAL(-3.131592987, nv_angle(p6));
+    CU_ASSERT_EQUAL(-0.75 * M_PI, nv_angle(p7));
 }
 
-void io_wkt_Test2(void)
-{
-    char p[] = "LINESTRING (30 10, 10 30, 40 40)";
-    struct nv_geobject *obj = nv_read(GEOMETRY_IO_WKT, p, strlen(p));
-    CU_ASSERT(obj != NULL);
-    CU_ASSERT(nv_dim_g(obj) == 1);
-    CU_ASSERT(nv_dim_c(obj) == 2);
-    CU_ASSERT(nv_point_n(obj) == 3);
-    nv_free_object(obj);
-}
-
-int io_wktSuite()
+int algorithm_pointSuite()
 {
     CU_pSuite pSuite = NULL;
-    pSuite = CU_add_suite("io-wkt", init_wkt_suite, clean_wkt_suite);
+    pSuite =
+        CU_add_suite("algorithm-point", init_point_suite, clean_point_suite);
 
-    if (NULL == CU_add_test(pSuite, "wkt Test1", io_wkt_Test1) ||
-        NULL == CU_add_test(pSuite, "wkt Test2", io_wkt_Test2)) {
+    if (NULL == CU_add_test(pSuite, "point Test1", algorithm_point_Test1)) {
         return CU_get_error();
     }
     return CUE_SUCCESS;

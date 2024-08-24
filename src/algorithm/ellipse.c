@@ -1,23 +1,36 @@
-/*****************************************************************************/
-/*                                                                           */
-/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
-/*                                                                           */
-/*  This library is free software, licensed under the terms of the GNU       */
-/*  General Public License as published by the Free Software Foundation,     */
-/*  either version 3 of the License, or (at your option) any later version.  */
-/*  You should have received a copy of the GNU General Public License        */
-/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
-/*****************************************************************************/
+/**
+ * Copyright (c) 2023-present Merlot.Rain
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
 #include "nv-common.h"
+#include <math.h>
+#include <stdlib.h>
 
 /// triangle inscribed circle
-static struct nv_ellipse _tri_inscribed_circle(const struct nv_point p1,
-                                               const struct nv_point p2,
-                                               const struct nv_point p3)
+static struct nv_ellipse nv__tri_inscribed_circle(const struct nv_point p1,
+                                                  const struct nv_point p2,
+                                                  const struct nv_point p3)
 {
-    double l[3] = {MG_POINTDISTANCE2(p1, p2), MG_POINTDISTANCE2(p2, p3),
-                   MG_POINTDISTANCE2(p3, p1)};
+    double l[3] = {NV_POINTDISTANCE2(p1, p2), NV_POINTDISTANCE2(p2, p3),
+                   NV_POINTDISTANCE2(p3, p1)};
     double per = l[0] + l[1] + l[2];
     double x = (l[0] * p3.x + l[1] * p1.x + l[2] * p2.x) / per;
     double y = (l[0] * p3.y + l[1] * p1.y + l[2] * p2.y) / per;
@@ -31,12 +44,12 @@ static struct nv_ellipse _tri_inscribed_circle(const struct nv_point p1,
 }
 
 /// check cricle list contains one circle
-static bool _contains_circle(const struct nv_ellipse *es, int n,
-                             const struct nv_point c, double r)
+static bool nv__contains_circle(const struct nv_ellipse *es, int n,
+                                const struct nv_point c, double r)
 {
     for (int i = 0; i < n; ++i) {
-        if (MG_POINTDISTANCE2(es[i].center, c) &&
-            MG_DOUBLE_NEARES2(es[i].major, r)) {
+        if (NV_POINTDISTANCE2(es[i].center, c) &&
+            NV_DOUBLE_NEARES2(es[i].major, r)) {
             return true;
         }
     }
@@ -45,8 +58,8 @@ static bool _contains_circle(const struct nv_ellipse *es, int n,
 
 /// Returns a new point which corresponds to this point projected by a specified
 /// distance with specified angles
-static struct nv_point _point_project(const struct nv_point p, double dis,
-                                      double azimuth)
+static struct nv_point nv__point_project(const struct nv_point p, double dis,
+                                         double azimuth)
 {
     struct nv_point pr;
     const double rads = azimuth * M_PI / 180.0;
@@ -60,7 +73,7 @@ static struct nv_point _point_project(const struct nv_point p, double dis,
     return pr;
 }
 
-static double _normalized_angle(double angle)
+static double nv__normalized_angle(double angle)
 {
     double clippedAngle = angle;
     if (clippedAngle >= M_PI * 2 || clippedAngle <= -2 * M_PI) {
@@ -72,52 +85,52 @@ static double _normalized_angle(double angle)
     return clippedAngle;
 }
 
-static double _line_angle(double x1, double y1, double x2, double y2)
+static double nv__line_angle(double x1, double y1, double x2, double y2)
 {
     double at = atan2(y2 - y1, x2 - x1);
     double a = -at + M_PI_2;
-    return _normalized_angle(a);
+    return nv__normalized_angle(a);
 }
 
-static bool _is_perpendicular(const struct nv_point pt1,
-                              const struct nv_point pt2,
-                              const struct nv_point pt3)
+static bool nv__is_perpendicular(const struct nv_point pt1,
+                                 const struct nv_point pt2,
+                                 const struct nv_point pt3)
 {
     double yDelta_a = pt2.y - pt1.y;
     double xDelta_a = pt2.x - pt1.x;
     double yDelta_b = pt3.y - pt2.y;
     double xDelta_b = pt3.x - pt2.x;
 
-    if (MG_DOUBLE_NEARES(xDelta_a) && MG_DOUBLE_NEARES(yDelta_b)) {
+    if (NV_DOUBLE_NEARES(xDelta_a) && NV_DOUBLE_NEARES(yDelta_b)) {
         return false;
     }
 
-    if (MG_DOUBLE_NEARES(yDelta_a)) {
+    if (NV_DOUBLE_NEARES(yDelta_a)) {
         return true;
     }
-    else if (MG_DOUBLE_NEARES(yDelta_b)) {
+    else if (NV_DOUBLE_NEARES(yDelta_b)) {
         return true;
     }
-    else if (MG_DOUBLE_NEARES(xDelta_a)) {
+    else if (NV_DOUBLE_NEARES(xDelta_a)) {
         return true;
     }
-    else if (MG_DOUBLE_NEARES(xDelta_b)) {
+    else if (NV_DOUBLE_NEARES(xDelta_b)) {
         return true;
     }
     return false;
 }
 
-static void _from_2parallels_line(const struct nv_point pt1_par1,
-                                  const struct nv_point pt2_par1,
-                                  const struct nv_point pt1_par2,
-                                  const struct nv_point pt2_par2,
-                                  const struct nv_point pt1_line1,
-                                  const struct nv_point pt2_line1,
-                                  struct nv_ellipse *rs, int *n)
+static void nv__from_2parallels_line(const struct nv_point pt1_par1,
+                                     const struct nv_point pt2_par1,
+                                     const struct nv_point pt1_par2,
+                                     const struct nv_point pt2_par2,
+                                     const struct nv_point pt1_line1,
+                                     const struct nv_point pt2_line1,
+                                     struct nv_ellipse *rs, int *n)
 {
     int _en = 0;
     const double radius =
-        mg_dis_point_to_perpendicular(pt1_par1, pt1_par2, pt2_par2) / 2.0;
+        nv_dis_point_to_perpendicular(pt1_par1, pt1_par2, pt2_par2) / 2.0;
 
     bool isInter;
     const struct nv_point ptInter;
@@ -125,16 +138,16 @@ static void _from_2parallels_line(const struct nv_point pt1_par1,
     struct nv_point ptInter_par1line1, ptInter_par2line1;
     double angle1, angle2;
     double x, y;
-    mg_angle_bisector(pt1_par1, pt2_par1, pt1_line1, pt2_line1,
+    nv_angle_bisector(pt1_par1, pt2_par1, pt1_line1, pt2_line1,
                       &ptInter_par1line1, &angle1);
 
-    mg_angle_bisector(pt1_par2, pt2_par2, pt1_line1, pt2_line1,
+    nv_angle_bisector(pt1_par2, pt2_par2, pt1_line1, pt2_line1,
                       &ptInter_par2line1, &angle2);
 
     struct nv_point center;
-    mg_segment_intersection(
-        ptInter_par1line1, _point_project(ptInter_par1line1, 1.0, angle1),
-        ptInter_par2line1, _point_project(ptInter_par2line1, 1.0, angle2),
+    nv_segment_intersection(
+        ptInter_par1line1, nv__point_project(ptInter_par1line1, 1.0, angle1),
+        ptInter_par2line1, nv__point_project(ptInter_par2line1, 1.0, angle2),
         &center, &isInter);
     if (isInter) {
         _en++;
@@ -145,10 +158,11 @@ static void _from_2parallels_line(const struct nv_point pt1_par1,
         rs[_en - 1].azimuth = 0;
     }
 
-    mg_segment_intersection(
-        ptInter_par1line1, _point_project(ptInter_par1line1, 1.0, angle1),
-        ptInter_par2line1, _point_project(ptInter_par2line1, 1.0, angle2 + 90),
-        &center, &isInter);
+    nv_segment_intersection(
+        ptInter_par1line1, nv__point_project(ptInter_par1line1, 1.0, angle1),
+        ptInter_par2line1,
+        nv__point_project(ptInter_par2line1, 1.0, angle2 + 90), &center,
+        &isInter);
     if (isInter) {
         _en++;
         *n = _en;
@@ -158,11 +172,12 @@ static void _from_2parallels_line(const struct nv_point pt1_par1,
         rs[_en - 1].azimuth = 0;
     }
 
-    mg_segment_intersection(
-        ptInter_par1line1, _point_project(ptInter_par1line1, 1.0, angle1 + 90),
-        ptInter_par2line1, _point_project(ptInter_par2line1, 1.0, angle2),
+    nv_segment_intersection(
+        ptInter_par1line1,
+        nv__point_project(ptInter_par1line1, 1.0, angle1 + 90),
+        ptInter_par2line1, nv__point_project(ptInter_par2line1, 1.0, angle2),
         &center, &isInter);
-    if (isInter && !_contains_circle(rs, *n, center, radius)) {
+    if (isInter && !nv__contains_circle(rs, *n, center, radius)) {
         _en++;
         *n = _en;
         rs[_en - 1].center = center;
@@ -171,11 +186,12 @@ static void _from_2parallels_line(const struct nv_point pt1_par1,
         rs[_en - 1].azimuth = 0;
     }
 
-    mg_segment_intersection(
-        ptInter_par1line1, _point_project(ptInter_par1line1, 1.0, angle1 + 90),
-        ptInter_par2line1, _point_project(ptInter_par2line1, 1.0, angle2),
+    nv_segment_intersection(
+        ptInter_par1line1,
+        nv__point_project(ptInter_par1line1, 1.0, angle1 + 90),
+        ptInter_par2line1, nv__point_project(ptInter_par2line1, 1.0, angle2),
         &center, &isInter);
-    if (isInter && !_contains_circle(rs, *n, center, radius)) {
+    if (isInter && !nv__contains_circle(rs, *n, center, radius)) {
         _en++;
         *n = _en;
         rs[_en - 1].center = center;
@@ -185,59 +201,25 @@ static void _from_2parallels_line(const struct nv_point pt1_par1,
     }
 }
 
-void mg_ellipse_prop_value(const struct nv_ellipse ell, int flags,
-                           double *values)
-{
-    int pos = 0;
-    assert(values);
-
-    // calc eccentrucity
-    if (flags & MG_ELLIPSE_PROP_VALUE_ECCENTRICITY) {
-        double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
-        values[pos] = dis / ell.major;
-        pos += 1;
-    }
-
-    // calc area
-    if (flags & MG_ELLIPSE_PROP_VALUE_AREA) {
-        values[pos] = M_PI * ell.major * ell.minor;
-        pos += 1;
-    }
-
-    // calc perimeter
-    if (flags & MG_ELLIPSE_PROP_VALUE_PERIMETER) {
-        if (ell.major == ell.minor) {
-            values[pos] = M_PI * 2.0 * ell.major;
-        }
-        else {
-            values[pos] =
-                M_PI *
-                (3 * (ell.major + ell.minor) -
-                 sqrt(10 * ell.major * ell.minor +
-                      3 * (ell.major * ell.major + ell.minor * ell.minor)));
-        }
-        pos += 1;
-    }
-
-    // calc foci
-    if (flags & MG_ELLIPSE_PROP_VALUE_FOCI) {
-        double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
-        struct nv_point p1 = _point_project(ell.center, dis, ell.azimuth);
-        struct nv_point p2 = _point_project(ell.center, -dis, ell.azimuth);
-        memcpy(values + pos, &p1, sizeof(struct nv_point));
-        memcpy(values + pos + 2, &p2, sizeof(struct nv_point));
-        pos += 4;
-    }
-
-    // calc focus distance
-    if (flags & MG_ELLIPSE_PROP_FOCUS_DISTANCE) {
-        double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
-        values[pos] = dis;
-        pos += 1;
-    }
-}
-
-void mg_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
+/// @brief Construct circles according to different calculation methods.
+///
+/// Construct circles according to different calculation methods. \a t is
+/// determined based on the \a NV_CONSTRUCT_CIRCLE series macros.
+/// For NV_CONSTRUCT_CIRCLE_2P andNV_CONSTRUCT_CIRCLE_3P, a circle will
+/// ultimately be generated.
+/// When the value of \a n is NV_CONSTRUCT_CIRCLE_ICT, if \a n is -1, the
+/// algorithm for generating multiple tangent circles will be executed. If \a n
+/// is -2, only one circle will be generated. And after the algorithm is
+/// executed, the number of circles generated is transmitted out. External CS
+/// needs to create an array of sufficient size according to requirements to
+/// receive the return value.
+///
+/// @param p points
+/// @param t calculation method
+/// @param es circles
+/// @param n number of circles
+/// @return
+void nv_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
                          int *n)
 {
     assert(p);
@@ -253,7 +235,7 @@ void mg_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
     /// @param pt1 First point.
     /// @param pt2 Second point.
     ///
-    if (MG_CONSTRUCT_CIRCLE_2P == t) {
+    if (NV_CONSTRUCT_CIRCLE_2P == t) {
         struct nv_point pt1 = p[0];
         struct nv_point pt2 = p[1];
 
@@ -262,7 +244,8 @@ void mg_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
         double radius = sqrt((pt1.x - pt2.x) * (pt1.x - pt2.x) +
                              (pt1.y - pt2.y) * (pt1.y - pt2.y)) /
                         2;
-        double azimuth = _line_angle(pt1.x, pt1.y, pt2.x, pt2.y) * 180.0 / M_PI;
+        double azimuth =
+            nv__line_angle(pt1.x, pt1.y, pt2.x, pt2.y) * 180.0 / M_PI;
         rs[0].center = center;
         rs[0].major = radius;
         rs[0].minor = radius;
@@ -280,37 +263,37 @@ void mg_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
     /// @param pt2 Second point.
     /// @param pt3 Third point.
     ///
-    else if (MG_CONSTRUCT_CIRCLE_3P == t) {
+    else if (NV_CONSTRUCT_CIRCLE_3P == t) {
         struct nv_point p1, p2, p3;
         struct nv_point pt1 = p[0];
         struct nv_point pt2 = p[1];
         struct nv_point pt3 = p[2];
-        if (!_is_perpendicular(pt1, pt2, pt3)) {
+        if (!nv__is_perpendicular(pt1, pt2, pt3)) {
             p1 = pt1;
             p2 = pt2;
             p3 = pt3;
         }
-        else if (!_is_perpendicular(pt1, pt3, pt2)) {
+        else if (!nv__is_perpendicular(pt1, pt3, pt2)) {
             p1 = pt1;
             p2 = pt3;
             p3 = pt2;
         }
-        else if (!_is_perpendicular(pt2, pt1, pt3)) {
+        else if (!nv__is_perpendicular(pt2, pt1, pt3)) {
             p1 = pt2;
             p2 = pt1;
             p3 = pt3;
         }
-        else if (!_is_perpendicular(pt2, pt3, pt1)) {
+        else if (!nv__is_perpendicular(pt2, pt3, pt1)) {
             p1 = pt2;
             p2 = pt3;
             p3 = pt1;
         }
-        else if (!_is_perpendicular(pt3, pt2, pt1)) {
+        else if (!nv__is_perpendicular(pt3, pt2, pt1)) {
             p1 = pt3;
             p2 = pt2;
             p3 = pt1;
         }
-        else if (!_is_perpendicular(pt3, pt1, pt2)) {
+        else if (!nv__is_perpendicular(pt3, pt1, pt2)) {
             p1 = pt3;
             p2 = pt1;
             p3 = pt2;
@@ -324,17 +307,17 @@ void mg_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
         const double yDelta_b = p3.y - p2.y;
         const double xDelta_b = p3.x - p2.x;
 
-        if (MG_DOUBLE_NEARES(xDelta_a) || MG_DOUBLE_NEARES(xDelta_b)) {
+        if (NV_DOUBLE_NEARES(xDelta_a) || NV_DOUBLE_NEARES(xDelta_b)) {
             *n = 0;
             return;
         }
         const double aSlope = yDelta_a / xDelta_a;
         const double bSlope = yDelta_b / xDelta_b;
-        if ((MG_DOUBLE_NEARES(xDelta_a)) && (MG_DOUBLE_NEARES(yDelta_b))) {
+        if ((NV_DOUBLE_NEARES(xDelta_a)) && (NV_DOUBLE_NEARES(yDelta_b))) {
             struct nv_point center;
             center.x = 0.5 * (p2.x + p3.x);
             center.y = 0.5 * (p1.y + p2.y);
-            double radius = MG_POINTDISTANCE2(center, pt1);
+            double radius = NV_POINTDISTANCE2(center, pt1);
 
             rs[0].center = center;
             rs[0].major = radius;
@@ -343,7 +326,7 @@ void mg_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
             *n = 1;
         }
 
-        if (MG_DOUBLE_NEARES(aSlope - bSlope)) {
+        if (NV_DOUBLE_NEARES(aSlope - bSlope)) {
             *n = 0;
             return;
         }
@@ -353,7 +336,7 @@ void mg_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
                    (2.0 * (bSlope - aSlope));
         center.y = -1.0 * (center.x - (p1.x + p2.x) / 2.0) / aSlope +
                    (p1.y + p2.y) / 2.0;
-        double radius = MG_POINTDISTANCE2(center, pt1);
+        double radius = NV_POINTDISTANCE2(center, pt1);
         rs[0].center = center;
         rs[0].major = radius;
         rs[0].minor = radius;
@@ -376,7 +359,7 @@ void mg_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
     /// is returned. -- This case happens only when two tangents are parallels.
     /// (since QGIS 3.18)
     ///
-    else if (MG_CONSTRUCT_CIRCLE_ICT == t) {
+    else if (NV_CONSTRUCT_CIRCLE_ICT == t) {
         struct nv_point pt1_tg1 = p[0];
         struct nv_point pt2_tg1 = p[1];
         struct nv_point pt1_tg2 = p[2];
@@ -388,11 +371,11 @@ void mg_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
         bool isIntersect_tg1tg2 = false;
         bool isIntersect_tg1tg3 = false;
         bool isIntersect_tg2tg3 = false;
-        mg_segment_intersection(pt1_tg1, pt2_tg1, pt1_tg2, pt2_tg2, &p1,
+        nv_segment_intersection(pt1_tg1, pt2_tg1, pt1_tg2, pt2_tg2, &p1,
                                 &isIntersect_tg1tg2);
-        mg_segment_intersection(pt1_tg1, pt2_tg1, pt1_tg3, pt2_tg3, &p2,
+        nv_segment_intersection(pt1_tg1, pt2_tg1, pt1_tg3, pt2_tg3, &p2,
                                 &isIntersect_tg1tg3);
-        mg_segment_intersection(pt1_tg2, pt2_tg2, pt1_tg3, pt2_tg3, &p3,
+        nv_segment_intersection(pt1_tg2, pt2_tg2, pt1_tg3, pt2_tg3, &p3,
                                 &isIntersect_tg2tg3);
 
         if (!isIntersect_tg1tg2 &&
@@ -403,34 +386,110 @@ void mg_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
         }
 
         if (!isIntersect_tg1tg2) {
-            _from_2parallels_line(pt1_tg1, pt2_tg1, pt1_tg2, pt2_tg2, pt1_tg3,
-                                  pt2_tg3, rs, n);
+            nv__from_2parallels_line(pt1_tg1, pt2_tg1, pt1_tg2, pt2_tg2,
+                                     pt1_tg3, pt2_tg3, rs, n);
             return;
         }
         else if (!isIntersect_tg1tg3) {
-            _from_2parallels_line(pt1_tg1, pt2_tg1, pt1_tg3, pt2_tg3, pt1_tg2,
-                                  pt2_tg2, rs, n);
+            nv__from_2parallels_line(pt1_tg1, pt2_tg1, pt1_tg3, pt2_tg3,
+                                     pt1_tg2, pt2_tg2, rs, n);
             return;
         }
         else if (!isIntersect_tg2tg3) {
-            _from_2parallels_line(pt1_tg2, pt2_tg2, pt1_tg3, pt2_tg3, pt1_tg1,
-                                  pt1_tg1, rs, n);
+            nv__from_2parallels_line(pt1_tg2, pt2_tg2, pt1_tg3, pt2_tg3,
+                                     pt1_tg1, pt1_tg1, rs, n);
             return;
         }
 
         // 3 tangents are not parallels
-        rs[0] = _tri_inscribed_circle(p1, p2, p3);
+        rs[0] = nv__tri_inscribed_circle(p1, p2, p3);
         *n = 1;
     }
 }
 
-struct nv_geobject *mg_stroke_ellipse(struct nv_ellipse e, uint32_t param)
+/// @brief query ellipse attribute
+///
+/// Calculate the ellipse attribute. \a flags are a combination of
+/// \a NV_ELLIPSE_PROP macro series. When passing in \a values externally, the
+/// data structure needs to be organized by oneself. The algorithm will write
+/// the calculation result in sequence based on the bits of the flag.
+///
+/// @param ell ellipse
+/// @param flags query flag
+/// @param values query result
+/// @return
+void nv_ellipse_prop_value(const struct nv_ellipse ell, int flags,
+                           double *values)
+{
+    int pos = 0;
+    assert(values);
+
+    // calc eccentrucity
+    if (flags & NV_ELLIPSE_PROP_VALUE_ECCENTRICITY) {
+        double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
+        values[pos] = dis / ell.major;
+        pos += 1;
+    }
+
+    // calc area
+    if (flags & NV_ELLIPSE_PROP_VALUE_AREA) {
+        values[pos] = M_PI * ell.major * ell.minor;
+        pos += 1;
+    }
+
+    // calc perimeter
+    if (flags & NV_ELLIPSE_PROP_VALUE_PERIMETER) {
+        if (ell.major == ell.minor) {
+            values[pos] = M_PI * 2.0 * ell.major;
+        }
+        else {
+            values[pos] =
+                M_PI *
+                (3 * (ell.major + ell.minor) -
+                 sqrt(10 * ell.major * ell.minor +
+                      3 * (ell.major * ell.major + ell.minor * ell.minor)));
+        }
+        pos += 1;
+    }
+
+    // calc foci
+    if (flags & NV_ELLIPSE_PROP_VALUE_FOCI) {
+        double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
+        struct nv_point p1 = nv__point_project(ell.center, dis, ell.azimuth);
+        struct nv_point p2 = nv__point_project(ell.center, -dis, ell.azimuth);
+        memcpy(values + pos, &p1, sizeof(struct nv_point));
+        memcpy(values + pos + 2, &p2, sizeof(struct nv_point));
+        pos += 4;
+    }
+
+    // calc focus distance
+    if (flags & NV_ELLIPSE_PROP_FOCUS_DISTANCE) {
+        double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
+        values[pos] = dis;
+        pos += 1;
+    }
+}
+
+/// @brief stroke ellipse to nv_geobject
+/// @param e ellipse
+/// @param param geometry dim and segment count
+/// Use the highest bit of an integer to represent the geometric dimension, 1:
+/// line, 2: area. When passing other values, use the default dimension of 1;
+/// The remaining digits represent the interpolation number. When the input
+/// interpolation number is less than 3, the default interpolation number of 36
+/// will be used.
+/// @example
+/// param: 246 create a polygon, segment to 46 linesegments
+/// param: 52: error code, use default value
+///
+/// @return nv_geobject
+struct nv_geobject *nv_ellipse_stroke(struct nv_ellipse e, uint32_t param)
 {
     if (param < 1)
         return NULL;
 
-    int gdim = param / (int)pow(10, (int)log10(param));
-    int nseg = param % (int)pow(10, (int)log10(param));
+    size_t gdim = param / (size_t)pow(10, (size_t)log10(param));
+    size_t nseg = param % (size_t)pow(10, (size_t)log10(param));
     if (gdim < 2 || gdim > 3)
         return NULL;
     if (nseg < 3)
@@ -441,10 +500,10 @@ struct nv_geobject *mg_stroke_ellipse(struct nv_ellipse e, uint32_t param)
         return NULL;
     }
 
-    struct nv_point qu = _point_project(e.center, e.major, e.azimuth);
+    struct nv_point qu = nv__point_project(e.center, e.major, e.azimuth);
     double az = atan2(qu.y - e.center.y, qu.x - e.center.x);
 
-    for (int i = 0; i < nseg; ++i) {
+    for (size_t i = 0; i < nseg; ++i) {
         double t = (2 * M_PI - ((2 * M_PI) / nseg * i));
         pp[i * 2] = e.center.x + e.major * cos(t) * cos(az) -
                     e.minor * sin(t) * sin(az);
@@ -455,5 +514,5 @@ struct nv_geobject *mg_stroke_ellipse(struct nv_ellipse e, uint32_t param)
     pp[nseg * 2] = pp[0];
     pp[nseg * 2 + 1] = pp[1];
 
-    return mg_create_single(gdim, nseg + 1, 2, pp, 0);
+    return nv_geo_create_single(gdim, nseg + 1, 2, pp, 0);
 }

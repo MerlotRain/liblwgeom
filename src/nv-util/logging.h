@@ -27,19 +27,19 @@
 extern "C" {
 #endif
 
-#define MG_LOGLEVEL_ALL   (-99999) // print all log message
-#define MG_LOGLEVEL_NONE  99999    // no log
-#define MG_LOGLEVEL_TRACE 1        // eg for each field value parsed
-#define MG_LOGLEVEL_DEBUG 2        // only debug level
-#define MG_LOGLEVEL_INFO  3        // only general info and object codes/names
-#define MG_LOGLEVEL_WARN  4        // only warning messages
-#define MG_LOGLEVEL_ERROR 5        // only error message
-#define MG_LOGLEVEL_FATAL 6        // fatal error, the programe will abort
+#define NV_LOGLEVEL_ALL   (-99999) // print all log message
+#define NV_LOGLEVEL_NONE  99999    // no log
+#define NV_LOGLEVEL_TRACE 1        // eg for each field value parsed
+#define NV_LOGLEVEL_DEBUG 2        // only debug level
+#define NV_LOGLEVEL_INFO  3        // only general info and object codes/names
+#define NV_LOGLEVEL_WARN  4        // only warning messages
+#define NV_LOGLEVEL_ERROR 5        // only error message
+#define NV_LOGLEVEL_FATAL 6        // fatal error, the programe will abort
 
 #ifdef _DEBUG
-#define MG_LOGLEVEL MG_LOGLEVEL_DEBUG
+#define NV_LOGLEVEL NV_LOGLEVEL_DEBUG
 #else
-#define MG_LOGLEVEL MG_LOGLEVEL_ERROR
+#define NV_LOGLEVEL NV_LOGLEVEL_ERROR
 #endif
 
 #define HANDLER fprintf
@@ -47,14 +47,14 @@ extern "C" {
 
 #define LOG(level, ...)                           \
     {                                             \
-        if (MG_LOGLEVEL_##level >= MG_LOGLEVEL) { \
+        if (NV_LOGLEVEL_##level >= NV_LOGLEVEL) { \
             HANDLER(OUTPUT, __VA_ARGS__);         \
         }                                         \
     }
 
 #define LOG_FATAL(...)                          \
     {                                           \
-        if (MG_LOGLEVEL_FATAL >= MG_LOGLEVEL) { \
+        if (NV_LOGLEVEL_FATAL >= NV_LOGLEVEL) { \
             HANDLER(OUTPUT, "FATAL: ");         \
             LOG(FATAL, __VA_ARGS__)             \
             HANDLER(OUTPUT, "\n");              \
@@ -64,7 +64,7 @@ extern "C" {
 
 #define LOG_ERROR(...)                          \
     {                                           \
-        if (MG_LOGLEVEL_ERROR >= MG_LOGLEVEL) { \
+        if (NV_LOGLEVEL_ERROR >= NV_LOGLEVEL) { \
             HANDLER(OUTPUT, "ERROR: ");         \
             LOG(ERROR, __VA_ARGS__)             \
             HANDLER(OUTPUT, "\n");              \
@@ -73,7 +73,7 @@ extern "C" {
 
 #define LOG_WARN(...)                          \
     {                                          \
-        if (MG_LOGLEVEL_WARN >= MG_LOGLEVEL) { \
+        if (NV_LOGLEVEL_WARN >= NV_LOGLEVEL) { \
             HANDLER(OUTPUT, "WARN: ");         \
             LOG(WARN, __VA_ARGS__)             \
             HANDLER(OUTPUT, "\n");             \

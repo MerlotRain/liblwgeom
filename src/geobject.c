@@ -20,7 +20,8 @@
  * IN THE SOFTWARE.
  */
 
-#include "nvp.h"
+#include "nv-common.h"
+#include <stdlib.h>
 
 /* ---------------------------- geometry factory ---------------------------- */
 
@@ -30,8 +31,8 @@
 /// @param cdim coordinate dimension 2:2D, 3:3D
 /// @param pp point coordinates
 /// @param flag geometry type 0: reference pp, 1: copy pp
-struct nv_geobject *mg_create_single(int gdim, int pn, int cdim,
-                                     const double *pp, int flag)
+struct nv_geobject *nv_geo_create_single(int gdim, int pn, int cdim,
+                                         const double *pp, int flag)
 {
     assert(pp);
     struct nv_geobject *obj =
@@ -51,7 +52,7 @@ struct nv_geobject *mg_create_single(int gdim, int pn, int cdim,
     else {
         obj->pp = (double *)malloc(sizeof(double) * pn * cdim);
         if (obj->pp == NULL) {
-            mg_free_object(obj);
+            nv_geo_free(obj);
             return NULL;
         }
         memcpy(obj->pp, pp, sizeof(double) * pn * cdim);
@@ -70,8 +71,8 @@ struct nv_geobject *mg_create_single(int gdim, int pn, int cdim,
 /// @param snum geometry number
 /// @param subs geometry array
 /// @return geometry object
-struct nv_geobject *mg_create_multi(int gdim, int snum,
-                                    struct nv_geobject **subs)
+struct nv_geobject *nv_geo_create_multi(int gdim, int snum,
+                                        struct nv_geobject **subs)
 {
     assert(subs);
     struct nv_geobject *obj =
@@ -94,13 +95,13 @@ struct nv_geobject *mg_create_multi(int gdim, int snum,
                 struct nv_geobject **tobjs = (struct nv_geobject **)realloc(
                     obj->objects, obj->ngeoms * sizeof(struct nv_geobject *));
                 if (tobjs == NULL) {
-                    mg_free_object(obj);
+                    nv_geo_free(obj);
                     return NULL;
                 }
                 obj->objects = tobjs;
 
                 if (obj->objects == NULL) {
-                    mg_free_object(obj);
+                    nv_geo_free(obj);
                     return NULL;
                 }
                 obj->objects[obj->ngeoms - 1] = sub;
@@ -119,13 +120,13 @@ struct nv_geobject *mg_create_multi(int gdim, int snum,
                         obj->objects,
                         obj->ngeoms * sizeof(struct nv_geobject *));
                     if (tobjs == NULL) {
-                        mg_free_object(obj);
+                        nv_geo_free(obj);
                         return NULL;
                     }
                     obj->objects = tobjs;
 
                     if (obj->objects == NULL) {
-                        mg_free_object(obj);
+                        nv_geo_free(obj);
                         return NULL;
                     }
                     obj->objects[obj->ngeoms - 1] = ssub;
@@ -146,7 +147,7 @@ struct nv_geobject *mg_create_multi(int gdim, int snum,
     return obj;
 }
 
-void _mg_free_object(struct nv_geobject *g)
+void nv__geo_free(struct nv_geobject *g)
 {
     assert(g);
     if (g->flag != 0) {
@@ -155,41 +156,59 @@ void _mg_free_object(struct nv_geobject *g)
     free(g);
 }
 
-void mg_free_object(struct nv_geobject *g)
+/// @brief free geometry object
+/// @param obj
+/// @return
+void nv_geo_free(struct nv_geobject *g)
 {
     assert(g);
     if (g->ngeoms == 1) {
-        _mg_free_object(g);
+        nv__geo_free(g);
     }
     else {
         for (int i = 0; i < g->ngeoms; ++i) {
             struct nv_geobject *sub = g->objects[i];
             if (sub == NULL)
                 continue;
-            _mg_free_object(sub);
+            nv__geo_free(sub);
         }
     }
 }
 
-int mg_dim_c(const struct nv_geobject *obj)
+/// @brief return geometry coordinate dimension
+/// @param obj
+/// @return 2 or 3
+int nv_geo_dim_c(const struct nv_geobject *obj)
 {
     assert(obj);
     return obj->cdim;
 }
 
-int mg_dim_g(const struct nv_geobject *obj)
+/// @brief return geometry dimension
+/// @param obj
+/// @return 0:point, 1:line, 2:area
+/// TODO: 3:collection
+int nv_geo_dim_g(const struct nv_geobject *obj)
 {
     assert(obj);
     return obj->gdim;
 }
 
-int mg_sub_n(const struct nv_geobject *obj)
+/// @brief return geometry number
+/// @param obj
+/// @return geometry number
+int nv_geo_sub_n(const struct nv_geobject *obj)
 {
     assert(obj);
     return obj->ngeoms;
 }
 
-struct nv_geobject *mg_sub_at(const struct nv_geobject *obj, int i)
+/// @brief return sub of multi geometry
+/// @param obj multi geometry
+/// @param i index
+/// @return sub geometry, When \a obj is a single geometry object, returns
+/// itself
+struct nv_geobject *nv_geo_sub_at(const struct nv_geobject *obj, int i)
 {
     assert(obj);
     if (obj->ngeoms == 1) {
@@ -205,7 +224,10 @@ struct nv_geobject *mg_sub_at(const struct nv_geobject *obj, int i)
     return NULL;
 }
 
-int mg_point_n(const struct nv_geobject *obj)
+/// @brief return point number
+/// @param obj
+/// @return point number
+int nv_geo_point_n(const struct nv_geobject *obj)
 {
     assert(obj);
     if (obj->ngeoms == 1) {
@@ -225,36 +247,36 @@ int mg_point_n(const struct nv_geobject *obj)
 
 /* ------------------------------- geometry io ------------------------------ */
 
-struct nv_geobject *mg_read(int flag, const char *data, size_t len)
+struct nv_geobject *nv_geo_read(int flag, const char *data, size_t len)
 {
     assert(data);
     switch (flag) {
-    case GEOMETRY_IO_WKT: {
-        return mg_read_wkt(data, len);
+    case NV_GEOMETRY_IO_WKT: {
+        return nv_geo_read_wkt(data, len);
     }
-    case GEOMETRY_IO_WKB: {
-        return mg_read_wkb(data, len, false);
+    case NV_GEOMETRY_IO_WKB: {
+        return nv_geo_read_wkb(data, len, false);
     }
-    case GEOMETRY_IO_WKB_HEX: {
-        return mg_read_wkb(data, len, true);
+    case NV_GEOMETRY_IO_WKB_HEX: {
+        return nv_geo_read_wkb(data, len, true);
     }
-    case GEOMETRY_IO_GEOJSON: {
-        return mg_read_geojson(data, len);
+    case NV_GEOMETRY_IO_GEOJSON: {
+        return nv_geo_read_geojson(data, len);
     }
-    case GEOMETRY_IO_EWKT: {
-        return mg_read_ewkt(data, len);
+    case NV_GEOMETRY_IO_EWKT: {
+        return nv_geo_read_ewkt(data, len);
     }
-    case GEOMETRY_IO_EWKB: {
-        return mg_read_ewkb(data, len);
+    case NV_GEOMETRY_IO_EWKB: {
+        return nv_geo_read_ewkb(data, len);
     }
-    case GEOMETRY_IO_KML: {
-        return mg_read_kml(data, len);
+    case NV_GEOMETRY_IO_KML: {
+        return nv_geo_read_kml(data, len);
     }
-    case GEOMETRY_IO_GML2: {
-        return mg_read_gml2(data, len);
+    case NV_GEOMETRY_IO_GML2: {
+        return nv_geo_read_gml2(data, len);
     }
-    case GEOMETRY_IO_GML3: {
-        return mg_read_gml3(data, len);
+    case NV_GEOMETRY_IO_GML3: {
+        return nv_geo_read_gml3(data, len);
     }
     default:
         break;
@@ -262,39 +284,40 @@ struct nv_geobject *mg_read(int flag, const char *data, size_t len)
     return NULL;
 }
 
-int mg_write(int flag, const struct nv_geobject *obj, char **data, size_t *len)
+int nv_geo_write(int flag, const struct nv_geobject *obj, char **data,
+                 size_t *len)
 {
     return 0;
 }
 
 /* ------------------------- geometry reader writer ------------------------- */
 
-struct nv_geobject *mg_i4_object(struct nv_i4 *i4)
+struct nv_geobject *nv_i4_object(struct nv_i4 *i4)
 {
     assert(i4);
     return i4->obj;
 }
 
-void mg_i4_propProp(const struct nv_i4 *i4, int *propSize, int **prop)
+void nv_i4_propProp(const struct nv_i4 *i4, int *propSize, int **prop)
 {
     assert(i4);
     *propSize = i4->propSize;
     *prop = i4->prop;
 }
 
-int mg_i4_prop_value(const struct nv_i4 *i4, size_t index)
+int nv_i4_prop_value(const struct nv_i4 *i4, size_t index)
 {
     assert(i4);
     assert(index < i4->propSize);
     return i4->prop[index];
 }
 
-struct nv_reader2 *mg_reader2_new(size_t size)
+struct nv_geo_reader2 *nv_geo_reader2_new(size_t size)
 {
     if (size == 0)
         size = 10;
-    struct nv_reader2 *reader =
-        (struct nv_reader2 *)malloc(sizeof(struct nv_reader2));
+    struct nv_geo_reader2 *reader =
+        (struct nv_geo_reader2 *)malloc(sizeof(struct nv_geo_reader2));
     if (reader == NULL)
         return NULL;
     reader->size = size;
@@ -309,16 +332,16 @@ struct nv_reader2 *mg_reader2_new(size_t size)
     return reader;
 }
 
-void mg_free_reader2(struct nv_reader2 *reader)
+void nv_free_reader2(struct nv_geo_reader2 *reader)
 {
 }
 
-void mg_input_reader(struct nv_reader2 *reader, const struct nv_geobject *obj,
-                     int propSize, int *prop)
+void nv_input_reader(struct nv_geo_reader2 *reader,
+                     const struct nv_geobject *obj, int propSize, int *prop)
 {
 }
 
-struct nv_i4 *mg_reader2_iterator(struct nv_reader2 *writer)
+struct nv_i4 *nv_geo_reader2_iterator(struct nv_geo_reader2 *writer)
 {
     return NULL;
 }
@@ -327,7 +350,9 @@ struct nv_i4 *mg_reader2_iterator(struct nv_reader2 *writer)
 
 static double g_tolerance = 0.0001;
 
-double mg_tolerance(double tol)
+/// Set the tolerance used in geometric operations. This interface returns the
+/// tolerance currently in use.
+double nv_tolerance(double tol)
 {
     double tmp = g_tolerance;
     g_tolerance = tol;
@@ -341,7 +366,7 @@ double tolerence()
 
 /* --------------------------- geometry algorithm --------------------------- */
 
-bool mg_check_single_ring(const double *pp, int npoints, int cdim)
+bool nv_check_single_ring(const double *pp, int npoints, int cdim)
 {
     assert(pp);
     // At least 4 points are required to form a ring
@@ -353,12 +378,17 @@ bool mg_check_single_ring(const double *pp, int npoints, int cdim)
     double xn = pp[(ptrdiff_t)(npoints * cdim)];
     double yn = pp[(ptrdiff_t)(npoints * cdim + 1)];
 
-    return MG_DOUBLE_NEARES2(x0, xn) && MG_DOUBLE_NEARES2(y0, yn);
+    return NV_DOUBLE_NEARES2(x0, xn) && NV_DOUBLE_NEARES2(y0, yn);
 }
 
-bool mg_ccw(const double *pp, int npoints, int cdim)
+/// @brief Computes whether a ring defined by a geom::CoordinateSequence is
+/// oriented counter-clockwise.
+/// @param pp point pointer
+/// @param npoints point number
+/// @param cdim coordinate dim
+bool nv_ccw(const double *pp, int npoints, int cdim)
 {
-    if (!mg_check_single_ring(pp, npoints, cdim))
+    if (!nv_check_single_ring(pp, npoints, cdim))
         return false;
 
     // The ring must be a convex point at the vertex extreme value, which is the
@@ -393,47 +423,62 @@ bool mg_ccw(const double *pp, int npoints, int cdim)
     return (r > 0) ? true : false;
 }
 
-double mg_prop_value(const struct nv_geobject *obj, int mode)
+/// Get the value property of a geometric object
+/// Candidate values for mode are GEOMETRY_PROP_VALUE_*
+double nv_prop_value(const struct nv_geobject *obj, int mode)
 {
     assert(obj);
     switch (mode) {
-    case GEOMETRY_PROP_VALUE_LENGTH: {
-        return mg_prop_length_value(obj);
+    case NV_GEOMETRY_PROP_VALUE_LENGTH: {
+        return nv_prop_length_value(obj);
     }
-    case GEOMETRY_PROP_VALUE_WIDTH: {
-        return mg_prop_width_value(obj);
+    case NV_GEOMETRY_PROP_VALUE_WIDTH: {
+        return nv_prop_width_value(obj);
     }
-    case GEOMETRY_PROP_VALUE_HEIGHT: {
-        return mg_prop_height_value(obj);
+    case NV_GEOMETRY_PROP_VALUE_HEIGHT: {
+        return nv_prop_height_value(obj);
     }
-    case GEOMETRY_PROP_VALUE_AREA: {
-        return mg_prop_area_value(obj);
+    case NV_GEOMETRY_PROP_VALUE_AREA: {
+        return nv_prop_area_value(obj);
     }
     default:
         return 0;
     }
 }
 
-struct nv_geobject *mg_prop_geo(const struct nv_geobject *obj, int mode)
+/// Get the geometric object property of a geometric object
+/// Candidate values for mode are GEOMETRY_PROP_GEO_*, except
+/// GEOMETRY_PROP_GEO_ENVELOPE_CIRCLE and GEOMETRY_PROP_GEO_INNER_CIRCLE.
+struct nv_geobject *nv_prop_geo(const struct nv_geobject *obj, int mode)
 {
     assert(obj);
     switch (mode) {
-    case GEOMETRY_PROP_GEO_CLONE: {
+    case NV_GEOMETRY_PROP_GEO_CLONE: {
         return NULL;
     }
     }
     return NULL;
 }
 
-void mg_prop_geo2(const struct nv_geobject *obj, int mode, double *paras)
+void nv_prop_geo2(const struct nv_geobject *obj, int mode, double *paras)
 {
 }
 
-int mg_left_right(const struct nv_geobject *obj, double *xy)
+/// @brief Check if the point is on the left or right side of the line
+/// @param obj line object
+/// @param xy point coordinates
+/// @return 0: The distance from the point to the line is less than the
+/// tolerance; 1: left; 2: right
+int nv_left_right(const struct nv_geobject *obj, double *xy)
 {
     return 0;
 }
 
-void mg_vertex_convex(const struct nv_geobject *obj, int index, int *convex)
+/// @brief Get the convexity of a vertex on a ring object
+/// @param obj single ring object
+/// @param index vertex index When index is -1, get the concave and convex
+/// properties of all vertices
+/// @param convex convexity of the vertex
+void nv_vertex_convex(const struct nv_geobject *obj, int index, int *convex)
 {
 }

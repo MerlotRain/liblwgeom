@@ -20,13 +20,13 @@
  * IN THE SOFTWARE.
  */
 
+#include <nv.h>
 #include "encode.h"
 #include <assert.h>
 #include <limits.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <nv.h>
 
 #define RETURN_VAL_IF_FAIL(expr, ret) \
     do {                              \
@@ -131,7 +131,7 @@ static size_t base64_encode_step(const unsigned char *in, size_t len,
         switch (len) {
         case 2:
             *saveout++ = *inptr++;
-            FALLTHROUGH();
+            NV_FALLTHROUGH
         case 1:
             *saveout++ = *inptr++;
         }

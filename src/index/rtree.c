@@ -1,13 +1,24 @@
-/*****************************************************************************/
-/*                                                                           */
-/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
-/*                                                                           */
-/*  This library is free software, licensed under the terms of the GNU       */
-/*  General Public License as published by the Free Software Foundation,     */
-/*  either version 3 of the License, or (at your option) any later version.  */
-/*  You should have received a copy of the GNU General Public License        */
-/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
-/*****************************************************************************/
+/**
+ * Copyright (c) 2023-present Merlot.Rain
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
 #include <string.h>
 #include <math.h>
@@ -74,7 +85,7 @@ struct node {
     };
 };
 
-struct rtree {
+struct nv_rtree {
     struct rect rect;
     struct node *root;
     size_t count;
@@ -103,12 +114,12 @@ static bool feq(double a, double b)
     return !(a < b || a > b);
 }
 
-void rtree_set_udata(struct rtree *tr, void *udata)
+void nv_rtree_set_udata(struct nv_rtree *tr, void *udata)
 {
     tr->udata = udata;
 }
 
-static struct node *node_new(struct rtree *tr, enum kind kind)
+static struct node *node_new(struct nv_rtree *tr, enum kind kind)
 {
     struct node *node = (struct node *)malloc(sizeof(struct node));
     if (!node)
@@ -118,7 +129,7 @@ static struct node *node_new(struct rtree *tr, enum kind kind)
     return node;
 }
 
-static struct node *node_copy(struct rtree *tr, struct node *node)
+static struct node *node_copy(struct nv_rtree *tr, struct node *node)
 {
     struct node *node2 = (struct node *)malloc(sizeof(struct node));
     if (!node2)
@@ -157,7 +168,7 @@ static struct node *node_copy(struct rtree *tr, struct node *node)
     return node2;
 }
 
-static void node_free(struct rtree *tr, struct node *node)
+static void node_free(struct nv_rtree *tr, struct node *node)
 {
     if (rc_fetch_sub(&node->rc, 1) > 0)
         return;
@@ -351,7 +362,7 @@ static void node_move_rect_at_index_into(struct node *from, int index,
     into->count++;
 }
 
-static bool node_split_largest_axis_edge_snap(struct rtree *tr,
+static bool node_split_largest_axis_edge_snap(struct nv_rtree *tr,
                                               struct rect *rect,
                                               struct node *node,
                                               struct node **right_out)
@@ -394,8 +405,8 @@ static bool node_split_largest_axis_edge_snap(struct rtree *tr,
     return true;
 }
 
-static bool node_split(struct rtree *tr, struct rect *rect, struct node *node,
-                       struct node **right)
+static bool node_split(struct nv_rtree *tr, struct rect *rect,
+                       struct node *node, struct node **right)
 {
     return node_split_largest_axis_edge_snap(tr, rect, node, right);
 }
@@ -418,7 +429,7 @@ static int node_choose_least_enlargement(const struct node *node,
     return j;
 }
 
-static int node_choose(struct rtree *tr, const struct node *node,
+static int node_choose(struct nv_rtree *tr, const struct node *node,
                        const struct rect *rect, int depth)
 {
 #ifdef USE_PATHHINT
@@ -456,7 +467,7 @@ static struct rect node_rect_calc(const struct node *node)
 }
 
 // node_insert returns false if out of memory
-static bool node_insert(struct rtree *tr, struct rect *nr, struct node *node,
+static bool node_insert(struct nv_rtree *tr, struct rect *nr, struct node *node,
                         struct rect *ir, struct item item, int depth,
                         bool *split)
 {
@@ -500,26 +511,26 @@ static bool node_insert(struct rtree *tr, struct rect *nr, struct node *node,
     return node_insert(tr, nr, node, ir, item, depth, split);
 }
 
-struct rtree *rtree_new(void)
+struct nv_rtree *nv_rtree_new(void)
 {
-    struct rtree *tr = (struct rtree *)malloc(sizeof(struct rtree));
+    struct nv_rtree *tr = (struct nv_rtree *)malloc(sizeof(struct nv_rtree));
     if (!tr)
         return NULL;
-    memset(tr, 0, sizeof(struct rtree));
+    memset(tr, 0, sizeof(struct nv_rtree));
     return tr;
 }
 
-void rtree_set_item_callbacks(struct rtree *tr,
-                              bool (*clone)(const void *item, void **into,
-                                            void *udata),
-                              void (*free)(const void *item, void *udata))
+void nv_rtree_set_item_callbacks(struct nv_rtree *tr,
+                                 bool (*clone)(const void *item, void **into,
+                                               void *udata),
+                                 void (*free)(const void *item, void *udata))
 {
     tr->item_clone = clone;
     tr->item_free = free;
 }
 
-bool rtree_insert(struct rtree *tr, const double *min, const double *max,
-                  const void *data)
+bool nv_rtree_insert(struct nv_rtree *tr, const double *min, const double *max,
+                     const void *data)
 {
     // copy input rect
     struct rect rect;
@@ -581,7 +592,7 @@ bool rtree_insert(struct rtree *tr, const double *min, const double *max,
     return false;
 }
 
-void rtree_free(struct rtree *tr)
+void nv_rtree_free(struct nv_rtree *tr)
 {
     if (tr->root) {
         node_free(tr, tr->root);
@@ -615,11 +626,11 @@ static bool node_search(struct node *node, struct rect *rect,
     return true;
 }
 
-void rtree_search(const struct rtree *tr, const double min[],
-                  const double max[],
-                  bool (*iter)(const double min[], const double max[],
-                               const void *data, void *udata),
-                  void *udata)
+void nv_rtree_search(const struct nv_rtree *tr, const double min[],
+                     const double max[],
+                     bool (*iter)(const double min[], const double max[],
+                                  const void *data, void *udata),
+                     void *udata)
 {
     // copy input rect
     struct rect rect;
@@ -653,23 +664,23 @@ static bool node_scan(struct node *node,
     return true;
 }
 
-void rtree_scan(const struct rtree *tr,
-                bool (*iter)(const double *min, const double *max,
-                             const void *data, void *udata),
-                void *udata)
+void nv_rtree_scan(const struct nv_rtree *tr,
+                   bool (*iter)(const double *min, const double *max,
+                                const void *data, void *udata),
+                   void *udata)
 {
     if (tr->root) {
         node_scan(tr->root, iter, udata);
     }
 }
 
-size_t rtree_count(const struct rtree *tr)
+size_t nv_rtree_count(const struct nv_rtree *tr)
 {
     return tr->count;
 }
 
 static bool node_delete(
-    struct rtree *tr, struct rect *nr, struct node *node, struct rect *ir,
+    struct nv_rtree *tr, struct rect *nr, struct node *node, struct rect *ir,
     struct item item, int depth, bool *removed, bool *shrunk,
     int (*compare)(const void *a, const void *b, void *udata), void *udata)
 {
@@ -762,8 +773,8 @@ static bool node_delete(
 }
 
 // returns false if out of memory
-static bool rtree_delete0(
-    struct rtree *tr, const double *min, const double *max, const void *data,
+static bool nv_rtree_delete0(
+    struct nv_rtree *tr, const double *min, const double *max, const void *data,
     int (*compare)(const void *a, const void *b, void *udata), void *udata)
 {
     // copy input rect
@@ -810,33 +821,33 @@ static bool rtree_delete0(
     return true;
 }
 
-bool rtree_delete(struct rtree *tr, const double *min, const double *max,
-                  const void *data)
+bool nv_rtree_delete(struct nv_rtree *tr, const double *min, const double *max,
+                     const void *data)
 {
-    return rtree_delete0(tr, min, max, data, NULL, NULL);
+    return nv_rtree_delete0(tr, min, max, data, NULL, NULL);
 }
 
-bool rtree_delete_with_comparator(
-    struct rtree *tr, const double *min, const double *max, const void *data,
+bool nv_rtree_delete_with_comparator(
+    struct nv_rtree *tr, const double *min, const double *max, const void *data,
     int (*compare)(const void *a, const void *b, void *udata), void *udata)
 {
-    return rtree_delete0(tr, min, max, data, compare, udata);
+    return nv_rtree_delete0(tr, min, max, data, compare, udata);
 }
 
-struct rtree *rtree_clone(struct rtree *tr)
+struct nv_rtree *nv_rtree_clone(struct nv_rtree *tr)
 {
     if (!tr)
         return NULL;
-    struct rtree *tr2 = (struct rtree *)malloc(sizeof(struct rtree));
+    struct nv_rtree *tr2 = (struct nv_rtree *)malloc(sizeof(struct nv_rtree));
     if (!tr2)
         return NULL;
-    memcpy(tr2, tr, sizeof(struct rtree));
+    memcpy(tr2, tr, sizeof(struct nv_rtree));
     if (tr2->root)
         rc_fetch_add(&tr2->root->rc, 1);
     return tr2;
 }
 
-void rtree_opt_relaxed_atomics(struct rtree *tr)
+void nv_rtree_opt_relaxed_atomics(struct nv_rtree *tr)
 {
     tr->relaxed = true;
 }

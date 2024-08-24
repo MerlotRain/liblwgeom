@@ -1,13 +1,24 @@
-/*****************************************************************************/
-/*                                                                           */
-/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
-/*                                                                           */
-/*  This library is free software, licensed under the terms of the GNU       */
-/*  General Public License as published by the Free Software Foundation,     */
-/*  either version 3 of the License, or (at your option) any later version.  */
-/*  You should have received a copy of the GNU General Public License        */
-/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
-/*****************************************************************************/
+/**
+ * Copyright (c) 2023-present Merlot.Rain
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
 /// Naming conventions and registration methods for test suites
 /// ---
@@ -23,37 +34,14 @@
 /// be named 'util-stok'. This naming can facilitate cmake to generate
 /// corresponding test units based on file names.
 
-/// module util
-extern int util_bitsetSuite();
+extern int algorithm_pointSuite();
+extern int algorithm_ellipseSuite();
 
-/// collection of util suite
-static int util_suite()
-{
-    int r = util_bitsetSuite();
-    return r;
-}
-
-/// module mg
-extern int mg_pointSuite();
-/// collection of mg suite
-static int mg_suite()
-{
-    int r = mg_pointSuite();
-    return r;
-}
-
-/// module io
 extern int io_wktSuite();
-/// collection of io suite
-static int io_suite()
-{
-    int r = io_wktSuite();
-    return r;
-}
 
 /// register all suites
 int register_suite()
 {
-    int sr = util_suite() + mg_suite() + io_suite();
+    int sr = io_wktSuite() + algorithm_pointSuite() + algorithm_ellipseSuite();
     return sr;
 }

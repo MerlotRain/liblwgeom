@@ -1,20 +1,32 @@
-/*****************************************************************************/
-/*                                                                           */
-/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
-/*                                                                           */
-/*  This library is free software, licensed under the terms of the GNU       */
-/*  General Public License as published by the Free Software Foundation,     */
-/*  either version 3 of the License, or (at your option) any later version.  */
-/*  You should have received a copy of the GNU General Public License        */
-/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
-/*****************************************************************************/
+/**
+ * Copyright (c) 2023-present Merlot.Rain
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
 #include "stok.h"
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
-static double strtod_with_vc_fix(const char *str, char **str_end)
+static double uv__strtod_with_vc_fix(const char *str, char **str_end)
 {
     double dbl = strtod(str, str_end);
 #if _MSC_VER && !__INTEL_COMPILER
@@ -43,7 +55,7 @@ static double strtod_with_vc_fix(const char *str, char **str_end)
     return dbl;
 }
 
-void stok_init(stok *tok, char *t)
+void uv__stok_init(struct uv__stok *tok, char *t)
 {
     tok->head = t;                   // head of the string
     tok->pos = t;                    // current position
@@ -53,10 +65,10 @@ void stok_init(stok *tok, char *t)
     tok->ntok = 0.;                  // current token as a number
 }
 
-int stok_next_token(stok *tok)
+int uv__stok_next_token(struct uv__stok *tok)
 {
     if (tok->pos == tok->end)
-        return STOK_EOF;
+        return UV__STOK_EOF;
 
     switch (*tok->pos) {
     case '(':
@@ -69,10 +81,10 @@ int stok_next_token(stok *tok)
     case ' ': {
         size_t _pos = strspn(tok->pos, " \n\r\t");
         if (_pos == strlen(tok->pos))
-            return STOK_EOF;
+            return UV__STOK_EOF;
         else {
             tok->pos = tok->pos + _pos;
-            return stok_next_token(tok);
+            return uv__stok_next_token(tok);
         }
     }
     }
@@ -84,7 +96,7 @@ int stok_next_token(stok *tok)
             tok->pos = tok->end;
         }
         else {
-            return STOK_EOF;
+            return UV__STOK_EOF;
         }
     }
     else {
@@ -94,26 +106,26 @@ int stok_next_token(stok *tok)
     }
 
     char *stopstring;
-    double dbl = strtod_with_vc_fix(tok->stok, &stopstring);
+    double dbl = uv__strtod_with_vc_fix(tok->stok, &stopstring);
     if (*stopstring == '\0') {
         tok->ntok = dbl;
         memset(tok->stok, 0, UCHAR_MAX);
-        return STOK_NUM;
+        return UV__STOK_NUM;
     }
     else {
-        return STOK_WORD;
+        return UV__STOK_WORD;
     }
 }
 
-int stok_peek_next_token(stok *tok)
+int uv__stok_peek_next_token(struct uv__stok *tok)
 {
     if (tok->pos == tok->end)
-        return STOK_EOF;
+        return UV__STOK_EOF;
 
     char stok[UCHAR_MAX] = {0};
     size_t _pos = strspn(tok->pos, " \n\r\t");
     if (_pos == strlen(tok->pos))
-        return STOK_EOF;
+        return UV__STOK_EOF;
 
     switch (*tok->pos)
     case '(':
@@ -126,22 +138,22 @@ int stok_peek_next_token(stok *tok)
         if (tok->pos != tok->end)
             memcpy(stok, tok->pos, strlen(tok->pos));
         else
-            return STOK_EOF;
+            return UV__STOK_EOF;
     }
     else {
         memcpy(stok, tok->pos, brk - tok->pos);
     }
 
     char *stopstring;
-    double dbl = strtod_with_vc_fix(stok, &stopstring);
+    double dbl = uv__strtod_with_vc_fix(stok, &stopstring);
     if (*stopstring == '\0') {
         tok->ntok = dbl;
         memset(tok->stok, 0, strlen(tok->stok));
-        return STOK_NUM;
+        return UV__STOK_NUM;
     }
     else {
         tok->ntok = 0.0;
         memcpy(tok->stok, stok, strlen(stok));
-        return STOK_WORD;
+        return UV__STOK_WORD;
     }
 }

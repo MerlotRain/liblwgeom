@@ -92,7 +92,6 @@ NV_EXTERN int uv_replace_allocator(nv_malloc_func malloc_func,
                                    nv_free_func free_func);
 
 NV_EXTERN int nv_error_code();
-
 NV_EXTERN char *nv_error_messgae();
 
 /* ---------------------------------- Point --------------------------------- */
@@ -102,84 +101,27 @@ struct nv_point {
     double y;
 };
 
-/// @brief point angle with nv_point(0, 0)
-/// @param p the point to compute the angle for
-/// @return the angle of the point
 NV_EXTERN double nv_angle(const struct nv_point p0);
-
-/// @brief Returns the angle of the vector from p0 to p1, relative to the
-/// positive X-axis.
-/// @param p0 the first point
-/// @param p1 the second point
-/// @return the angle of the vector from p0 to p1
 NV_EXTERN double nv_angle2(const struct nv_point p0, const struct nv_point p1);
-
-/// @brief Tests whether the angle between p0-p1-p2 is acute.
-/// @param p0 the first point
-/// @param p1 the second point
-/// @param p2 the third point
-/// @return true if the angle is acute
 NV_EXTERN bool nv_acute(const struct nv_point p0, const struct nv_point p1,
                         const struct nv_point p2);
-
-/// @brief Tests whether the angle between p0-p1-p2 is obtuse.
-/// @param p0 the first point
-/// @param p1 the second point
-/// @param p2 the third point
-/// @return true if the angle is obtuse
 NV_EXTERN bool nv_obtuse(const struct nv_point p0, const struct nv_point p1,
                          const struct nv_point p2);
-
-/// @brief Returns the unoriented smallest angle between two vectors.
-/// @param tip1 the first tip point
-/// @param tail the tail point
-/// @param tip2 the second tip point
-/// @return the unoriented smallest angle between two vectors
 NV_EXTERN double nv_angle_between(const struct nv_point tip1,
                                   const struct nv_point tail,
                                   const struct nv_point tip2);
-
-/// @brief Computes the interior angle between two segments of a ring.
-/// @param p0 the first point
-/// @param p1 the second point
-/// @param p2 the third point
-/// @return the interior angle between two segments of a ring
 NV_EXTERN bool nv_interior_angle(const struct nv_point p0,
                                  const struct nv_point p1,
                                  const struct nv_point p2);
-
-/// @brief The bisector segment of AB-CD is (point, projection of point by \a
-/// angle)
-/// @param A
-/// @param B
-/// @param C
-/// @param D
-/// @param p
-/// @param angle
-/// @return
 NV_EXTERN void nv_angle_bisector(const struct nv_point A,
                                  const struct nv_point B,
                                  const struct nv_point C,
                                  const struct nv_point D, struct nv_point *p,
                                  double *angle);
 
-/* --------------------------------- Segment -------------------------------- */
-
-/// @brief Computes the distance from a point p to a line segment AB
-/// @param p the point to compute the distance for
-/// @param A one point of the line
-/// @param B another point of the line (must be different to A)
-/// @return the distance from p to line segment AB
 NV_EXTERN double nv_dis_point_to_segment(const struct nv_point p,
                                          const struct nv_point A,
                                          const struct nv_point B);
-
-/// @brief Computes the perpendicular distance from a point p to the (infinite)
-/// line containing the points AB
-/// @param p the point to compute the distance for
-/// @param A one point of the line
-/// @param B another point of the line (must be different to A)
-/// @return the distance from p to line segment AB
 NV_EXTERN double nv_dis_point_to_perpendicular(const struct nv_point p,
                                                const struct nv_point A,
                                                const struct nv_point B);
@@ -191,38 +133,18 @@ nv_segment_intersection(const struct nv_point p1, const struct nv_point p2,
 
 /* ----------------------------------- Box ---------------------------------- */
 
-/// A rectangle defined by a minimum and maximum coordinates.
 struct nv_box {
     struct nv_point min;
     struct nv_point max;
 };
 
-/// @brief Check two box is intersects
-/// @param env1 the first Envelope
-/// @param env2 the second Envelope
-/// @return true if the two Envelopes intersect
 NV_EXTERN bool nv_box_intersects(const struct nv_box env1,
                                  const struct nv_box env2);
-
-/// @brief Computes the intersection of two Envelopes
-/// @param env1 the first Envelope
-/// @param env2 the second Envelope
-/// @return the intersection of the two Envelopes
 NV_EXTERN struct nv_box nv_box_intersection(const struct nv_box env1,
                                             const struct nv_box env2);
-
-/// @brief Enlarges the boundary of the Envelope so that it contains
-/// @param env1 the original Envelope
-/// @param env2 the Envelope to be contained
-/// @return the enlarged Envelope
 NV_EXTERN struct nv_box nv_box_union(const struct nv_box env1,
                                      const struct nv_box env2);
-
-/// @brief Convert nv_box object to nv_geobject
-/// @param e the nv_box object
-/// @param gdim the geometry dimension
-/// @return the nv_geobject object
-NV_EXTERN struct nv_geobject *nv_stroke_box(struct nv_box e, int gdim);
+NV_EXTERN struct nv_geobject *nv_box_stroke(struct nv_box e, int gdim);
 
 /* ---------------------------- Ellipse & Cricle ---------------------------- */
 
@@ -237,155 +159,80 @@ struct nv_ellipse {
     double azimuth;
 };
 
-/// The eccentricity of the ellipse. - double
-#define MG_ELLIPSE_PROP_VALUE_ECCENTRICITY 0
-/// The area of the ellipse. - double
-#define MG_ELLIPSE_PROP_VALUE_AREA         1
-/// The perimeter of the ellipse. - double
-#define MG_ELLIPSE_PROP_VALUE_PERIMETER    2
-/// Two foci of the ellipse. The axes are oriented by the azimuth and are on the
-/// semi-major axis. - nv_point[2]
-#define MG_ELLIPSE_PROP_VALUE_FOCI         4
-/// The distance between the center and each foci. - double
-#define MG_ELLIPSE_PROP_FOCUS_DISTANCE     8
+enum {
 
-/// Two points form a circle, and the line segment between these two points is
-/// the diameter of the circle
-#define MG_CONSTRUCT_CIRCLE_2P             1
-/// Three points form a circle, and these three points are on the circle
-#define MG_CONSTRUCT_CIRCLE_3P             2
-/// To construct a circle with three tangent lines, six points need to be passed
-/// in. These six points form three straight lines, which can generate 0-2
-/// circles. They are also the inscribed circles of a triangle
-#define MG_CONSTRUCT_CIRCLE_ICT            3
+    /// The eccentricity of the ellipse. - double
+    NV_ELLIPSE_PROP_VALUE_ECCENTRICITY = 0,
+    /// The area of the ellipse. - double
+    NV_ELLIPSE_PROP_VALUE_AREA = 1,
+    /// The perimeter of the ellipse. - double
+    NV_ELLIPSE_PROP_VALUE_PERIMETER = 2,
+    /// Two foci of the ellipse. The axes are oriented by the azimuth and are on
+    /// the semi-major axis. - nv_point[2]
+    NV_ELLIPSE_PROP_VALUE_FOCI = 4,
+    /// The distance between the center and each foci. - double
+    NV_ELLIPSE_PROP_FOCUS_DISTANCE = 8
+};
 
-/// @brief Construct circles according to different calculation methods.
-///
-/// Construct circles according to different calculation methods. \a t is
-/// determined based on the \a MG_CONSTRUCT_CIRCLE series macros.
-/// For MG_CONSTRUCT_CIRCLE_2P andMG_CONSTRUCT_CIRCLE_3P, a circle will
-/// ultimately be generated.
-/// When the value of \a n is MG_CONSTRUCT_CIRCLE_ICT, if \a n is -1, the
-/// algorithm for generating multiple tangent circles will be executed. If \a n
-/// is -2, only one circle will be generated. And after the algorithm is
-/// executed, the number of circles generated is transmitted out. External CS
-/// needs to create an array of sufficient size according to requirements to
-/// receive the return value.
-///
-/// @param p points
-/// @param t calculation method
-/// @param es circles
-/// @param n number of circles
-/// @return
+enum {
+    /// Two points form a circle, and the line segment between these two points
+    /// is the diameter of the circle
+    NV_CONSTRUCT_CIRCLE_2P,
+    /// Three points form a circle, and these three points are on the circle
+    NV_CONSTRUCT_CIRCLE_3P,
+    /// To construct a circle with three tangent lines, six points need to be
+    /// passed in. These six points form three straight lines, which can
+    /// generate 0-2 circles. They are also the inscribed circles of a triangle
+    NV_CONSTRUCT_CIRCLE_ICT
+};
+
 NV_EXTERN void nv_construct_circle(const struct nv_point *p, int t,
                                    struct nv_ellipse *es, int *n);
-
-/// @brief query ellipse attribute
-///
-/// Calculate the ellipse attribute. \a flags are a combination of
-/// \a MG_ELLIPSE_PROP macro series. When passing in \a values externally, the
-/// data structure needs to be organized by oneself. The algorithm will write
-/// the calculation result in sequence based on the bits of the flag.
-///
-/// @param ell ellipse
-/// @param flags query flag
-/// @param values query result
-/// @return
 NV_EXTERN void nv_ellipse_prop_value(const struct nv_ellipse ell, int flags,
                                      double *values);
-
-/// @brief stroke ellipse to nv_geobject
-/// @param e ellipse
-/// @param param geometry dim and segment count
-/// Use the highest bit of an integer to represent the geometric dimension, 1:
-/// line, 2: area. When passing other values, use the default dimension of 1;
-/// The remaining digits represent the interpolation number. When the input
-/// interpolation number is less than 3, the default interpolation number of 36
-/// will be used.
-/// @example
-/// param: 246 create a polygon, segment to 46 linesegments
-/// param: 52: error code, use default value
-///
-/// @return nv_geobject
-NV_EXTERN struct nv_geobject *nv_stroke_ellipse(struct nv_ellipse e,
+NV_EXTERN struct nv_geobject *nv_ellipse_stroke(struct nv_ellipse e,
                                                 uint32_t param);
 
 /* ----------------------------------- Arc ---------------------------------- */
 
-/// Arc segment
 struct nv_arc {
     struct nv_point start;
     struct nv_point along;
     struct nv_point end;
 };
 
-/// @brief stroke arc to nv_geobject
-/// @param arc arc
-/// @param maxAngleStepSizeDegress max angle step size
-/// @return nv_geobject
-NV_EXTERN struct nv_geobject *nv_stroke_arc(struct nv_arc arc,
+NV_EXTERN struct nv_geobject *nv_arc_stroke(struct nv_arc arc,
                                             double maxAngleStepSizeDegress);
+
+/* ----------------------------- geometry object ---------------------------- */
 
 struct nv_geobject;
 
-NV_EXTERN struct nv_geobject *nv_create_single(int gdim, int pn, int cdim,
-                                               const double *pp, int flag);
-NV_EXTERN struct nv_geobject *nv_create_multi(int gdim, int snum,
-                                              struct nv_geobject **subs);
-
-/// @brief free geometry object
-/// @param obj
-/// @return
-NV_EXTERN void nv_free_object(struct nv_geobject *obj);
-
-/// @brief return geometry coordinate dimension
-/// @param obj
-/// @return 2 or 3
-NV_EXTERN int nv_dim_c(const struct nv_geobject *obj);
-
-/// @brief return geometry dimension
-/// @param obj
-/// @return 0:point, 1:line, 2:area
-/// TODO: 3:collection
-NV_EXTERN int nv_dim_g(const struct nv_geobject *obj);
-
-/// @brief return geometry number
-/// @param obj
-/// @return geometry number
-NV_EXTERN int nv_sub_n(const struct nv_geobject *obj);
-
-/// @brief return sub of multi geometry
-/// @param obj multi geometry
-/// @param i index
-/// @return sub geometry, When \a obj is a single geometry object, returns
-/// itself
-NV_EXTERN struct nv_geobject *nv_sub_at(const struct nv_geobject *obj, int i);
-
-/// @brief return point number
-/// @param obj
-/// @return point number
-NV_EXTERN int nv_point_n(const struct nv_geobject *obj);
-
-/* --------------------------------- Factory -------------------------------- */
+NV_EXTERN struct nv_geobject *nv_geo_create_single(int gdim, int pn, int cdim,
+                                                   const double *pp, int flag);
+NV_EXTERN struct nv_geobject *nv_geo_create_multi(int gdim, int snum,
+                                                  struct nv_geobject **subs);
+NV_EXTERN void nv_geo_free(struct nv_geobject *obj);
+NV_EXTERN int nv_geo_dim_c(const struct nv_geobject *obj);
+NV_EXTERN int nv_geo_dim_g(const struct nv_geobject *obj);
+NV_EXTERN int nv_geo_sub_n(const struct nv_geobject *obj);
+NV_EXTERN struct nv_geobject *nv_geo_sub_at(const struct nv_geobject *obj,
+                                            int i);
+NV_EXTERN int nv_geo_point_n(const struct nv_geobject *obj);
 
 enum {
-    GEOMETRY_IO_WKT,     ///< geometry IO type wkt
-    GEOMETRY_IO_WKB,     ///< geometry IO type wkb
-    GEOMETRY_IO_WKB_HEX, ///< geometry IO type wkb hex
-    GEOMETRY_IO_GEOJSON, ///< geometry IO type geojson
-    GEOMETRY_IO_EWKT,    ///< geometry IO type ewkt
-    GEOMETRY_IO_EWKB,    ///< geometry IO type ewkb
-    GEOMETRY_IO_KML,     ///< geometry IO type kml
-    GEOMETRY_IO_GML2,    ///< geometry IO type gml2
-    GEOMETRY_IO_GML3     ///< geometry IO type gml3
+    NV_GEOMETRY_IO_WKT,     /* geometry IO type wkt */
+    NV_GEOMETRY_IO_WKB,     /* geometry IO type wkb */
+    NV_GEOMETRY_IO_WKB_HEX, /* geometry IO type wkb hex */
+    NV_GEOMETRY_IO_GEOJSON, /* geometry IO type geojson */
+    NV_GEOMETRY_IO_EWKT,    /* geometry IO type ewkt */
+    NV_GEOMETRY_IO_EWKB,    /* geometry IO type ewkb */
+    NV_GEOMETRY_IO_KML,     /* geometry IO type kml */
+    NV_GEOMETRY_IO_GML2,    /* geometry IO type gml2 */
+    NV_GEOMETRY_IO_GML3     /* geometry IO type gml3 */
 };
 
-NV_EXTERN struct nv_geobject *nv_read(int flag, const char *data, size_t len);
-
-NV_EXTERN int nv_write(int flag, const struct nv_geobject *obj, char **data,
-                       size_t *len);
-
-struct sdo_geometry {
+struct nv_sdo_geometry {
     int sdo_gtype;
     int sdo_srid;
     int sdo_elem_count;
@@ -394,229 +241,206 @@ struct sdo_geometry {
     double *sdo_ordinates;
 };
 
-NV_EXTERN struct nv_geobject *nv_read_ora(const struct sdo_geometry sdo,
-                                          int flag);
-
-NV_EXTERN int nv_write_ora(const struct nv_geobject *obj,
-                           struct sdo_geometry *sdo);
-
-/* ------------------------- geometry reader writer ------------------------- */
+NV_EXTERN struct nv_geobject *nv_geo_read(int flag, const char *data,
+                                          size_t len);
+NV_EXTERN int nv_geo_write(int flag, const struct nv_geobject *obj, char **data,
+                           size_t *len);
+NV_EXTERN struct nv_geobject *nv_geo_read_ora(const struct nv_sdo_geometry sdo,
+                                              int flag);
+NV_EXTERN int nv_geo_write_ora(const struct nv_geobject *obj,
+                               struct nv_sdo_geometry *sdo);
 
 struct nv_i4;
 
 struct nv_reader2;
 
 NV_EXTERN struct nv_geobject *nv_i4_object(struct nv_i4 *i4);
-
 NV_EXTERN void nv_i4_propProp(const struct nv_i4 *i4, int *propSize,
                               int **prop);
-
 NV_EXTERN int nv_i4_prop_value(const struct nv_i4 *i4, size_t index);
-
-NV_EXTERN struct nv_reader2 *nv_reader2_new(size_t size);
-
-NV_EXTERN void nv_free_reader2(struct nv_reader2 *reader);
-
+NV_EXTERN struct nv_reader2 *nv_reader2_init(size_t size);
+NV_EXTERN void nv_reader2_free(struct nv_reader2 *reader);
 NV_EXTERN void nv_reader2_push(struct nv_reader2 *reader,
                                const struct nv_geobject *obj, int propSize,
                                int *prop);
-
 NV_EXTERN struct nv_i4 *nv_reader2_iterator(struct nv_reader2 *writer);
 
 /* --------------------------- geometry algorithm --------------------------- */
 
-/* Calculate the length of a geometry */
-#define GEOMETRY_PROP_VALUE_LENGTH                     0
-/* Calculate the width of a geometry */
-#define GEOMETRY_PROP_VALUE_WIDTH                      1
-/* Calculate the height of a geometry */
-#define GEOMETRY_PROP_VALUE_HEIGHT                     2
-/* Calculate the area of a geometry */
-#define GEOMETRY_PROP_VALUE_AREA                       3
+enum {
 
-/* Get a clone of the geometry */
-#define GEOMETRY_PROP_GEO_CLONE                        10
-/* Get the marker point of the geometry, which must be inside the geometry */
-#define GEOMETRY_PROP_GEO_LABEL                        11
-/* Get the center point of the geometry */
-#define GEOMETRY_PROP_GEO_CENTER                       12
-/* Get the centroid point of the geometry */
-#define GEOMETRY_PROP_GEO_CENTROID                     13
-/* Get the envelope of the geometry */
-#define GEOMETRY_PROP_GEO_ENVELOPE                     14
-/* Get the oriented minimum envelope of the geometry */
-#define GEOMETRY_PROP_GEO_ORIENTED_ENVELOPE            15
-/* Get the minimum envelope of the geometry */
-#define GEOMETRY_PROP_GEO_ENVELOPE_CIRCLE              16
-/* Get the inner minimum rectangle of the geometry */
-#define GEOMETRY_PROP_GEO_INNER_RECT                   17
-/* Get the inner minimum square of the geometry */
-#define GEOMETRY_PROP_GEO_INNER_SQUARE                 18
-/* Get the inner minimum circle of the geometry */
-#define GEOMETRY_PROP_GEO_INNER_CIRCLE                 19
-/* Get the smallest convex polygon that contains all the points int the
- * geometry
- */
-#define GEOMETRY_PROP_GEO_CONVEX_HULL                  20
-/* Get the simplified geometry */
-#define GEOMETRY_PROP_GEO_SIMPLIFY                     21
-/* Geometric simplification that preserves the original geometric topology */
-#define GEOMETRY_PROP_GEO_TOPOLOGY_PRESERVING_SIMPLIFY 22
-/* Get the boundary of the geometry */
-#define GEOMETRY_PROP_GEO_BOUNDARY                     23
+    /* Calculate the length of a geometry */
+    NV_GEOMETRY_PROP_VALUE_LENGTH,
+    /* Calculate the width of a geometry */
+    NV_GEOMETRY_PROP_VALUE_WIDTH,
+    /* Calculate the height of a geometry */
+    NV_GEOMETRY_PROP_VALUE_HEIGHT,
+    /* Calculate the area of a geometry */
+    NV_GEOMETRY_PROP_VALUE_AREA,
+};
 
-/* Delete all duplicate points, and pass in the duplicate point judgment
- * threshold (double) in para */
-#define GEOMETRY_MODIFY_REMOVE_REPEAT                  40
-/* Douglas compression algorithm, para is the compression algorithm threshold
- * (double) */
-#define GEOMETRY_MODIFY_DOUGLAS                        41
-/* Reverse the order of the points in the geometry, para is null */
-#define GEOMETRY_MODIFY_REVERSE                        42
+enum {
+    /* Get a clone of the geometry */
+    NV_GEOMETRY_PROP_GEO_CLONE,
+    /* Get the marker point of the geometry, which must be inside the geometry
+     */
+    NV_GEOMETRY_PROP_GEO_LABEL,
+    /* Get the center point of the geometry */
+    NV_GEOMETRY_PROP_GEO_CENTER,
+    /* Get the centroid point of the geometry */
+    NV_GEOMETRY_PROP_GEO_CENTROID,
+    /* Get the envelope of the geometry */
+    NV_GEOMETRY_PROP_GEO_ENVELOPE,
+    /* Get the oriented minimum envelope of the geometry */
+    NV_GEOMETRY_PROP_GEO_ORIENTED_ENVELOPE,
+    /* Get the minimum envelope of the geometry */
+    NV_GEOMETRY_PROP_GEO_ENVELOPE_CIRCLE,
+    /* Get the inner minimum rectangle of the geometry */
+    NV_GEOMETRY_PROP_GEO_INNER_RECT,
+    /* Get the inner minimum square of the geometry */
+    NV_GEOMETRY_PROP_GEO_INNER_SQUARE,
+    /* Get the inner minimum circle of the geometry */
+    NV_GEOMETRY_PROP_GEO_INNER_CIRCLE,
+    /* Get the smallest convex polygon that contains all the points int the
+     * geometry */
+    NV_GEOMETRY_PROP_GEO_CONVEX_HULL,
+    /* Get the simplified geometry */
+    GEOMETRY_PROP_GEO_SIMPLIFY,
+    /* Geometric simplification that preserves the original geometric topology
+     */
+    NV_GEOMETRY_PROP_GEO_TOPOLOGY_PRESERVING_SIMPLIFY,
+    /* Get the boundary of the geometry */
+    NV_GEOMETRY_PROP_GEO_BOUNDARY
 
-/* Computes the result of union two geometries */
-#define GEOMETRY_COMBINE_UNION                         50
-/* Computes the result of the intersection of two geometries */
-#define GEOMETRY_COMBINE_INTERSECT                     51
-/* Computes the result of the difference of two geometries*/
-#define GEOMETRY_COMBINE_DIFFERENCE                    52
-/* Calculate the result of the difference between two geometric symmetries */
-#define GEOMETRY_COMBINE_SYM_DIFFERENCE                53
+};
 
-/* Two geometries do not fit this relationship */
-#define GEOMETRY_RELATION_RESULT_UNFIT                 (-1)
-/* The two geometries do not satisfy this relationship */
-#define GEOMETRY_RELATION_RESULT_FALSE                 0
-/* Two geometries satisfy this relationship */
-#define GEOMETRY_RELATION_RESULT_TRUE                  1
+enum {
 
-/* Two geometries is disjoint each other */
-#define GEOMETRY_SPR_IS_DISJOINT                       60
-/* Two geometries is intersect each other */
-#define GEOMETRY_SPR_IS_INTERSECT                      61
-/* Two geometries is contain each other */
-#define GEOMETRY_SPR_IS_CONTAIN                        62
-/* Two geometries is cross each other */
-#define GEOMETRY_SPR_IS_CROSS                          63
-/* Two geometries is equal */
-#define GEOMETRY_SPR_IS_EQUAL                          64
-/* Two geometries is touch each other */
-#define GEOMETRY_SPR_IS_TOUCH                          65
-/* Two geometries is overlap each other */
-#define GEOMETRY_SPR_IS_OVERLAP                        66
-/* Two geometries is within each other */
-#define GEOMETRY_SPR_IS_WITHIN                         67
+    /* Delete all duplicate points, and pass in the duplicate point judgment
+     * threshold (double) in para */
+    NV_GEOMETRY_MODIFY_REMOVE_REPEAT,
+    /* Douglas compression algorithm, para is the compression algorithm
+     * threshold (double) */
+    NV_GEOMETRY_MODIFY_DOUGLAS,
+    /* Reverse the order of the points in the geometry, para is null */
+    NV_GEOMETRY_MODIFY_REVERSE
+};
 
-/* Check geometry is simple */
-#define GEOMETRY_CHECK_1_SIMPLE                        80
-/* Check geometry is close */
-#define GEOMETRY_CHECK_1_CLOSE                         81
-/* Check geometry is good direction */
-#define GEOMETRY_CHECK_1_GOOD_DIRECTION                82
-/* Check geometry is self cross */
-#define GEOMETRY_CHECK_1_SELF_CROSS                    83
-/* Check geometry has repeat point */
-#define GEOMETRY_CHECK_1_REPEAT                        84
-/* Check line is lap */
-#define GEOMETRY_CHECK_1_LAP                           85
+enum {
+    /* Computes the result of union two geometries */
+    NV_GEOMETRY_COMBINE_UNION,
+    /* Computes the result of the intersection of two geometries */
+    NV_GEOMETRY_COMBINE_INTERSECT,
+    /* Computes the result of the difference of two geometries*/
+    NV_GEOMETRY_COMBINE_DIFFERENCE,
+    /* Calculate the result of the difference between two geometric symmetries
+     */
+    NV_GEOMETRY_COMBINE_SYM_DIFFERENCE
 
-/* Check geometry repeat points */
-#define GEOMETRY_CHECK_2_REPEAT_POINT                  0x01
-/* Check geometry isolate points */
-#define GEOMETRY_CHECK_2_ISOLATE_POINT                 0x02
-/* Check geometry pseudo endpoints */
-#define GEOMETRY_CHECK_2_PSEUDO_ENDPOINT               0x04
+};
 
-/// Set the tolerance used in geometric operations. This interface returns the
-/// tolerance currently in use.
+enum {
+
+    /* Two geometries do not fit this relationship */
+    NV_GEOMETRY_RELATION_RESULT_UNFIT = -1,
+    /* The two geometries do not satisfy this relationship */
+    NV_GEOMETRY_RELATION_RESULT_FALSE,
+    /* Two geometries satisfy this relationship */
+    NV_GEOMETRY_RELATION_RESULT_TRUE
+};
+
+enum {
+    /* Two geometries is disjoint each other */
+    NV_GEOMETRY_SPR_IS_DISJOINT,
+    /* Two geometries is intersect each other */
+    NV_GEOMETRY_SPR_IS_INTERSECT,
+    /* Two geometries is contain each other */
+    NV_GEOMETRY_SPR_IS_CONTAIN,
+    /* Two geometries is cross each other */
+    NV_GEOMETRY_SPR_IS_CROSS,
+    /* Two geometries is equal */
+    NV_GEOMETRY_SPR_IS_EQUAL,
+    /* Two geometries is touch each other */
+    NV_GEOMETRY_SPR_IS_TOUCH,
+    /* Two geometries is overlap each other */
+    NV_GEOMETRY_SPR_IS_OVERLAP,
+    /* Two geometries is within each other */
+    NV_GEOMETRY_SPR_IS_WITHIN
+};
+
+enum {
+    /* Check geometry is simple */
+    NV_GEOMETRY_CHECK_1_SIMPLE,
+    /* Check geometry is close */
+    NV_GEOMETRY_CHECK_1_CLOSE,
+    /* Check geometry is good direction */
+    NV_GEOMETRY_CHECK_1_GOOD_DIRECTION,
+    /* Check geometry is self cross */
+    NV_GEOMETRY_CHECK_1_SELF_CROSS,
+    /* Check geometry has repeat point */
+    NV_GEOMETRY_CHECK_1_REPEAT,
+    /* Check line is lap */
+    NV_GEOMETRY_CHECK_1_LAP
+};
+
+enum {
+    /* Check geometry repeat points */
+    NV_GEOMETRY_CHECK_2_REPEAT_POINT = 0x01,
+    /* Check geometry isolate points */
+    NV_GEOMETRY_CHECK_2_ISOLATE_POINT = 0x02,
+    /* Check geometry pseudo endpoints */
+    NV_GEOMETRY_CHECK_2_PSEUDO_ENDPOINT = 0x04
+};
+
 NV_EXTERN double nv_tolerance(double tol);
-
-/// Get the value property of a geometric object
-/// Candidate values for mode are GEOMETRY_PROP_VALUE_*
 NV_EXTERN double nv_prop_value(const struct nv_geobject *obj, int mode);
-
-/// Get the geometric object property of a geometric object
-/// Candidate values for mode are GEOMETRY_PROP_GEO_*, except
-/// GEOMETRY_PROP_GEO_ENVELOPE_CIRCLE and GEOMETRY_PROP_GEO_INNER_CIRCLE.
 NV_EXTERN struct nv_geobject *nv_prop_geo(const struct nv_geobject *obj,
                                           int mode);
 
 NV_EXTERN void nv_prop_geo2(const struct nv_geobject *obj, int mode,
                             double *paras);
-
-/// @brief Check if the point is on the left or right side of the line
-/// @param obj line object
-/// @param xy point coordinates
-/// @return 0: The distance from the point to the line is less than the
-/// tolerance; 1: left; 2: right
 NV_EXTERN int nv_left_right(const struct nv_geobject *obj, double *xy);
-
-/// @brief Computes whether a ring defined by a geom::CoordinateSequence is
-/// oriented counter-clockwise.
-/// @param pp point pointer
-/// @param npoints point number
-/// @param cdim coordinate dim
 NV_EXTERN bool nv_ccw(const double *pp, int npoints, int cdim);
-
-/// @brief Get the convexity of a vertex on a ring object
-/// @param obj single ring object
-/// @param index vertex index When index is -1, get the concave and convex
-/// properties of all vertices
-/// @param convex convexity of the vertex
 NV_EXTERN void nv_vertex_convex(const struct nv_geobject *obj, int index,
                                 int *convex);
-
-/// @brief Make the rings formed by the building outlines extracted from the
-/// city image rectangular
-/// @param xy building outline coordinates, Points may be added or deleted
-/// within the algorithm
-/// @param np number of points
 NV_EXTERN void nv_building_regularization(double *xy, int np);
-
-/// @brief K-means clustering
-///
-/// W only records the i4 attributes of P that conform to the classification.
-/// For example, if the i4 attribute of each object is the object ID, then the
-/// attribute in W is the ID of the classified object. Therefore, when calling
-/// this interface, the i4 attribute in P should be identifiable.
-///
-/// @param P input data
-/// @param n number of clusters
-/// @param W output data
 NV_EXTERN void nv_kmeans(struct nv_reader2 *P, int n, struct nv_reader2 **W);
 
-// rtree_new returns a new rtree
+/* ---------------------------------- RTree --------------------------------- */
+
+// nv_rtree_new returns a new rtree
 //
 // Returns NULL if the system is out of memory.
-NV_EXTERN struct rtree *rtree_new(void);
+NV_EXTERN struct nv_rtree *nv_rtree_new(void);
 
-// rtree_free frees an rtree
-NV_EXTERN void rtree_free(struct rtree *tr);
+// nv_rtree_free frees an rtree
+NV_EXTERN void nv_rtree_free(struct nv_rtree *tr);
 
-// rtree_clone makes an instant copy of the btree.
+// nv_rtree_clone makes an instant copy of the btree.
 //
 // This operation uses shadowing / copy-on-write.
-NV_EXTERN struct rtree *rtree_clone(struct rtree *tr);
+NV_EXTERN struct nv_rtree *nv_rtree_clone(struct nv_rtree *tr);
 
-// rtree_set_item_callbacks sets the item clone and free callbacks that will be
-// called internally by the rtree when items are inserted and removed.
+// nv_rtree_set_item_callbacks sets the item clone and free callbacks that will
+// be called internally by the rtree when items are inserted and removed.
 //
 // These callbacks are optional but may be needed by programs that require
-// copy-on-write support by using the rtree_clone function.
+// copy-on-write support by using the nv_rtree_clone function.
 //
 // The clone function should return true if the clone succeeded or false if the
 // system is out of memory.
-NV_EXTERN void rtree_set_item_callbacks(
-    struct rtree *tr, bool (*clone)(const void *item, void **into, void *udata),
+NV_EXTERN void nv_rtree_set_item_callbacks(
+    struct nv_rtree *tr,
+    bool (*clone)(const void *item, void **into, void *udata),
     void (*free)(const void *item, void *udata));
 
-// rtree_set_udata sets the user-defined data.
+// nv_rtree_set_udata sets the user-defined data.
 //
-// This should be called once after rtree_new() and is only used for
-// the item callbacks as defined in rtree_set_item_callbacks().
-NV_EXTERN void rtree_set_udata(struct rtree *tr, void *udata);
+// This should be called once after nv_rtree_new() and is only used for
+// the item callbacks as defined in nv_rtree_set_item_callbacks().
+NV_EXTERN void nv_rtree_set_udata(struct nv_rtree *tr, void *udata);
 
-// rtree_insert inserts an item into the rtree.
+// nv_rtree_insert inserts an item into the rtree.
 //
 // This operation performs a copy of the data that is pointed to in the second
 // and third arguments. The R-tree expects a rectangle, which is two arrays of
@@ -627,54 +451,56 @@ NV_EXTERN void rtree_set_udata(struct rtree *tr, void *udata);
 // When inserting points, the max coordinates is optional (set to NULL).
 //
 // Returns false if the system is out of memory.
-NV_EXTERN bool rtree_insert(struct rtree *tr, const double *min,
-                            const double *max, const void *data);
+NV_EXTERN bool nv_rtree_insert(struct nv_rtree *tr, const double *min,
+                               const double *max, const void *data);
 
-// rtree_search searches the rtree and iterates over each item that intersect
+// nv_rtree_search searches the rtree and iterates over each item that intersect
 // the provided rectangle.
 //
 // Returning false from the iter will stop the search.
-NV_EXTERN void rtree_search(const struct rtree *tr, const double *min,
-                            const double *max,
-                            bool (*iter)(const double *min, const double *max,
-                                         const void *data, void *udata),
-                            void *udata);
+NV_EXTERN void
+nv_rtree_search(const struct nv_rtree *tr, const double *min, const double *max,
+                bool (*iter)(const double *min, const double *max,
+                             const void *data, void *udata),
+                void *udata);
 
-// rtree_scan iterates over every item in the rtree.
+// nv_rtree_scan iterates over every item in the rtree.
 //
 // Returning false from the iter will stop the scan.
-NV_EXTERN void rtree_scan(const struct rtree *tr,
-                          bool (*iter)(const double *min, const double *max,
-                                       const void *data, void *udata),
-                          void *udata);
+NV_EXTERN void nv_rtree_scan(const struct nv_rtree *tr,
+                             bool (*iter)(const double *min, const double *max,
+                                          const void *data, void *udata),
+                             void *udata);
 
-// rtree_count returns the number of items in the rtree.
-NV_EXTERN size_t rtree_count(const struct rtree *tr);
+// nv_rtree_count returns the number of items in the rtree.
+NV_EXTERN size_t nv_rtree_count(const struct nv_rtree *tr);
 
-// rtree_delete deletes an item from the rtree.
+// nv_rtree_delete deletes an item from the rtree.
 //
 // This searches the tree for an item that is contained within the provided
 // rectangle, and perform a binary comparison of its data to the provided
 // data. The first item that is found is deleted.
 //
 // Returns false if the system is out of memory.
-NV_EXTERN bool rtree_delete(struct rtree *tr, const double *min,
-                            const double *max, const void *data);
+NV_EXTERN bool nv_rtree_delete(struct nv_rtree *tr, const double *min,
+                               const double *max, const void *data);
 
-// rtree_delete_with_comparator deletes an item from the rtree.
+// nv_rtree_delete_with_comparator deletes an item from the rtree.
 // This searches the tree for an item that is contained within the provided
 // rectangle, and perform a comparison of its data to the provided data using
 // a compare function. The first item that is found is deleted.
 //
 // Returns false if the system is out of memory.
-NV_EXTERN bool rtree_delete_with_comparator(
-    struct rtree *tr, const double *min, const double *max, const void *data,
+NV_EXTERN bool nv_rtree_delete_with_comparator(
+    struct nv_rtree *tr, const double *min, const double *max, const void *data,
     int (*compare)(const void *a, const void *b, void *udata), void *udata);
 
-// rtree_opt_relaxed_atomics activates memory_order_relaxed for all atomic
+// nv_rtree_opt_relaxed_atomics activates memory_order_relaxed for all atomic
 // loads. This may increase performance for single-threaded programs.
 // Optionally, define RTREE_NOATOMICS to disbale all atomics.
-NV_EXTERN void rtree_opt_relaxed_atomics(struct rtree *tr);
+NV_EXTERN void nv_rtree_opt_relaxed_atomics(struct nv_rtree *tr);
+
+/* ---------------------------------- NMEA ---------------------------------- */
 
 // #define NMEA_NV_MAXSAT    (12)
 // #define NMEA_SATINPACK (4)

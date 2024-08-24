@@ -19,7 +19,6 @@ string(STRIP "${NL_PACKAGE_VERSION}" PACKAGE_VERSION)
 option(BUILD_SHARD_LIBRARY "build shared libnv library" ON)
 option(BUILD_TESTS "build libnv tests" OFF)
 option(BUILD_PROGRAMS "build program tools" OFF)
-option(BUILD_WITH_OPENCV "Compile libnv and use OpenCV to process images" OFF)
 option(BUILD_WITH_ICONV "build with iconv" OFF)
 option(BUILD_WITH_PROJ "build with proj" OFF)
 option(BUILD_WITH_LIBPNG16 "build with libpng16" OFF)
@@ -28,10 +27,6 @@ option(MATHSE_DISABLE_QT_CANVAS "on libnv qt canvas support" OFF)
 
 if(BUILD_WITH_LIBPNG16)
   find_package(PNG REQUIRED)
-endif()
-
-if(BUILD_WITH_OPENCV)
-  find_package(OpenCV REQUIRED)
 endif()
 
 if(BUILD_WITH_ICONV)
@@ -143,7 +138,7 @@ target_include_directories(${nv} PUBLIC
 
 target_include_directories(${nv} PRIVATE 
   ${CMAKE_CURRENT_SOURCE_DIR}/src
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/nv
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/nv-util
 )
 
 if(BUILD_WITH_LIBPNG16)

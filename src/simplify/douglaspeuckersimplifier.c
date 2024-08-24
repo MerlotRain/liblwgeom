@@ -1,4 +1,4 @@
-#include "nvp.h"
+#include "nv-common.h"
 #include <bitset.h>
 
 struct int_simplify_rdp {
@@ -17,7 +17,7 @@ static struct nv_geobject *_simplify_line(const struct nv_geobject *obj)
         return NULL;
 
     if (obj->npoints < 3)
-        return mg_prop_geo_clone(obj);
+        return nv_prop_geo_clone(obj);
 
     struct int_simplify_rdp *intrdp = (struct int_simplify_rdp *)malloc(
         sizeof(struct int_simplify_rdp) + obj->npoints * sizeof(uint8_t));
@@ -37,7 +37,7 @@ static struct nv_geobject *_simplify_line(const struct nv_geobject *obj)
 }
 
 struct nv_geobject *
-mg_prop_geo_simpily_douglaspeucker(const struct nv_geobject *obj)
+nv_prop_geo_simpily_douglaspeucker(const struct nv_geobject *obj)
 {
     if (obj == NULL)
         return NULL;
