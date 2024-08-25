@@ -110,10 +110,10 @@ NV_EXTERN bool nv_obtuse(const struct nv_point p0, const struct nv_point p1,
 NV_EXTERN double nv_angle_between(const struct nv_point tip1,
                                   const struct nv_point tail,
                                   const struct nv_point tip2);
-NV_EXTERN bool nv_interior_angle(const struct nv_point p0,
-                                 const struct nv_point p1,
-                                 const struct nv_point p2);
-NV_EXTERN void nv_angle_bisector(const struct nv_point A,
+NV_EXTERN double nv_interior_angle(const struct nv_point p0,
+                                   const struct nv_point p1,
+                                   const struct nv_point p2);
+NV_EXTERN bool nv_angle_bisector(const struct nv_point A,
                                  const struct nv_point B,
                                  const struct nv_point C,
                                  const struct nv_point D, struct nv_point *p,
@@ -125,11 +125,10 @@ NV_EXTERN double nv_dis_point_to_segment(const struct nv_point p,
 NV_EXTERN double nv_dis_point_to_perpendicular(const struct nv_point p,
                                                const struct nv_point A,
                                                const struct nv_point B);
-
 NV_EXTERN void
 nv_segment_intersection(const struct nv_point p1, const struct nv_point p2,
                         const struct nv_point p3, const struct nv_point p4,
-                        const struct nv_point *pin, bool *intersection);
+                        struct nv_point *pin, bool *intersection);
 
 /* ----------------------------------- Box ---------------------------------- */
 

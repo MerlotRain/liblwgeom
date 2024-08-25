@@ -20,6 +20,7 @@
  * IN THE SOFTWARE.
  */
 #include "nv-common.h"
+#include "nv.h"
 #include <math.h>
 
 static double nv__normalize_positive(double angle)
@@ -61,6 +62,31 @@ static double nv__diff(double ang1, double ang2)
     }
 
     return delAngle;
+}
+
+static double nv__azimuth(const struct nv_point p1, const struct nv_point p2)
+{
+    const double dx = p2.x - p1.x;
+    const double dy = p2.y - p1.y;
+    return (atan2(dx, dy) * 180.0 / M_PI);
+}
+
+static bool nv__line_intersection(double p1x, double p1y, struct nv_point v1,
+                                  double p2x, double p2y, struct nv_point v2,
+                                  struct nv_point *intersection)
+{
+    const double d = v1.y * v2.x - v1.x * v2.y;
+
+    if (NV_DOUBLE_NEARES2(d, 0))
+        return false;
+
+    const double dx = p2x - p1x;
+    const double dy = p2y - p1y;
+    const double k = (dy * v2.x - dx * v2.y) / d;
+
+    intersection->x = p1x + v1.x * k;
+    intersection->y = p1y + v1.y * k;
+    return true;
 }
 
 /// @brief point angle with nv_point(0, 0)
@@ -134,8 +160,8 @@ double nv_angle_between(const struct nv_point tip1, const struct nv_point tail,
 /// @param p1 the second point
 /// @param p2 the third point
 /// @return the interior angle between two segments of a ring
-bool nv_interior_angle(const struct nv_point p0, const struct nv_point p1,
-                       const struct nv_point p2)
+double nv_interior_angle(const struct nv_point p0, const struct nv_point p1,
+                         const struct nv_point p2)
 {
     double angle_prev = nv_angle2(p1, p0);
     double angle_next = nv_angle2(p1, p2);
@@ -151,10 +177,16 @@ bool nv_interior_angle(const struct nv_point p0, const struct nv_point p1,
 /// @param p
 /// @param angle
 /// @return
-void nv_angle_bisector(const struct nv_point A, const struct nv_point B,
+bool nv_angle_bisector(const struct nv_point A, const struct nv_point B,
                        const struct nv_point C, const struct nv_point D,
                        struct nv_point *p, double *angle)
 {
+
+    *angle = (nv__azimuth(A, B) + nv__azimuth(C, D)) / 2.0;
+
+    bool intersection = false;
+    nv_segment_intersection(A, B, C, D, p, &intersection);
+    return intersection;
 }
 
 /// @brief Computes the distance from a point p to a line segment AB
@@ -236,6 +268,21 @@ double nv_dis_point_to_perpendicular(const struct nv_point p,
 
 void nv_segment_intersection(const struct nv_point p1, const struct nv_point p2,
                              const struct nv_point p3, const struct nv_point p4,
-                             const struct nv_point *pin, bool *intersection)
+                             struct nv_point *pin, bool *intersection)
 {
+    *intersection = false;
+    double vl = NV_POINTDISTANCE2(p1, p2);
+    double wl = NV_POINTDISTANCE2(p3, p4);
+
+    if (NV_DOUBLE_NEARES2(vl, 0.0) || NV_DOUBLE_NEARES2(wl, 0.0))
+        return;
+
+    struct nv_point v = {.x = (p2.x - p1.x) / vl, .y = (p2.y - p1.y) / vl};
+    struct nv_point w = {.x = (p4.x - p3.x) / wl, .y = (p4.y - p3.y) / wl};
+
+    if (!nv__line_intersection(p1.x, p1.y, v, p3.x, p3.y, w, pin)) {
+        return;
+    }
+
+    *intersection = true;
 }

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0...3.20)
-project(libnv LANGUAGES C)
+project(libnv LANGUAGES C CXX)
 
 if(MSVC)
     set(nv libnv)
@@ -18,15 +18,16 @@ string(STRIP "${NL_PACKAGE_VERSION}" PACKAGE_VERSION)
 
 option(BUILD_SHARD_LIBRARY "build shared libnv library" ON)
 option(BUILD_TESTS "build libnv tests" OFF)
-option(BUILD_PROGRAMS "build program tools" OFF)
 option(BUILD_WITH_ICONV "build with iconv" OFF)
 option(BUILD_WITH_PROJ "build with proj" OFF)
-option(BUILD_WITH_LIBPNG16 "build with libpng16" OFF)
-option(MATHSE_DISABLE_LIBPNG_CANVAS "on libnv libpng support" OFF)
-option(MATHSE_DISABLE_QT_CANVAS "on libnv qt canvas support" OFF)
+option(BUILD_WITH_CAIRO "build with cairo" OFF)
 
-if(BUILD_WITH_LIBPNG16)
-  find_package(PNG REQUIRED)
+find_package(PkgConfig REQUIRED)
+if(BUILD_WITH_CAIRO)
+  pkg_check_modules(CAIRO cairo)
+  message("found cario: " ${CAIRO_FOUND})
+  message("CAIRO_LIBRARIES=${CAIRO_LIBRARIES}")
+  message("CAIRO_INCLUDE_DIRS=${CAIRO_INCLUDE_DIRS}")
 endif()
 
 if(BUILD_WITH_ICONV)
@@ -141,8 +142,9 @@ target_include_directories(${nv} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/nv-util
 )
 
-if(BUILD_WITH_LIBPNG16)
-  target_link_libraries(${nv} PNG::PNG)
+if(BUILD_WITH_CAIRO)
+  target_include_directories(${nv} PRIVATE ${CAIRO_INCLUDE_DIRS})
+  target_link_libraries(${nv} ${CAIRO_LIBRARIES})
 endif()
 
 if(BUILD_WITH_OPENCV)
