@@ -26,7 +26,7 @@
 
 // buf_append appends data to buffer. To append a null-terminated c-string
 // specify -1 for the len.
-bool buf_append(struct buf *buf, const char *data, ssize_t len)
+bool nv__buf_append(struct nv__buf *buf, const char *data, ssize_t len)
 {
     if (len < 0) {
         len = strlen(data);
@@ -53,10 +53,10 @@ bool buf_append(struct buf *buf, const char *data, ssize_t len)
 
 // buf_append_byte appends a single byte to buffer.
 // Returns false if the
-bool buf_append_byte(struct buf *buf, char ch)
+bool nv__buf_append_byte(struct nv__buf *buf, char ch)
 {
     if (buf->len == buf->cap) {
-        return buf_append(buf, &ch, 1);
+        return nv__buf_append(buf, &ch, 1);
     }
     buf->data[buf->len] = ch;
     buf->len++;
@@ -65,10 +65,10 @@ bool buf_append_byte(struct buf *buf, char ch)
 }
 
 // buf_clear clears the buffer and frees all data
-void buf_clear(struct buf *buf)
+void nv__buf_clear(struct nv__buf *buf)
 {
     if (buf->data) {
         nv__free(buf->data);
     }
-    memset(buf, 0, sizeof(struct buf));
+    memset(buf, 0, sizeof(struct nv__buf));
 }

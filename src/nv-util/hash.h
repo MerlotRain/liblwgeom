@@ -27,10 +27,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifdef __cpluscplus
-extern "C" {
-#endif
-
 struct hashmap;
 
 struct hashmap *
@@ -66,9 +62,5 @@ const void *hashmap_set_with_hash(struct hashmap *map, const void *item,
                                   uint64_t hash);
 void hashmap_set_grow_by_power(struct hashmap *map, size_t power);
 void hashmap_set_load_factor(struct hashmap *map, double load_factor);
-
-#ifdef __cpluscplus
-}
-#endif
 
 #endif

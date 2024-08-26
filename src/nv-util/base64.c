@@ -57,7 +57,7 @@ static const unsigned char mime_base64_rank[256] = {
     255,
 };
 
-static size_t base64_encode_step(const unsigned char *in, size_t len,
+static size_t nv__base64_encode_step(const unsigned char *in, size_t len,
                                  int break_lines, char *out, int *state,
                                  int *save)
 {
@@ -140,7 +140,7 @@ static size_t base64_encode_step(const unsigned char *in, size_t len,
     return outptr - out;
 }
 
-static size_t base64_encode_close(int break_lines, char *out, int *state,
+static size_t nv__base64_encode_close(int break_lines, char *out, int *state,
                                   int *save)
 {
     int c1, c2;
@@ -177,7 +177,7 @@ static size_t base64_encode_close(int break_lines, char *out, int *state,
     return outptr - out;
 }
 
-static size_t base64_decode_step(const char *in, size_t len, unsigned char *out,
+static size_t nv__base64_decode_step(const char *in, size_t len, unsigned char *out,
                                  int *state, unsigned int *save)
 {
     const unsigned char *inptr;
@@ -238,7 +238,7 @@ static size_t base64_decode_step(const char *in, size_t len, unsigned char *out,
     return outptr - out;
 }
 
-static unsigned char *base64_decode_inplace(char *text, size_t *out_len)
+static unsigned char *nv__base64_decode_inplace(char *text, size_t *out_len)
 {
     int input_length, state = 0;
     unsigned int save = 0;
@@ -250,13 +250,13 @@ static unsigned char *base64_decode_inplace(char *text, size_t *out_len)
 
     RETURN_VAL_IF_FAIL(input_length > 1, NULL);
 
-    *out_len = base64_decode_step(text, input_length, (unsigned char *)text,
+    *out_len = nv__base64_decode_step(text, input_length, (unsigned char *)text,
                                   &state, &save);
 
     return (unsigned char *)text;
 }
 
-char *base64_encode(const unsigned char *data, size_t len)
+char *nv__base64_encode(const unsigned char *data, size_t len)
 {
     char *out;
     int state = 0, outlen;
@@ -270,14 +270,14 @@ char *base64_encode(const unsigned char *data, size_t len)
 
     out = (char *)nv__malloc((len / 3 + 1) * 4 + 1);
 
-    outlen = base64_encode_step(data, len, false, out, &state, &save);
-    outlen += base64_encode_close(false, out + outlen, &state, &save);
+    outlen = nv__base64_encode_step(data, len, false, out, &state, &save);
+    outlen += nv__base64_encode_close(false, out + outlen, &state, &save);
     out[outlen] = '\0';
 
     return (char *)out;
 }
 
-unsigned char *base64_decode(const char *text, size_t *out_len)
+unsigned char *nv__base64_decode(const char *text, size_t *out_len)
 {
     unsigned char *ret;
     size_t input_length;
@@ -293,7 +293,7 @@ unsigned char *base64_decode(const char *text, size_t *out_len)
        +1 used to avoid calling g_malloc0(0), and hence returning NULL */
     ret = (unsigned char *)nv__malloc((input_length / 4) * 3 + 1);
 
-    *out_len = base64_decode_step(text, input_length, ret, &state, &save);
+    *out_len = nv__base64_decode_step(text, input_length, ret, &state, &save);
 
     return ret;
 }

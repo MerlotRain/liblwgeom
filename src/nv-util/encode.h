@@ -25,27 +25,19 @@
 
 #include <stddef.h>
 
-#ifdef __cpluscplus
-extern "C" {
-#endif
-
 /// base64
-char *base64_encode(const unsigned char *data, size_t len);
-unsigned char *base64_decode(const char *text, size_t *out_len);
+char *nv__base64_encode(const unsigned char *data, size_t len);
+unsigned char *nv__base64_decode(const char *text, size_t *out_len);
 
 /// md5
-struct MD5_CTX {
+struct nv__md5_ctx {
     unsigned int lo, hi;
     unsigned int a, b, c, d;
     unsigned char buffer[64];
     unsigned int block[16];
 };
-void MD5_init(struct MD5_CTX *ctx);
-void MD5_update(struct MD5_CTX *ctx, const void *data, unsigned long size);
-void MD5_final(unsigned char *result, struct MD5_CTX *ctx);
-
-#ifdef __cpluscplus
-}
-#endif
+void nv__md5_init(struct nv__md5_ctx *ctx);
+void nv__md5_update(struct nv__md5_ctx *ctx, const void *data, unsigned long size);
+void nv__md5_final(unsigned char *result, struct nv__md5_ctx *ctx);
 
 #endif

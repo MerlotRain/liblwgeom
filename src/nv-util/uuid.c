@@ -31,7 +31,7 @@
 
 static uint64_t seed[2];
 
-static uint64_t xorshift128plus(uint64_t *s)
+static uint64_t nv__xorshift128plus(uint64_t *s)
 {
     /* http://xorshift.di.unimi.it/xorshift128plus.c */
     uint64_t s1 = s[0];
@@ -42,7 +42,7 @@ static uint64_t xorshift128plus(uint64_t *s)
     return s[1] + s0;
 }
 
-int uuid_init()
+int nv__uuid_init()
 {
 #if defined(__APPLE__) || defined(__linux__)
     int res;
@@ -74,7 +74,7 @@ int uuid_init()
     return 0;
 }
 
-void uuid_generate(char *dst)
+void nv__uuid_generate(char *dst)
 {
     static const char *template = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
     static const char *chars = "0123456789abcdef";
@@ -85,8 +85,8 @@ void uuid_generate(char *dst)
     const char *p;
     int i, n;
     /* get random */
-    s.word[0] = xorshift128plus(seed);
-    s.word[1] = xorshift128plus(seed);
+    s.word[0] = nv__xorshift128plus(seed);
+    s.word[1] = nv__xorshift128plus(seed);
     /* build string */
     p = template;
     i = 0;

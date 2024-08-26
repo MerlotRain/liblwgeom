@@ -26,65 +26,22 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+enum {
+    NV__BITSET_STATE_NONE, ///< All bits are false
+    NV__BITSET_STATE_ALL,  ///< All bits are true
+    NV__BITSET_STATE_ANY   ///< Some bits are true
+};
 
-#define BITSET_STATE_NONE 0 ///< All bits are false
-#define BITSET_STATE_ALL  1 ///< All bits are true
-#define BITSET_STATE_ANY  2 ///< Some bits are true
+struct nv__bitset;
 
-struct bitset;
-
-/// @brief Create a new bitset.
-/// @param size The size of the bitset.
-/// @return Generate an 8-bit aligned bitset
-struct bitset *bitset_new(size_t size);
-
-/// @brief Free a bitset.
-/// @param bs The bitset to free.
-void bitset_free(struct bitset *bs);
-
-/// @brief Set the \a index bit to true
-/// @param bs The bitset
-/// @param index The index of the bit
-/// @return
-void bitset_set(struct bitset *bs, size_t index);
-
-/// @brief Clear the \a index bit to false
-/// @param bs The bitset
-/// @param index The index of the bit
-/// @return
-void bitset_clear(struct bitset *bs, size_t index);
-
-/// @brief Test if the \a index bit is true or false
-/// @param bs The bitset
-/// @param index The index of the bit
-bool bitset_test(struct bitset *bs, size_t index);
-
-/// @brief Flip the \a index bit
-/// @param bs The bitset
-/// @param index The index of the bit
-/// @return
-void bitset_flip(struct bitset *bs, size_t index);
-
-/// @brief Get the state of the bitset
-/// @param bs The bitset
-/// @return The return value is a BITSET_STATE_* series macro
-int bitset_state(struct bitset *bs);
-
-/// @brief Count the number of bits set to true
-/// @param bs The bitset
-/// @return The number of bits set to true
-size_t bitset_count(struct bitset *bs);
-
-/// @brief Get the size of the bitset
-/// @param bs The bitset
-/// @return An 8-bit aligned value
-size_t bitset_size(struct bitset *bs);
-
-#ifdef __cplusplus
-}
-#endif
+struct nv__bitset *nv__bitset_new(size_t size);
+void nv__bitset_free(struct nv__bitset *bs);
+void nv__bitset_set(struct nv__bitset *bs, size_t index);
+void nv__bitset_clear(struct nv__bitset *bs, size_t index);
+bool nv__bitset_test(struct nv__bitset *bs, size_t index);
+void nv__bitset_flip(struct nv__bitset *bs, size_t index);
+int nv__bitset_state(struct nv__bitset *bs);
+size_t nv__bitset_count(struct nv__bitset *bs);
+size_t nv__bitset_size(struct nv__bitset *bs);
 
 #endif

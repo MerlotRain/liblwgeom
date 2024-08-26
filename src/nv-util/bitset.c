@@ -24,13 +24,16 @@
 #include <string.h>
 #include <nv-common.h>
 
-struct bitset {
+struct nv__bitset {
     size_t length;
     size_t capacity;
     char data[];
 };
 
-struct bitset *bitset_new(size_t size)
+/// @brief Create a new bitset.
+/// @param size The size of the bitset.
+/// @return Generate an 8-bit aligned bitset
+struct nv__bitset *nv__bitset_new(size_t size)
 {
     size_t cap = 0;
     if (size == 0)
@@ -39,23 +42,29 @@ struct bitset *bitset_new(size_t size)
         cap = (size + 7) & ~7; // round up to multiple of 8
     }
 
-    struct bitset *bs =
-        (struct bitset *)nv__malloc(sizeof(struct bitset) + cap / 8);
+    struct nv__bitset *bs =
+        (struct nv__bitset *)nv__malloc(sizeof(struct nv__bitset) + cap / 8);
     if (bs == NULL) {
         return NULL;
     }
-    memset(bs, 0, sizeof(struct bitset) + cap / 8);
+    memset(bs, 0, sizeof(struct nv__bitset) + cap / 8);
     bs->length = size;
     bs->capacity = cap;
     return bs;
 }
 
-void bitset_free(struct bitset *bs)
+/// @brief Free a bitset.
+/// @param bs The bitset to free.
+void nv__bitset_free(struct nv__bitset *bs)
 {
     nv__free(bs);
 }
 
-void bitset_set(struct bitset *bs, size_t index)
+/// @brief Set the \a index bit to true
+/// @param bs The bitset
+/// @param index The index of the bit
+/// @return
+void nv__bitset_set(struct nv__bitset *bs, size_t index)
 {
     if (index >= bs->length) {
         return;
@@ -64,7 +73,11 @@ void bitset_set(struct bitset *bs, size_t index)
     bs->data[index / 8] |= (1 << (index % 8)); // set bit
 }
 
-void bitset_clear(struct bitset *bs, size_t index)
+/// @brief Clear the \a index bit to false
+/// @param bs The bitset
+/// @param index The index of the bit
+/// @return
+void nv__bitset_clear(struct nv__bitset *bs, size_t index)
 {
     if (index >= bs->length) {
         return;
@@ -73,7 +86,10 @@ void bitset_clear(struct bitset *bs, size_t index)
     bs->data[index / 8] &= ~(1 << (index % 8)); // clear bit
 }
 
-bool bitset_test(struct bitset *bs, size_t index)
+/// @brief Test if the \a index bit is true or false
+/// @param bs The bitset
+/// @param index The index of the bit
+bool nv__bitset_test(struct nv__bitset *bs, size_t index)
 {
     if (index >= bs->length) {
         return false;
@@ -82,7 +98,11 @@ bool bitset_test(struct bitset *bs, size_t index)
     return bs->data[index / 8] & (char)(1 << (index % 8)); // test bit
 }
 
-void bitset_flip(struct bitset *bs, size_t index)
+/// @brief Flip the \a index bit
+/// @param bs The bitset
+/// @param index The index of the bit
+/// @return
+void nv__bitset_flip(struct nv__bitset *bs, size_t index)
 {
     if (index >= bs->length) {
         return;
@@ -91,21 +111,27 @@ void bitset_flip(struct bitset *bs, size_t index)
     bs->data[index / 8] ^= (1 << (index % 8));
 }
 
-int bitset_state(struct bitset *bs)
+/// @brief Get the state of the bitset
+/// @param bs The bitset
+/// @return The return value is a BITSET_STATE_* series macro
+int nv__bitset_state(struct nv__bitset *bs)
 {
     size_t c = bitset_count(bs);
     if (c == 0) {
-        return BITSET_STATE_NONE;
+        return NV__BITSET_STATE_NONE;
     }
     else if (c == bs->length) {
-        return BITSET_STATE_ALL;
+        return NV__BITSET_STATE_ALL;
     }
     else {
-        return BITSET_STATE_ANY;
+        return NV__BITSET_STATE_ANY;
     }
 }
 
-size_t bitset_count(struct bitset *bs)
+/// @brief Count the number of bits set to true
+/// @param bs The bitset
+/// @return The number of bits set to true
+size_t nv__bitset_count(struct nv__bitset *bs)
 {
     int count = 0;
     for (int i = 0; i < (bs->length / 8) + (bs->length % 8 ? 1 : 0); i++) {
@@ -118,7 +144,10 @@ size_t bitset_count(struct bitset *bs)
     return count;
 }
 
-size_t bitset_size(struct bitset *bs)
+/// @brief Get the size of the bitset
+/// @param bs The bitset
+/// @return An 8-bit aligned value
+size_t nv__bitset_size(struct nv__bitset *bs)
 {
     return bs->length;
 }

@@ -75,7 +75,7 @@
  * This processes one or more 64-byte data blocks, but does NOT update the bit
  * counters.  There are no alignment requirements.
  */
-static const void *body(struct MD5_CTX *ctx, const void *data,
+static const void *nv__body(struct md5_ctx *ctx, const void *data,
                         unsigned long size)
 {
     const unsigned char *ptr;
@@ -183,7 +183,7 @@ static const void *body(struct MD5_CTX *ctx, const void *data,
     return ptr;
 }
 
-void MD5_init(struct MD5_CTX *ctx)
+void nv__md5_init(struct md5_ctx *ctx)
 {
     ctx->a = 0x67452301;
     ctx->b = 0xefcdab89;
@@ -194,7 +194,7 @@ void MD5_init(struct MD5_CTX *ctx)
     ctx->hi = 0;
 }
 
-void MD5_update(struct MD5_CTX *ctx, const void *data, unsigned long size)
+void nv__md5_update(struct md5_ctx *ctx, const void *data, unsigned long size)
 {
     unsigned int saved_lo;
     unsigned long used, available;
@@ -217,11 +217,11 @@ void MD5_update(struct MD5_CTX *ctx, const void *data, unsigned long size)
         memcpy(&ctx->buffer[used], data, available);
         data = (const unsigned char *)data + available;
         size -= available;
-        body(ctx, ctx->buffer, 64);
+        nv__body(ctx, ctx->buffer, 64);
     }
 
     if (size >= 64) {
-        data = body(ctx, data, size & ~(unsigned long)0x3f);
+        data = nv__body(ctx, data, size & ~(unsigned long)0x3f);
         size &= 0x3f;
     }
 
@@ -234,7 +234,7 @@ void MD5_update(struct MD5_CTX *ctx, const void *data, unsigned long size)
     (dst)[2] = (unsigned char)((src) >> 16); \
     (dst)[3] = (unsigned char)((src) >> 24);
 
-void MD5_final(unsigned char *result, struct MD5_CTX *ctx)
+void MD5_final(unsigned char *result, struct md5_ctx *ctx)
 {
     unsigned long used, available;
 
@@ -246,7 +246,7 @@ void MD5_final(unsigned char *result, struct MD5_CTX *ctx)
 
     if (available < 8) {
         memset(&ctx->buffer[used], 0, available);
-        body(ctx, ctx->buffer, 64);
+        nv__body(ctx, ctx->buffer, 64);
         used = 0;
         available = 64;
     }
@@ -257,7 +257,7 @@ void MD5_final(unsigned char *result, struct MD5_CTX *ctx)
     OUT(&ctx->buffer[56], ctx->lo)
     OUT(&ctx->buffer[60], ctx->hi)
 
-    body(ctx, ctx->buffer, 64);
+    nv__body(ctx, ctx->buffer, 64);
 
     OUT(&result[0], ctx->a)
     OUT(&result[4], ctx->b)

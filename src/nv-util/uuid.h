@@ -23,17 +23,9 @@
 #ifndef UUID_H
 #define UUID_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define NV__UUID_LEN 37
 
-#define UUID_LEN 37
-
-int uuid_init();
-void uuid_generate(char *dst);
-
-#ifdef __cplusplus
-}
-#endif
+int nv__uuid_init();
+void nv__uuid_generate(char *dst);
 
 #endif
