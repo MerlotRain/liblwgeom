@@ -22,6 +22,9 @@
 
 #include "nv-common.h"
 #include <stdlib.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
 
 typedef struct {
     nv_malloc_func local_malloc;
@@ -77,4 +80,27 @@ void *nv__realloc(void *ptr, size_t size)
         return nv__allocator.local_realloc(ptr, size);
     nv__free(ptr);
     return NULL;
+}
+
+static char last_error[2048];
+
+static int last_errno = 0;
+
+void nv_record_error(int code, const char *fmt, ...)
+{
+    memset(last_error, 0, 2048);
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(last_error, sizeof(last_error), fmt, args);
+    va_end(args);
+}
+
+int error_code()
+{
+    return last_errno;
+}
+
+char *error_messgae()
+{
+    return last_error;
 }

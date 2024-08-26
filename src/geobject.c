@@ -20,7 +20,7 @@
  * IN THE SOFTWARE.
  */
 
-#include "nv-common.h"
+#include "geobject.h"
 #include <string.h>
 
 /* ---------------------------- geometry factory ---------------------------- */

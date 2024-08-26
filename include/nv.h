@@ -47,6 +47,7 @@ extern "C" {
 #endif /* NV_EXTERN */
 
 #include "nv/version.h"
+#include "nv/logging.h"
 
 #include <assert.h>
 #include <stdbool.h>

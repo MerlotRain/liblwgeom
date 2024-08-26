@@ -23,10 +23,6 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
-#ifdef __cpluscplus
-extern "C" {
-#endif
-
 #define NV_LOGLEVEL_ALL   (-99999) // print all log message
 #define NV_LOGLEVEL_NONE  99999    // no log
 #define NV_LOGLEVEL_TRACE 1        // eg for each field value parsed
@@ -45,48 +41,44 @@ extern "C" {
 #define HANDLER fprintf
 #define OUTPUT  stderr
 
-#define LOG(level, ...)                           \
+#define NV_LOG(level, ...)                           \
     {                                             \
         if (NV_LOGLEVEL_##level >= NV_LOGLEVEL) { \
             HANDLER(OUTPUT, __VA_ARGS__);         \
         }                                         \
     }
 
-#define LOG_FATAL(...)                          \
+#define NV_LOG_FATAL(...)                          \
     {                                           \
         if (NV_LOGLEVEL_FATAL >= NV_LOGLEVEL) { \
             HANDLER(OUTPUT, "FATAL: ");         \
-            LOG(FATAL, __VA_ARGS__)             \
+            NV_LOG(FATAL, __VA_ARGS__)             \
             HANDLER(OUTPUT, "\n");              \
             abort();                            \
         }                                       \
     }
 
-#define LOG_ERROR(...)                          \
+#define NV_LOG_ERROR(...)                          \
     {                                           \
         if (NV_LOGLEVEL_ERROR >= NV_LOGLEVEL) { \
             HANDLER(OUTPUT, "ERROR: ");         \
-            LOG(ERROR, __VA_ARGS__)             \
+            NV_LOG(ERROR, __VA_ARGS__)             \
             HANDLER(OUTPUT, "\n");              \
         }                                       \
     }
 
-#define LOG_WARN(...)                          \
+#define NV_LOG_WARN(...)                          \
     {                                          \
         if (NV_LOGLEVEL_WARN >= NV_LOGLEVEL) { \
             HANDLER(OUTPUT, "WARN: ");         \
-            LOG(WARN, __VA_ARGS__)             \
+            NV_LOG(WARN, __VA_ARGS__)             \
             HANDLER(OUTPUT, "\n");             \
             abort();                           \
         }                                      \
     }
 
-#define LOG_INFO(...)  LOG(INFO, __VA_ARGS__)
-#define LOG_DEBUG(...) LOG(DEBUG, __VA_ARGS__)
-#define LOG_TRACE(...) LOG(TRACE, __VA_ARGS__)
-
-#ifdef __cpluscplus
-}
-#endif
+#define NV_LOG_INFO(...)  NV_LOG(INFO, __VA_ARGS__)
+#define NV_LOG_DEBUG(...) NV_LOG(DEBUG, __VA_ARGS__)
+#define NV_LOG_TRACE(...) NV_LOG(TRACE, __VA_ARGS__)
 
 #endif

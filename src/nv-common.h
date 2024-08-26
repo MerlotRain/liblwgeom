@@ -32,6 +32,7 @@ void *nv__calloc(size_t count, size_t size);
 void *nv__malloc(size_t size);
 void nv__free(void *ptr);
 void *nv__realloc(void *ptr, size_t size);
+void nv_record_error(int code, const char *fmt, ...);
 
 /* ---------------------------- mg kernel struct ---------------------------- */
 
@@ -70,8 +71,6 @@ struct nv_geo_reader2 {
     struct nv_i4 **objs; ///< object array
     struct rtree *index; ///< spatial index
 };
-
-void nv_record_error(int code, const char *fmt, ...);
 
 /// @brief tolerance value
 extern double tolerence();

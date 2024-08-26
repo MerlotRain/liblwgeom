@@ -20,30 +20,23 @@
  * IN THE SOFTWARE.
  */
 
-#include "nv-common.h"
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
+ #ifndef SDA_H
+ #define SDA_H
 
-static char last_error[2048];
+typedef void(*nv__sda_deletor)(void*);
 
-static int last_errno = 0;
-
-void nv_record_error(int code, const char *fmt, ...)
+struct nv__sda
 {
-    memset(last_error, 0, 2048);
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(last_error, sizeof(last_error), fmt, args);
-    va_end(args);
-}
+    unsigned char* memory;
+    size_t elem_size;
+    size_t capacity;
+    size_t length;
+    nv__sda_deletor deletor;
+};
 
-int error_code()
-{
-    return last_errno;
-}
+void nv__sda_new(struct nv__sda* a, size_t elem_size, nv__sda_deletor elem_deletor);
+void nv__sda_free(struct nv__sda* a);
 
-char *error_messgae()
-{
-    return last_error;
-}
+
+
+ #endif
