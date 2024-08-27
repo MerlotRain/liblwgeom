@@ -23,6 +23,25 @@
 #include "geobject.h"
 #include <string.h>
 
+struct nv_box nv__query_envolpe(double *pp, int pn, int cdim)
+{
+    assert(pp);
+    double xmin = pp[0];
+    double xmax = pp[0];
+    double ymin = pp[1];
+    double ymax = pp[1];
+
+    for (int i = 1; i < pn; ++i) {
+        xmin = pp[i * cdim] > xmin ? xmin : pp[i * cdim];
+        xmax = pp[i * cdim] < xmax ? xmax : pp[i * cdim];
+        ymin = pp[i * cdim + 1] > ymin ? ymin : pp[i * cdim + 1];
+        xmax = pp[i * cdim + 1] < xmax ? xmax : pp[i * cdim + 1];
+    }
+
+    struct nv_box = {.min = {.x = xmin, .y = ymin}, .max = {.x = xmax, .y = ymax}};
+    return nv_box;
+}
+
 /* ---------------------------- geometry factory ---------------------------- */
 
 /// @brief create a single geometry object
@@ -57,6 +76,7 @@ struct nv_geobject *nv_geo_create_single(int gdim, int pn, int cdim,
         }
         memcpy(obj->pp, pp, sizeof(double) * pn * cdim);
     }
+    obj->env = nv__query_envolpe(obj->pp, obj->npoints, obj->cdim);
     return obj;
 }
 

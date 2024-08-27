@@ -54,6 +54,7 @@ struct nv_geobject {
     int flag;      ///< flag 0: reference input, 1: memory copy
     int clockwise; ///< 1: clockwise, 0: counterclockwise
     double *pp;    ///< point pointer
+    struct nv_box env; ///< geometry envelope
     struct nv_geobject **objects; ///< multi objects pointer
 };
 
@@ -99,6 +100,8 @@ extern double tolerence();
 #define NV_PP_X(obj, i)         ((obj)->pp[(i) * (obj)->cdim])
 /// @brief return coordinate Y in point i
 #define NV_PP_Y(obj, i)         ((obj)->pp[(i) * (obj)->cdim + 1])
+
+struct nv_box nv__query_envolpe(double *pp, int pn);
 
 /* ----------------------- geometry IO extern function ---------------------- */
 
