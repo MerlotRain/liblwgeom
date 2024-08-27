@@ -20,23 +20,23 @@
  * IN THE SOFTWARE.
  */
 
- #ifndef SDA_H
- #define SDA_H
+#ifndef SDA_H
+#define SDA_H
 
-typedef void(*nv__sda_deletor)(void*);
+#include <stddef.h>
 
-struct nv__sda
-{
-    unsigned char* memory;
+typedef void (*nv__sda_deletor)(void *);
+
+struct nv__sda {
+    unsigned char *memory;
     size_t elem_size;
     size_t capacity;
     size_t length;
     nv__sda_deletor deletor;
 };
 
-void nv__sda_new(struct nv__sda* a, size_t elem_size, nv__sda_deletor elem_deletor);
-void nv__sda_free(struct nv__sda* a);
+void nv__sda_new(struct nv__sda *a, size_t elem_size,
+                 nv__sda_deletor elem_deletor);
+void nv__sda_free(struct nv__sda *a);
 
-
-
- #endif
+#endif

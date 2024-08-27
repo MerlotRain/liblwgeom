@@ -47,13 +47,13 @@ void nv_record_error(int code, const char *fmt, ...);
 /// correct, and at least it will not exhibit self intersection or other
 /// situations.
 struct nv_geobject {
-    int ngeoms;    ///< number of geometries
-    int gdim;      ///< geometry dimension 0:point, 1:line, 2:area
-    int cdim;      ///< coordinate dimension 2:2D, 3:3D
-    int npoints;   ///< number of points
-    int flag;      ///< flag 0: reference input, 1: memory copy
-    int clockwise; ///< 1: clockwise, 0: counterclockwise
-    double *pp;    ///< point pointer
+    int ngeoms;        ///< number of geometries
+    int gdim;          ///< geometry dimension 0:point, 1:line, 2:area
+    int cdim;          ///< coordinate dimension 2:2D, 3:3D
+    int npoints;       ///< number of points
+    int flag;          ///< flag 0: reference input, 1: memory copy
+    int clockwise;     ///< 1: clockwise, 0: counterclockwise
+    double *pp;        ///< point pointer
     struct nv_box env; ///< geometry envelope
     struct nv_geobject **objects; ///< multi objects pointer
 };
@@ -117,17 +117,16 @@ struct nv_geobject *nv__geo_read_gml3(const char *gml, size_t len);
 
 int nv__geo_write_wkt(const struct nv_geobject *obj, char **wkt, size_t *len);
 int nv__geo_write_wkb(const struct nv_geobject *obj, bool hex, char **wkb,
-                     size_t *len);
+                      size_t *len);
 int nv__geo_write_ewkt(const struct nv_geobject *obj, char **ewkt, size_t *len);
 int nv__geo_write_ewkb(const struct nv_geobject *obj, char **ewkb, size_t *len);
 int nv__geo_write_geojson(const struct nv_geobject *obj, char **json,
-                         size_t *len);
+                          size_t *len);
 int nv__geo_write_kml(const struct nv_geobject *obj, char **kml, size_t *len);
 int nv__geo_write_gml2(const struct nv_geobject *obj, char **gml, size_t *len);
 int nv__geo_write_gml3(const struct nv_geobject *obj, char **gml, size_t *len);
 
 /* ------------------- geometry algorithm extern function ------------------- */
-
 
 double nv_prop_length_value(const struct nv_geobject *obj);
 double nv_prop_area_value(const struct nv_geobject *obj);

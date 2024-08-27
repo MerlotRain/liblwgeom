@@ -58,8 +58,8 @@ static const unsigned char mime_base64_rank[256] = {
 };
 
 static size_t nv__base64_encode_step(const unsigned char *in, size_t len,
-                                 int break_lines, char *out, int *state,
-                                 int *save)
+                                     int break_lines, char *out, int *state,
+                                     int *save)
 {
     char *outptr;
     const unsigned char *inptr;
@@ -141,7 +141,7 @@ static size_t nv__base64_encode_step(const unsigned char *in, size_t len,
 }
 
 static size_t nv__base64_encode_close(int break_lines, char *out, int *state,
-                                  int *save)
+                                      int *save)
 {
     int c1, c2;
     char *outptr = out;
@@ -177,8 +177,9 @@ static size_t nv__base64_encode_close(int break_lines, char *out, int *state,
     return outptr - out;
 }
 
-static size_t nv__base64_decode_step(const char *in, size_t len, unsigned char *out,
-                                 int *state, unsigned int *save)
+static size_t nv__base64_decode_step(const char *in, size_t len,
+                                     unsigned char *out, int *state,
+                                     unsigned int *save)
 {
     const unsigned char *inptr;
     unsigned char *outptr;
@@ -251,7 +252,7 @@ static unsigned char *nv__base64_decode_inplace(char *text, size_t *out_len)
     RETURN_VAL_IF_FAIL(input_length > 1, NULL);
 
     *out_len = nv__base64_decode_step(text, input_length, (unsigned char *)text,
-                                  &state, &save);
+                                      &state, &save);
 
     return (unsigned char *)text;
 }

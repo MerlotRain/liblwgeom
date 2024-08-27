@@ -22,7 +22,8 @@
 
 #include "nv-common.h"
 
-int nv__geo_write_ora(const struct nv_geobject *obj, struct nv_sdo_geometry *sdo)
+int nv__geo_write_ora(const struct nv_geobject *obj,
+                      struct nv_sdo_geometry *sdo)
 {
     return 0;
 }

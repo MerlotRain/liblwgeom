@@ -76,7 +76,7 @@
  * counters.  There are no alignment requirements.
  */
 static const void *nv__body(struct nv__md5_ctx *ctx, const void *data,
-                        unsigned long size)
+                            unsigned long size)
 {
     const unsigned char *ptr;
     unsigned int a, b, c, d;
@@ -194,7 +194,8 @@ void nv__md5_init(struct nv__md5_ctx *ctx)
     ctx->hi = 0;
 }
 
-void nv__md5_update(struct nv__md5_ctx *ctx, const void *data, unsigned long size)
+void nv__md5_update(struct nv__md5_ctx *ctx, const void *data,
+                    unsigned long size)
 {
     unsigned int saved_lo;
     unsigned long used, available;

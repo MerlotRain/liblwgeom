@@ -23,7 +23,7 @@
 #include "nv-common.h"
 #include <string.h>
 
-struct nv_box nv__query_envolpe(double *pp, int npoints, int cdim)
+struct nv_box nv__query_envolpe(const double *pp, int npoints, int cdim)
 {
     assert(pp);
     double xmin = pp[0];
@@ -42,7 +42,6 @@ struct nv_box nv__query_envolpe(double *pp, int npoints, int cdim)
                          .max = {.x = xmax, .y = ymax}};
     return box;
 }
-
 
 bool nv__check_single_ring(const double *pp, int npoints, int cdim)
 {

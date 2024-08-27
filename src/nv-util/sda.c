@@ -25,17 +25,17 @@
 
 #define NV__SDA_DEFAULT_CAPACITY (10)
 
-void nv__sda_new(struct nv__sda* a, size_t elem_size, nv__sda_deletor elem_deletor)
+void nv__sda_new(struct nv__sda *a, size_t elem_size,
+                 nv__sda_deletor elem_deletor)
 {
     a->elem_size = elem_size;
     a->deletor = elem_deletor ? elem_deletor : nv__free;
     a->capacity = NV__SDA_DEFAULT_CAPACITY;
     a->length = 0;
-    a->memory = (unsigned char*)nv__calloc(NV__SDA_DEFAULT_CAPACITY, elem_size);
-    
+    a->memory =
+        (unsigned char *)nv__calloc(NV__SDA_DEFAULT_CAPACITY, elem_size);
 }
 
-void nv__sda_free(struct nv__sda* a)
+void nv__sda_free(struct nv__sda *a)
 {
-
 }

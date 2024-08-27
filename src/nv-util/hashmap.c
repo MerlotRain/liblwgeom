@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <nv-common.h>
-#include "hash.h"
+#include "hashmap.h"
 
 #define GROW_AT   0.60 /* 60% */
 #define SHRINK_AT 0.10 /* 10% */
@@ -84,14 +84,15 @@ void nv__hashmap_set_load_factor(struct nv__hashmap *map, double factor)
     map->growat = map->nbuckets * (map->loadfactor / 100.0);
 }
 
-static struct nv__bucket *bucket_at0(void *buckets, size_t bucketsz, size_t i)
+static struct nv__bucket *nv__bucket_at0(void *buckets, size_t bucketsz,
+                                         size_t i)
 {
     return (struct nv__bucket *)(((char *)buckets) + (bucketsz * i));
 }
 
-static struct nv__bucket *bucket_at(struct nv__hashmap *map, size_t index)
+static struct nv__bucket *nv__bucket_at(struct nv__hashmap *map, size_t index)
 {
-    return bucket_at0(map->buckets, map->bucketsz, index);
+    return nv__bucket_at0(map->buckets, map->bucketsz, index);
 }
 
 static void *nv__bucket_item(struct nv__bucket *entry)
@@ -126,11 +127,11 @@ static uint64_t nv__get_hash(struct nv__hashmap *map, const void *key)
 // The hashmap must be freed with hashmap_free().
 // Param `elfree` is a function that frees a specific item. This should be NULL
 // unless you're storing some kind of reference data in the hash.
-struct nv__hashmap *
-nv__hashmap_new(size_t elsize, size_t cap, uint64_t seed0, uint64_t seed1,
-            uint64_t (*hash)(const void *item, uint64_t seed0, uint64_t seed1),
-            int (*compare)(const void *a, const void *b, void *udata),
-            void (*elfree)(void *item), void *udata)
+struct nv__hashmap *nv__hashmap_new(
+    size_t elsize, size_t cap, uint64_t seed0, uint64_t seed1,
+    uint64_t (*hash)(const void *item, uint64_t seed0, uint64_t seed1),
+    int (*compare)(const void *a, const void *b, void *udata),
+    void (*elfree)(void *item), void *udata)
 {
 
     size_t ncap = 16;
@@ -184,7 +185,7 @@ static void nv__free_elements(struct nv__hashmap *map)
 {
     if (map->elfree) {
         for (size_t i = 0; i < map->nbuckets; i++) {
-            struct nv__bucket *bucket = bucket_at(map, i);
+            struct nv__bucket *bucket = nv__bucket_at(map, i);
             if (bucket->dib)
                 map->elfree(nv__bucket_item(bucket));
         }
@@ -192,11 +193,11 @@ static void nv__free_elements(struct nv__hashmap *map)
 }
 
 // hashmap_clear quickly clears the map.
-// Every item is called with the element-freeing function given in nv__hashmap_new,
-// if present, to free any data referenced in the elements of the hashmap.
-// When the update_cap is provided, the map's capacity will be updated to match
-// the currently number of allocated buckets. This is an optimization to ensure
-// that this operation does not perform any allocations.
+// Every item is called with the element-freeing function given in
+// nv__hashmap_new, if present, to free any data referenced in the elements of
+// the hashmap. When the update_cap is provided, the map's capacity will be
+// updated to match the currently number of allocated buckets. This is an
+// optimization to ensure that this operation does not perform any allocations.
 void nv__hashmap_clear(struct nv__hashmap *map, bool update_cap)
 {
     map->count = 0;
@@ -222,18 +223,18 @@ static bool nv__resize0(struct nv__hashmap *map, size_t new_cap)
 {
     struct nv__hashmap *map2 =
         nv__hashmap_new(map->elsize, new_cap, map->seed0, map->seed1, map->hash,
-                    map->compare, map->elfree, map->udata);
+                        map->compare, map->elfree, map->udata);
     if (!map2)
         return false;
     for (size_t i = 0; i < map->nbuckets; i++) {
-        struct nv__bucket *entry = bucket_at(map, i);
+        struct nv__bucket *entry = nv__bucket_at(map, i);
         if (!entry->dib) {
             continue;
         }
         entry->dib = 1;
         size_t j = entry->hash & map2->mask;
         while (1) {
-            struct nv__bucket *bucket = bucket_at(map2, j);
+            struct nv__bucket *bucket = nv__bucket_at(map2, j);
             if (bucket->dib == 0) {
                 memcpy(bucket, entry, map->bucketsz);
                 break;
@@ -266,7 +267,7 @@ static bool nv__resize(struct nv__hashmap *map, size_t new_cap)
 // own hash. The 'hash' callback provided to the nv__hashmap_new function
 // will not be called
 const void *nv__hashmap_set_with_hash(struct nv__hashmap *map, const void *item,
-                                  uint64_t hash)
+                                      uint64_t hash)
 {
     hash = nv__clip_hash(hash);
     map->oom = false;
@@ -286,7 +287,7 @@ const void *nv__hashmap_set_with_hash(struct nv__hashmap *map, const void *item,
     void *bitem;
     size_t i = entry->hash & map->mask;
     while (1) {
-        struct nv__bucket *bucket = bucket_at(map, i);
+        struct nv__bucket *bucket = nv__bucket_at(map, i);
         if (bucket->dib == 0) {
             memcpy(bucket, entry, map->bucketsz);
             map->count++;
@@ -323,12 +324,12 @@ const void *nv__hashmap_set(struct nv__hashmap *map, const void *item)
 // own hash. The 'hash' callback provided to the nv__hashmap_new function
 // will not be called
 const void *nv__hashmap_get_with_hash(struct nv__hashmap *map, const void *key,
-                                  uint64_t hash)
+                                      uint64_t hash)
 {
     hash = nv__clip_hash(hash);
     size_t i = hash & map->mask;
     while (1) {
-        struct nv__bucket *bucket = bucket_at(map, i);
+        struct nv__bucket *bucket = nv__bucket_at(map, i);
         if (!bucket->dib)
             return NULL;
         if (bucket->hash == hash) {
@@ -354,7 +355,7 @@ const void *nv__hashmap_get(struct nv__hashmap *map, const void *key)
 const void *nv__hashmap_probe(struct nv__hashmap *map, uint64_t position)
 {
     size_t i = position & map->mask;
-    struct nv__bucket *bucket = bucket_at(map, i);
+    struct nv__bucket *bucket = nv__bucket_at(map, i);
     if (!bucket->dib) {
         return NULL;
     }
@@ -364,14 +365,14 @@ const void *nv__hashmap_probe(struct nv__hashmap *map, uint64_t position)
 // nv__hashmap_delete_with_hash works like hashmap_delete but you provide your
 // own hash. The 'hash' callback provided to the nv__hashmap_new function
 // will not be called
-const void *nv__hashmap_delete_with_hash(struct nv__hashmap *map, const void *key,
-                                     uint64_t hash)
+const void *nv__hashmap_delete_with_hash(struct nv__hashmap *map,
+                                         const void *key, uint64_t hash)
 {
     hash = nv__clip_hash(hash);
     map->oom = false;
     size_t i = hash & map->mask;
     while (1) {
-        struct nv__bucket *bucket = bucket_at(map, i);
+        struct nv__bucket *bucket = nv__bucket_at(map, i);
         if (!bucket->dib) {
             return NULL;
         }
@@ -383,7 +384,7 @@ const void *nv__hashmap_delete_with_hash(struct nv__hashmap *map, const void *ke
             while (1) {
                 struct nv__bucket *prev = bucket;
                 i = (i + 1) & map->mask;
-                bucket = bucket_at(map, i);
+                bucket = nv__bucket_at(map, i);
                 if (bucket->dib <= 1) {
                     prev->dib = 0;
                     break;
@@ -393,8 +394,8 @@ const void *nv__hashmap_delete_with_hash(struct nv__hashmap *map, const void *ke
             }
             map->count--;
             if (map->nbuckets > map->cap && map->count <= map->shrinkat) {
-                // Ignore the return value. It's ok for the nv__resize operation to
-                // fail to allocate enough memory because a shrink operation
+                // Ignore the return value. It's ok for the nv__resize operation
+                // to fail to allocate enough memory because a shrink operation
                 // does not change the integrity of the data.
                 nv__resize(map, map->nbuckets / 2);
             }
@@ -418,9 +419,10 @@ size_t nv__hashmap_count(struct nv__hashmap *map)
 }
 
 // hashmap_free frees the hash map
-// Every item is called with the element-freeing function given in nv__hashmap_new,
-// if present, to free any data referenced in the elements of the hashmap.
-void hashmap_free(struct nv__hashmap *map)
+// Every item is called with the element-freeing function given in
+// nv__hashmap_new, if present, to free any data referenced in the elements of
+// the hashmap.
+void nv__hashmap_free(struct nv__hashmap *map)
 {
     if (!map)
         return;
@@ -431,7 +433,7 @@ void hashmap_free(struct nv__hashmap *map)
 
 // hashmap_oom returns true if the last hashmap_set() call failed due to the
 // system being out of memory.
-bool hashmap_oom(struct nv__hashmap *map)
+bool nv__hashmap_oom(struct nv__hashmap *map)
 {
     return map->oom;
 }
@@ -439,11 +441,11 @@ bool hashmap_oom(struct nv__hashmap *map)
 // hashmap_scan iterates over all items in the hash map
 // Param `iter` can return false to stop iteration early.
 // Returns false if the iteration has been stopped early.
-bool hashmap_scan(struct nv__hashmap *map,
-                  bool (*iter)(const void *item, void *udata), void *udata)
+bool nv__hashmap_scan(struct nv__hashmap *map,
+                      bool (*iter)(const void *item, void *udata), void *udata)
 {
     for (size_t i = 0; i < map->nbuckets; i++) {
-        struct nv__bucket *bucket = bucket_at(map, i);
+        struct nv__bucket *bucket = nv__bucket_at(map, i);
         if (bucket->dib && !iter(nv__bucket_item(bucket), udata)) {
             return false;
         }
@@ -451,7 +453,7 @@ bool hashmap_scan(struct nv__hashmap *map,
     return true;
 }
 
-// hashmap_iter iterates one key at a time yielding a reference to an
+// nv__hashmap_iter iterates one key at a time yielding a reference to an
 // entry at each iteration. Useful to write simple loops and avoid writing
 // dedicated callbacks and udata structures, as in hashmap_scan.
 //
@@ -469,13 +471,13 @@ bool hashmap_scan(struct nv__hashmap *map,
 //
 // The function returns true if an item was retrieved; false if the end of the
 // iteration has been reached.
-bool hashmap_iter(struct nv__hashmap *map, size_t *i, void **item)
+bool nv__hashmap_iter(struct nv__hashmap *map, size_t *i, void **item)
 {
     struct nv__bucket *bucket;
     do {
         if (*i >= map->nbuckets)
             return false;
-        bucket = bucket_at(map, *i);
+        bucket = nv__bucket_at(map, *i);
         (*i)++;
     } while (!bucket->dib);
     *item = nv__bucket_item(bucket);
@@ -499,8 +501,8 @@ bool hashmap_iter(struct nv__hashmap *map, size_t *i, void **item)
 //
 // default: SipHash-2-4
 //-----------------------------------------------------------------------------
-static uint64_t SIP64(const uint8_t *in, const size_t inlen, uint64_t seed0,
-                      uint64_t seed1)
+static uint64_t nv__SIP64(const uint8_t *in, const size_t inlen, uint64_t seed0,
+                          uint64_t seed1)
 {
 #define U8TO64_LE(p)                                               \
     {                                                              \
@@ -595,7 +597,7 @@ static uint64_t SIP64(const uint8_t *in, const size_t inlen, uint64_t seed0,
 //
 // Murmur3_86_128
 //-----------------------------------------------------------------------------
-static uint64_t MM86128(const void *key, const int len, uint32_t seed)
+static uint64_t nv__MM86128(const void *key, const int len, uint32_t seed)
 {
 #define ROTL32(x, r) (((x) << (r)) | ((x) >> (32 - (r))))
 #define FMIX32(h)      \
@@ -738,32 +740,32 @@ static uint64_t MM86128(const void *key, const int len, uint32_t seed)
 //
 // xxHash3
 //-----------------------------------------------------------------------------
-#define XXH_PRIME_1 11400714785074694791ULL
-#define XXH_PRIME_2 14029467366897019727ULL
-#define XXH_PRIME_3 1609587929392839161ULL
-#define XXH_PRIME_4 9650029242287828579ULL
-#define XXH_PRIME_5 2870177450012600261ULL
+#define NV__XXH_PRIME_1 11400714785074694791ULL
+#define NV__XXH_PRIME_2 14029467366897019727ULL
+#define NV__XXH_PRIME_3 1609587929392839161ULL
+#define NV__XXH_PRIME_4 9650029242287828579ULL
+#define NV__XXH_PRIME_5 2870177450012600261ULL
 
-static uint64_t XXH_read64(const void *memptr)
+static uint64_t nv__XXH_read64(const void *memptr)
 {
     uint64_t val;
     memcpy(&val, memptr, sizeof(val));
     return val;
 }
 
-static uint32_t XXH_read32(const void *memptr)
+static uint32_t nv__XXH_read32(const void *memptr)
 {
     uint32_t val;
     memcpy(&val, memptr, sizeof(val));
     return val;
 }
 
-static uint64_t XXH_rotl64(uint64_t x, int r)
+static uint64_t nv__XXH_rotl64(uint64_t x, int r)
 {
     return (x << r) | (x >> (64 - r));
 }
 
-static uint64_t xxh3(const void *data, size_t len, uint64_t seed)
+static uint64_t nv__xxh3(const void *data, size_t len, uint64_t seed)
 {
     const uint8_t *p = (const uint8_t *)data;
     const uint8_t *const end = p + len;
@@ -771,113 +773,113 @@ static uint64_t xxh3(const void *data, size_t len, uint64_t seed)
 
     if (len >= 32) {
         const uint8_t *const limit = end - 32;
-        uint64_t v1 = seed + XXH_PRIME_1 + XXH_PRIME_2;
-        uint64_t v2 = seed + XXH_PRIME_2;
+        uint64_t v1 = seed + NV__XXH_PRIME_1 + NV__XXH_PRIME_2;
+        uint64_t v2 = seed + NV__XXH_PRIME_2;
         uint64_t v3 = seed + 0;
-        uint64_t v4 = seed - XXH_PRIME_1;
+        uint64_t v4 = seed - NV__XXH_PRIME_1;
 
         do {
-            v1 += XXH_read64(p) * XXH_PRIME_2;
-            v1 = XXH_rotl64(v1, 31);
-            v1 *= XXH_PRIME_1;
+            v1 += nv__XXH_read64(p) * NV__XXH_PRIME_2;
+            v1 = nv__XXH_rotl64(v1, 31);
+            v1 *= NV__XXH_PRIME_1;
 
-            v2 += XXH_read64(p + 8) * XXH_PRIME_2;
-            v2 = XXH_rotl64(v2, 31);
-            v2 *= XXH_PRIME_1;
+            v2 += nv__XXH_read64(p + 8) * NV__XXH_PRIME_2;
+            v2 = nv__XXH_rotl64(v2, 31);
+            v2 *= NV__XXH_PRIME_1;
 
-            v3 += XXH_read64(p + 16) * XXH_PRIME_2;
-            v3 = XXH_rotl64(v3, 31);
-            v3 *= XXH_PRIME_1;
+            v3 += nv__XXH_read64(p + 16) * NV__XXH_PRIME_2;
+            v3 = nv__XXH_rotl64(v3, 31);
+            v3 *= NV__XXH_PRIME_1;
 
-            v4 += XXH_read64(p + 24) * XXH_PRIME_2;
-            v4 = XXH_rotl64(v4, 31);
-            v4 *= XXH_PRIME_1;
+            v4 += nv__XXH_read64(p + 24) * NV__XXH_PRIME_2;
+            v4 = nv__XXH_rotl64(v4, 31);
+            v4 *= NV__XXH_PRIME_1;
 
             p += 32;
         } while (p <= limit);
 
-        h64 = XXH_rotl64(v1, 1) + XXH_rotl64(v2, 7) + XXH_rotl64(v3, 12) +
-              XXH_rotl64(v4, 18);
+        h64 = nv__XXH_rotl64(v1, 1) + nv__XXH_rotl64(v2, 7) +
+              nv__XXH_rotl64(v3, 12) + nv__XXH_rotl64(v4, 18);
 
-        v1 *= XXH_PRIME_2;
-        v1 = XXH_rotl64(v1, 31);
-        v1 *= XXH_PRIME_1;
+        v1 *= NV__XXH_PRIME_2;
+        v1 = nv__XXH_rotl64(v1, 31);
+        v1 *= NV__XXH_PRIME_1;
         h64 ^= v1;
-        h64 = h64 * XXH_PRIME_1 + XXH_PRIME_4;
+        h64 = h64 * NV__XXH_PRIME_1 + NV__XXH_PRIME_4;
 
-        v2 *= XXH_PRIME_2;
-        v2 = XXH_rotl64(v2, 31);
-        v2 *= XXH_PRIME_1;
+        v2 *= NV__XXH_PRIME_2;
+        v2 = nv__XXH_rotl64(v2, 31);
+        v2 *= NV__XXH_PRIME_1;
         h64 ^= v2;
-        h64 = h64 * XXH_PRIME_1 + XXH_PRIME_4;
+        h64 = h64 * NV__XXH_PRIME_1 + NV__XXH_PRIME_4;
 
-        v3 *= XXH_PRIME_2;
-        v3 = XXH_rotl64(v3, 31);
-        v3 *= XXH_PRIME_1;
+        v3 *= NV__XXH_PRIME_2;
+        v3 = nv__XXH_rotl64(v3, 31);
+        v3 *= NV__XXH_PRIME_1;
         h64 ^= v3;
-        h64 = h64 * XXH_PRIME_1 + XXH_PRIME_4;
+        h64 = h64 * NV__XXH_PRIME_1 + NV__XXH_PRIME_4;
 
-        v4 *= XXH_PRIME_2;
-        v4 = XXH_rotl64(v4, 31);
-        v4 *= XXH_PRIME_1;
+        v4 *= NV__XXH_PRIME_2;
+        v4 = nv__XXH_rotl64(v4, 31);
+        v4 *= NV__XXH_PRIME_1;
         h64 ^= v4;
-        h64 = h64 * XXH_PRIME_1 + XXH_PRIME_4;
+        h64 = h64 * NV__XXH_PRIME_1 + NV__XXH_PRIME_4;
     }
     else {
-        h64 = seed + XXH_PRIME_5;
+        h64 = seed + NV__XXH_PRIME_5;
     }
 
     h64 += (uint64_t)len;
 
     while (p + 8 <= end) {
-        uint64_t k1 = XXH_read64(p);
-        k1 *= XXH_PRIME_2;
-        k1 = XXH_rotl64(k1, 31);
-        k1 *= XXH_PRIME_1;
+        uint64_t k1 = nv__XXH_read64(p);
+        k1 *= NV__XXH_PRIME_2;
+        k1 = nv__XXH_rotl64(k1, 31);
+        k1 *= NV__XXH_PRIME_1;
         h64 ^= k1;
-        h64 = XXH_rotl64(h64, 27) * XXH_PRIME_1 + XXH_PRIME_4;
+        h64 = nv__XXH_rotl64(h64, 27) * NV__XXH_PRIME_1 + NV__XXH_PRIME_4;
         p += 8;
     }
 
     if (p + 4 <= end) {
-        h64 ^= (uint64_t)(XXH_read32(p)) * XXH_PRIME_1;
-        h64 = XXH_rotl64(h64, 23) * XXH_PRIME_2 + XXH_PRIME_3;
+        h64 ^= (uint64_t)(nv__XXH_read32(p)) * NV__XXH_PRIME_1;
+        h64 = nv__XXH_rotl64(h64, 23) * NV__XXH_PRIME_2 + NV__XXH_PRIME_3;
         p += 4;
     }
 
     while (p < end) {
-        h64 ^= (*p) * XXH_PRIME_5;
-        h64 = XXH_rotl64(h64, 11) * XXH_PRIME_1;
+        h64 ^= (*p) * NV__XXH_PRIME_5;
+        h64 = nv__XXH_rotl64(h64, 11) * NV__XXH_PRIME_1;
         p++;
     }
 
     h64 ^= h64 >> 33;
-    h64 *= XXH_PRIME_2;
+    h64 *= NV__XXH_PRIME_2;
     h64 ^= h64 >> 29;
-    h64 *= XXH_PRIME_3;
+    h64 *= NV__XXH_PRIME_3;
     h64 ^= h64 >> 32;
 
     return h64;
 }
 
 // hashmap_sip returns a hash value for `data` using SipHash-2-4.
-uint64_t hashmap_sip(const void *data, size_t len, uint64_t seed0,
-                     uint64_t seed1)
+uint64_t nv__hashmap_sip(const void *data, size_t len, uint64_t seed0,
+                         uint64_t seed1)
 {
-    return SIP64((uint8_t *)data, len, seed0, seed1);
+    return nv__SIP64((uint8_t *)data, len, seed0, seed1);
 }
 
 // hashmap_murmur returns a hash value for `data` using Murmur3_86_128.
-uint64_t hashmap_murmur(const void *data, size_t len, uint64_t seed0,
-                        uint64_t seed1)
+uint64_t nv__hashmap_murmur(const void *data, size_t len, uint64_t seed0,
+                            uint64_t seed1)
 {
     (void)seed1;
-    return MM86128(data, (const int)len, seed0);
+    return nv__MM86128(data, (const int)len, seed0);
 }
 
-uint64_t hashmap_xxhash3(const void *data, size_t len, uint64_t seed0,
-                         uint64_t seed1)
+uint64_t nv__hashmap_xxhash3(const void *data, size_t len, uint64_t seed0,
+                             uint64_t seed1)
 {
     (void)seed1;
-    return xxh3(data, len, seed0);
+    return nv__xxh3(data, len, seed0);
 }

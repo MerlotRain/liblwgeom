@@ -41,37 +41,37 @@
 #define HANDLER fprintf
 #define OUTPUT  stderr
 
-#define NV_LOG(level, ...)                           \
+#define NV_LOG(level, ...)                        \
     {                                             \
         if (NV_LOGLEVEL_##level >= NV_LOGLEVEL) { \
             HANDLER(OUTPUT, __VA_ARGS__);         \
         }                                         \
     }
 
-#define NV_LOG_FATAL(...)                          \
+#define NV_LOG_FATAL(...)                       \
     {                                           \
         if (NV_LOGLEVEL_FATAL >= NV_LOGLEVEL) { \
             HANDLER(OUTPUT, "FATAL: ");         \
-            NV_LOG(FATAL, __VA_ARGS__)             \
+            NV_LOG(FATAL, __VA_ARGS__)          \
             HANDLER(OUTPUT, "\n");              \
             abort();                            \
         }                                       \
     }
 
-#define NV_LOG_ERROR(...)                          \
+#define NV_LOG_ERROR(...)                       \
     {                                           \
         if (NV_LOGLEVEL_ERROR >= NV_LOGLEVEL) { \
             HANDLER(OUTPUT, "ERROR: ");         \
-            NV_LOG(ERROR, __VA_ARGS__)             \
+            NV_LOG(ERROR, __VA_ARGS__)          \
             HANDLER(OUTPUT, "\n");              \
         }                                       \
     }
 
-#define NV_LOG_WARN(...)                          \
+#define NV_LOG_WARN(...)                       \
     {                                          \
         if (NV_LOGLEVEL_WARN >= NV_LOGLEVEL) { \
             HANDLER(OUTPUT, "WARN: ");         \
-            NV_LOG(WARN, __VA_ARGS__)             \
+            NV_LOG(WARN, __VA_ARGS__)          \
             HANDLER(OUTPUT, "\n");             \
             abort();                           \
         }                                      \

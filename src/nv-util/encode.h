@@ -37,7 +37,8 @@ struct nv__md5_ctx {
     unsigned int block[16];
 };
 void nv__md5_init(struct nv__md5_ctx *ctx);
-void nv__md5_update(struct nv__md5_ctx *ctx, const void *data, unsigned long size);
+void nv__md5_update(struct nv__md5_ctx *ctx, const void *data,
+                    unsigned long size);
 void nv__md5_final(unsigned char *result, struct nv__md5_ctx *ctx);
 
 #endif
