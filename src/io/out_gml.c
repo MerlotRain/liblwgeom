@@ -22,12 +22,12 @@
 
 #include "nv-common.h"
 
-int nv_geo_write_gml2(const struct nv_geobject *g, char **data, size_t *len)
+int nv__geo_write_gml2(const struct nv_geobject *g, char **data, size_t *len)
 {
     return 0;
 }
 
-int nv_geo_write_gml3(const struct nv_geobject *g, char **data, size_t *len)
+int nv__geo_write_gml3(const struct nv_geobject *g, char **data, size_t *len)
 {
     return 0;
 }

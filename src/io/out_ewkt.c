@@ -22,7 +22,7 @@
 
 #include "nv-common.h"
 
-int nv_geo_write_ewkt(const struct nv_geobject *g, char **data, size_t *len)
+int nv__geo_write_ewkt(const struct nv_geobject *g, char **data, size_t *len)
 {
     return 0;
 }

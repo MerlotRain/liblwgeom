@@ -101,33 +101,33 @@ extern double tolerence();
 /// @brief return coordinate Y in point i
 #define NV_PP_Y(obj, i)         ((obj)->pp[(i) * (obj)->cdim + 1])
 
-struct nv_box nv__query_envolpe(double *pp, int pn);
+struct nv_box nv__query_envolpe(const double *pp, int npoints, int cdim);
+bool nv__check_single_ring(const double *pp, int npoints, int cdim);
 
 /* ----------------------- geometry IO extern function ---------------------- */
 
-struct nv_geobject *nv_geo_read_wkt(const char *wkt, size_t len);
-struct nv_geobject *nv_geo_read_wkb(const char *wkb, size_t len, bool hex);
-struct nv_geobject *nv_geo_read_ewkt(const char *ewkt, size_t len);
-struct nv_geobject *nv_geo_read_ewkb(const char *ewkb, size_t len);
-struct nv_geobject *nv_geo_read_geojson(const char *json, size_t len);
-struct nv_geobject *nv_geo_read_kml(const char *kml, size_t len);
-struct nv_geobject *nv_geo_read_gml2(const char *gml, size_t len);
-struct nv_geobject *nv_geo_read_gml3(const char *gml, size_t len);
+struct nv_geobject *nv__geo_read_wkt(const char *wkt, size_t len);
+struct nv_geobject *nv__geo_read_wkb(const char *wkb, size_t len, bool hex);
+struct nv_geobject *nv__geo_read_ewkt(const char *ewkt, size_t len);
+struct nv_geobject *nv__geo_read_ewkb(const char *ewkb, size_t len);
+struct nv_geobject *nv__geo_read_geojson(const char *json, size_t len);
+struct nv_geobject *nv__geo_read_kml(const char *kml, size_t len);
+struct nv_geobject *nv__geo_read_gml2(const char *gml, size_t len);
+struct nv_geobject *nv__geo_read_gml3(const char *gml, size_t len);
 
-int nv_geo_write_wkt(const struct nv_geobject *obj, char **wkt, size_t *len);
-int nv_geo_write_wkb(const struct nv_geobject *obj, bool hex, char **wkb,
+int nv__geo_write_wkt(const struct nv_geobject *obj, char **wkt, size_t *len);
+int nv__geo_write_wkb(const struct nv_geobject *obj, bool hex, char **wkb,
                      size_t *len);
-int nv_geo_write_ewkt(const struct nv_geobject *obj, char **ewkt, size_t *len);
-int nv_geo_write_ewkb(const struct nv_geobject *obj, char **ewkb, size_t *len);
-int nv_geo_write_geojson(const struct nv_geobject *obj, char **json,
+int nv__geo_write_ewkt(const struct nv_geobject *obj, char **ewkt, size_t *len);
+int nv__geo_write_ewkb(const struct nv_geobject *obj, char **ewkb, size_t *len);
+int nv__geo_write_geojson(const struct nv_geobject *obj, char **json,
                          size_t *len);
-int nv_geo_write_kml(const struct nv_geobject *obj, char **kml, size_t *len);
-int nv_geo_write_gml2(const struct nv_geobject *obj, char **gml, size_t *len);
-int nv_geo_write_gml3(const struct nv_geobject *obj, char **gml, size_t *len);
+int nv__geo_write_kml(const struct nv_geobject *obj, char **kml, size_t *len);
+int nv__geo_write_gml2(const struct nv_geobject *obj, char **gml, size_t *len);
+int nv__geo_write_gml3(const struct nv_geobject *obj, char **gml, size_t *len);
 
 /* ------------------- geometry algorithm extern function ------------------- */
 
-bool nv_check_single_ring(const double *pp, int npoints, int cdim);
 
 double nv_prop_length_value(const struct nv_geobject *obj);
 double nv_prop_area_value(const struct nv_geobject *obj);

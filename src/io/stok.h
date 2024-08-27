@@ -25,10 +25,6 @@
 
 #include <stddef.h>
 
-#ifdef __cpluscplus
-extern "C" {
-#endif
-
 enum {
     UV__STOK_EOF,  // end of string stream
     UV__STOK_EOL,  // end of line
@@ -48,9 +44,5 @@ struct uv__stok {
 void uv__stok_init(struct uv__stok *tok, char *t);
 int uv__stok_next_token(struct uv__stok *tok);
 int uv__stok_peek_next_token(struct uv__stok *tok);
-
-#ifdef __cpluscplus
-}
-#endif
 
 #endif

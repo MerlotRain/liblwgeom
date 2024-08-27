@@ -22,7 +22,7 @@
 
 #include "nv-common.h"
 
-struct nv_geobject *nv_geo_read_geojson(const char *data, size_t len)
+struct nv_geobject *nv__geo_read_geojson(const char *data, size_t len)
 {
     return NULL;
 }

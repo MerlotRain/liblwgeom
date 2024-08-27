@@ -25,10 +25,6 @@
 
 #include <stdbool.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define MATRIX_INIT            {1, 0, 0, 1, 0, 0}
 /* Return matrix m11 element */
 #define MATRIX_M11(m)          ((m)->m_m11)
@@ -95,9 +91,5 @@ void mtx_invert(struct matrix *m);
 bool mtx_invertible(const struct matrix *m);
 /* Determine whether the matrix can be an identity matrix */
 bool mtx_identity(const struct matrix *m);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

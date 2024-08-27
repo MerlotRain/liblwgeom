@@ -26,10 +26,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#ifdef __cpluscplus
-extern "C" {
-#endif
-
 enum {
     UV__ORDINATE_VALUE_X = 1,
     UV__ORDINATE_VALUE_Y = 2,
@@ -45,9 +41,5 @@ struct uv__ordinate {
 struct uv__ordinate uv__ordinate_XY();
 void uv__ordinate_setZ(struct uv__ordinate *o, bool v);
 void uv__ordinate_setM(struct uv__ordinate *o, bool v);
-
-#ifdef __cpluscplus
-}
-#endif
 
 #endif

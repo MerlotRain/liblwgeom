@@ -71,7 +71,7 @@ static struct nv_geobject *nv__wkt_read_multipolygon(struct uv__stok *token,
 
 /* -------------------------------- inner wkt ------------------------------- */
 
-struct nv_geobject *nv_geo_read_wkt(const char *data, size_t len)
+struct nv_geobject *nv__geo_read_wkt(const char *data, size_t len)
 {
     char *p = setlocale(LC_NUMERIC, NULL);
     setlocale(LC_NUMERIC, "C");

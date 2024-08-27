@@ -23,7 +23,7 @@
 #include "nv-common.h"
 #include <string.h>
 
-struct nv_box nv__query_envolpe(double *pp, int pn, int cdim)
+struct nv_box nv__query_envolpe(double *pp, int npoints, int cdim)
 {
     assert(pp);
     double xmin = pp[0];
@@ -31,7 +31,7 @@ struct nv_box nv__query_envolpe(double *pp, int pn, int cdim)
     double ymin = pp[1];
     double ymax = pp[1];
 
-    for (int i = 1; i < pn; ++i) {
+    for (int i = 1; i < npoints; ++i) {
         xmin = pp[i * cdim] > xmin ? xmin : pp[i * cdim];
         xmax = pp[i * cdim] < xmax ? xmax : pp[i * cdim];
         ymin = pp[i * cdim + 1] > ymin ? ymin : pp[i * cdim + 1];
@@ -41,6 +41,22 @@ struct nv_box nv__query_envolpe(double *pp, int pn, int cdim)
     struct nv_box box = {.min = {.x = xmin, .y = ymin},
                          .max = {.x = xmax, .y = ymax}};
     return box;
+}
+
+
+bool nv__check_single_ring(const double *pp, int npoints, int cdim)
+{
+    assert(pp);
+    // At least 4 points are required to form a ring
+    if (npoints < 4)
+        return false;
+
+    double x0 = pp[0];
+    double y0 = pp[1];
+    double xn = pp[(ptrdiff_t)(npoints * cdim)];
+    double yn = pp[(ptrdiff_t)(npoints * cdim + 1)];
+
+    return NV_DOUBLE_NEARES2(x0, xn) && NV_DOUBLE_NEARES2(y0, yn);
 }
 
 /* ---------------------------- geometry factory ---------------------------- */
@@ -274,31 +290,31 @@ struct nv_geobject *nv_geo_read(int flag, const char *data, size_t len)
     assert(data);
     switch (flag) {
     case NV_GEOMETRY_IO_WKT: {
-        return nv_geo_read_wkt(data, len);
+        return nv__geo_read_wkt(data, len);
     }
     case NV_GEOMETRY_IO_WKB: {
-        return nv_geo_read_wkb(data, len, false);
+        return nv__geo_read_wkb(data, len, false);
     }
     case NV_GEOMETRY_IO_WKB_HEX: {
-        return nv_geo_read_wkb(data, len, true);
+        return nv__geo_read_wkb(data, len, true);
     }
     case NV_GEOMETRY_IO_GEOJSON: {
-        return nv_geo_read_geojson(data, len);
+        return nv__geo_read_geojson(data, len);
     }
     case NV_GEOMETRY_IO_EWKT: {
-        return nv_geo_read_ewkt(data, len);
+        return nv__geo_read_ewkt(data, len);
     }
     case NV_GEOMETRY_IO_EWKB: {
-        return nv_geo_read_ewkb(data, len);
+        return nv__geo_read_ewkb(data, len);
     }
     case NV_GEOMETRY_IO_KML: {
-        return nv_geo_read_kml(data, len);
+        return nv__geo_read_kml(data, len);
     }
     case NV_GEOMETRY_IO_GML2: {
-        return nv_geo_read_gml2(data, len);
+        return nv__geo_read_gml2(data, len);
     }
     case NV_GEOMETRY_IO_GML3: {
-        return nv_geo_read_gml3(data, len);
+        return nv__geo_read_gml3(data, len);
     }
     default:
         break;
@@ -388,21 +404,6 @@ double tolerence()
 
 /* --------------------------- geometry algorithm --------------------------- */
 
-bool nv_check_single_ring(const double *pp, int npoints, int cdim)
-{
-    assert(pp);
-    // At least 4 points are required to form a ring
-    if (npoints < 4)
-        return false;
-
-    double x0 = pp[0];
-    double y0 = pp[1];
-    double xn = pp[(ptrdiff_t)(npoints * cdim)];
-    double yn = pp[(ptrdiff_t)(npoints * cdim + 1)];
-
-    return NV_DOUBLE_NEARES2(x0, xn) && NV_DOUBLE_NEARES2(y0, yn);
-}
-
 /// @brief Computes whether a ring defined by a geom::CoordinateSequence is
 /// oriented counter-clockwise.
 /// @param pp point pointer
@@ -410,7 +411,7 @@ bool nv_check_single_ring(const double *pp, int npoints, int cdim)
 /// @param cdim coordinate dim
 bool nv_ccw(const double *pp, int npoints, int cdim)
 {
-    if (!nv_check_single_ring(pp, npoints, cdim))
+    if (!nv__check_single_ring(pp, npoints, cdim))
         return false;
 
     // The ring must be a convex point at the vertex extreme value, which is the

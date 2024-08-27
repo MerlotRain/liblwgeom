@@ -26,10 +26,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 struct btree;
 
 // btree_new returns a new B-tree.
@@ -209,9 +205,5 @@ bool btree_iter_next(struct btree_iter *iter);
 bool btree_iter_prev(struct btree_iter *iter);
 bool btree_iter_seek(struct btree_iter *iter, const void *key);
 const void *btree_iter_item(struct btree_iter *iter);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

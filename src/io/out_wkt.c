@@ -30,7 +30,7 @@
 
 /* -------------------------------- inner wkt ------------------------------- */
 
-int nv_geo_write_wkt(const struct nv_geobject *obj, char **data, size_t *len)
+int nv__geo_write_wkt(const struct nv_geobject *obj, char **data, size_t *len)
 {
     return 0;
 }
