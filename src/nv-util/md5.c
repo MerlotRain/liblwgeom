@@ -75,7 +75,7 @@
  * This processes one or more 64-byte data blocks, but does NOT update the bit
  * counters.  There are no alignment requirements.
  */
-static const void *nv__body(struct md5_ctx *ctx, const void *data,
+static const void *nv__body(struct nv__md5_ctx *ctx, const void *data,
                         unsigned long size)
 {
     const unsigned char *ptr;
@@ -183,7 +183,7 @@ static const void *nv__body(struct md5_ctx *ctx, const void *data,
     return ptr;
 }
 
-void nv__md5_init(struct md5_ctx *ctx)
+void nv__md5_init(struct nv__md5_ctx *ctx)
 {
     ctx->a = 0x67452301;
     ctx->b = 0xefcdab89;
@@ -194,7 +194,7 @@ void nv__md5_init(struct md5_ctx *ctx)
     ctx->hi = 0;
 }
 
-void nv__md5_update(struct md5_ctx *ctx, const void *data, unsigned long size)
+void nv__md5_update(struct nv__md5_ctx *ctx, const void *data, unsigned long size)
 {
     unsigned int saved_lo;
     unsigned long used, available;
@@ -234,7 +234,7 @@ void nv__md5_update(struct md5_ctx *ctx, const void *data, unsigned long size)
     (dst)[2] = (unsigned char)((src) >> 16); \
     (dst)[3] = (unsigned char)((src) >> 24);
 
-void MD5_final(unsigned char *result, struct md5_ctx *ctx)
+void MD5_final(unsigned char *result, struct nv__md5_ctx *ctx)
 {
     unsigned long used, available;
 

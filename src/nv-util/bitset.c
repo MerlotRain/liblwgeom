@@ -116,7 +116,7 @@ void nv__bitset_flip(struct nv__bitset *bs, size_t index)
 /// @return The return value is a BITSET_STATE_* series macro
 int nv__bitset_state(struct nv__bitset *bs)
 {
-    size_t c = bitset_count(bs);
+    size_t c = nv__bitset_count(bs);
     if (c == 0) {
         return NV__BITSET_STATE_NONE;
     }

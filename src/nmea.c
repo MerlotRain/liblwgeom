@@ -19,7 +19,6 @@
 #include <limits.h>
 #include <locale.h>
 #include <math.h>
-#include <logging.h>
 
 #if defined(_MSC_VER)
 #define NMEA_POSIX(x) _##x
@@ -302,7 +301,7 @@ static int _nmea_parse_time(const char *buff, int buff_sz, struct nmeaTIME *res)
         // already thousandths
         break;
     default:
-        LOG_ERROR("Parse of time error (format error)!");
+        NV_LOG_ERROR("Parse of time error (format error)!");
         success = 0;
         break;
     }
@@ -471,18 +470,18 @@ int nmea_parse_GPGGA(const char *buff, int buff_sz, struct nmeaGPGGA *pack)
                   &(pack->ew), &(pack->sig), &(pack->satinuse), &(pack->HDOP),
                   &(pack->elv), &(pack->elv_units), &(pack->diff),
                   &(pack->diff_units), &(pack->dgps_age), &(pack->dgps_sid))) {
-        LOG_ERROR("G?GGA parse error!");
+        NV_LOG_ERROR("G?GGA parse error!");
         return 0;
     }
 
     if (type != 'P' && type != 'N') {
-        LOG_ERROR("G?GGA invalid type ");
+        NV_LOG_ERROR("G?GGA invalid type ");
         return 0;
     }
 
     if (0 != _nmea_parse_time(&time_buff[0], (int)strlen(&time_buff[0]),
                               &(pack->utc))) {
-        LOG_ERROR("GPGGA time parse error!");
+        NV_LOG_ERROR("GPGGA time parse error!");
         return 0;
     }
 
@@ -511,18 +510,18 @@ int nmea_parse_GPGST(const char *buff, int buff_sz, struct nmeaGPGST *pack)
                          &(pack->err_major), &(pack->err_minor),
                          &(pack->err_ori), &(pack->sig_lat), &(pack->sig_lon),
                          &(pack->sig_alt))) {
-        LOG_ERROR("G?GST parse error!");
+        NV_LOG_ERROR("G?GST parse error!");
         return 0;
     }
 
     if (type != 'P' && type != 'N') {
-        LOG_ERROR("G?GST invalid type ");
+        NV_LOG_ERROR("G?GST invalid type ");
         return 0;
     }
 
     if (0 != _nmea_parse_time(&time_buff[0], (int)strlen(&time_buff[0]),
                               &(pack->utc))) {
-        LOG_ERROR("G?GST time parse error!");
+        NV_LOG_ERROR("G?GST time parse error!");
         return 0;
     }
 
@@ -552,13 +551,13 @@ int nmea_parse_GPGSA(const char *buff, int buff_sz, struct nmeaGPGSA *pack)
                   &(pack->sat_prn[9]), &(pack->sat_prn[10]),
                   &(pack->sat_prn[11]), &(pack->PDOP), &(pack->HDOP),
                   &(pack->VDOP))) {
-        LOG_ERROR("G?GSA parse error!");
+        NV_LOG_ERROR("G?GSA parse error!");
         return 0;
     }
 
     if (pack->pack_type != 'P' && pack->pack_type != 'N' &&
         pack->pack_type != 'L') {
-        LOG_ERROR("G?GSA invalid type ");
+        NV_LOG_ERROR("G?GSA invalid type ");
         return 0;
     }
 
@@ -603,14 +602,14 @@ int nmea_parse_GPGSV(const char *buff, int buff_sz, struct nmeaGPGSV *pack)
     nsat = nsat * 4 + 3 /* first three sentence`s */;
 
     if (nsen - 1 < nsat || nsen - 1 > (NMEA_SATINPACK * 4 + 3)) {
-        LOG_ERROR("G?GSV parse error!");
+        NV_LOG_ERROR("G?GSV parse error!");
         return 0;
     }
 
     if (pack->pack_type != 'P' && pack->pack_type != 'N' &&
         pack->pack_type != 'L' && pack->pack_type != 'A' &&
         pack->pack_type != 'B' && pack->pack_type != 'Q') {
-        LOG_ERROR("G?GSV invalid type ");
+        NV_LOG_ERROR("G?GSV invalid type ");
         return 0;
     }
 
@@ -643,18 +642,18 @@ int nmea_parse_GPRMC(const char *buff, int buff_sz, struct nmeaGPRMC *pack)
                        &(pack->declin_ew), &(pack->mode), &(pack->navstatus));
 
     if (nsen < 14 || nsen > 16) {
-        LOG_ERROR("G?RMC parse error!");
+        NV_LOG_ERROR("G?RMC parse error!");
         return 0;
     }
 
     if (type != 'P' && type != 'N') {
-        LOG_ERROR("G?RMC invalid type ");
+        NV_LOG_ERROR("G?RMC invalid type ");
         return 0;
     }
 
     if (0 != _nmea_parse_time(&time_buff[0], (int)strlen(&time_buff[0]),
                               &(pack->utc))) {
-        LOG_ERROR("GPRMC time parse error!");
+        NV_LOG_ERROR("GPRMC time parse error!");
         return 0;
     }
 
@@ -683,17 +682,17 @@ int nmea_parse_GPHDT(const char *buff, int buff_sz, struct nmeaGPHDT *pack)
 
     if (3 != _nmea_scanf(buff, buff_sz, "$G%CHDT,%f,%C*", &(talker_id),
                          &(pack->heading), &(type))) {
-        LOG_ERROR("G?HDT parse error!");
+        NV_LOG_ERROR("G?HDT parse error!");
         return 0;
     }
 
     if (talker_id != 'P' && talker_id != 'N') {
-        LOG_ERROR("G?HDT invalid type ");
+        NV_LOG_ERROR("G?HDT invalid type ");
         return 0;
     }
 
     if (type != 'T') {
-        LOG_ERROR("G?HDT invalid type ");
+        NV_LOG_ERROR("G?HDT invalid type ");
         return 0;
     }
 
@@ -719,18 +718,18 @@ int nmea_parse_GPVTG(const char *buff, int buff_sz, struct nmeaGPVTG *pack)
                          &type, &(pack->dir), &(pack->dir_t), &(pack->dec),
                          &(pack->dec_m), &(pack->spn), &(pack->spn_n),
                          &(pack->spk), &(pack->spk_k))) {
-        LOG_ERROR("G?VTG parse error!");
+        NV_LOG_ERROR("G?VTG parse error!");
         return 0;
     }
 
     if (type != 'P' && type != 'N') {
-        LOG_ERROR("G?VTG invalid type ");
+        NV_LOG_ERROR("G?VTG invalid type ");
         return 0;
     }
 
     if (pack->dir_t != 'T' || pack->dec_m != 'M' || pack->spn_n != 'N' ||
         pack->spk_k != 'K') {
-        LOG_ERROR("G?VTG parse error (format error)!");
+        NV_LOG_ERROR("G?VTG parse error (format error)!");
         return 0;
     }
 
@@ -754,17 +753,17 @@ int nmea_parse_HCHDG(const char *buff, int buff_sz, struct nmeaHCHDG *pack)
                          &(pack->mag_heading), &(pack->mag_deviation),
                          &(pack->ew_deviation), &(pack->mag_variation),
                          &(pack->ew_variation))) {
-        LOG_ERROR("HCHDG parse error!");
+        NV_LOG_ERROR("HCHDG parse error!");
         return 0;
     }
 
     if (pack->ew_deviation != 'E' && pack->ew_deviation != 'W') {
-        LOG_ERROR("HCHDG invalid deviation direction");
+        NV_LOG_ERROR("HCHDG invalid deviation direction");
         return 0;
     }
 
     if (pack->ew_variation != 'E' && pack->ew_variation != 'W') {
-        LOG_ERROR("HCHDG invalid variation direction");
+        NV_LOG_ERROR("HCHDG invalid variation direction");
         return 0;
     }
 
@@ -786,7 +785,7 @@ int nmea_parse_HCHDT(const char *buff, int buff_sz, struct nmeaHCHDT *pack)
 
     if (2 != _nmea_scanf(buff, buff_sz, "$HCHDT,%f,%C*", &(pack->direction),
                          &(pack->t_flag))) {
-        LOG_ERROR("HCHDT parse error!");
+        NV_LOG_ERROR("HCHDT parse error!");
         return 0;
     }
 

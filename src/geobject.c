@@ -20,7 +20,7 @@
  * IN THE SOFTWARE.
  */
 
-#include "geobject.h"
+#include "nv-common.h"
 #include <string.h>
 
 struct nv_box nv__query_envolpe(double *pp, int pn, int cdim)
@@ -38,8 +38,9 @@ struct nv_box nv__query_envolpe(double *pp, int pn, int cdim)
         xmax = pp[i * cdim + 1] < xmax ? xmax : pp[i * cdim + 1];
     }
 
-    struct nv_box = {.min = {.x = xmin, .y = ymin}, .max = {.x = xmax, .y = ymax}};
-    return nv_box;
+    struct nv_box box = {.min = {.x = xmin, .y = ymin},
+                         .max = {.x = xmax, .y = ymax}};
+    return box;
 }
 
 /* ---------------------------- geometry factory ---------------------------- */

@@ -109,7 +109,7 @@ static uint64_t nv__get_hash(struct nv__hashmap *map, const void *key)
     return nv__clip_hash(map->hash(key, map->seed0, map->seed1));
 }
 
-// hashmap_new returns a new hash map.
+// nv__hashmap_new returns a new hash map.
 // Param `elsize` is the size of each element in the tree. Every element that
 // is inserted, deleted, or retrieved will be this size.
 // Param `cap` is the default lower capacity of the hashmap. Setting this to
@@ -174,7 +174,7 @@ nv__hashmap_new(size_t elsize, size_t cap, uint64_t seed0, uint64_t seed1,
     }
     memset(map->buckets, 0, map->bucketsz * map->nbuckets);
     map->growpower = 1;
-    map->loadfactor = clamp_load_factor(HASHMAP_LOAD_FACTOR, GROW_AT) * 100;
+    map->loadfactor = nv__clamp_load_factor(HASHMAP_LOAD_FACTOR, GROW_AT) * 100;
     map->growat = map->nbuckets * (map->loadfactor / 100.0);
     map->shrinkat = map->nbuckets * SHRINK_AT;
     return map;
@@ -186,13 +186,13 @@ static void nv__free_elements(struct nv__hashmap *map)
         for (size_t i = 0; i < map->nbuckets; i++) {
             struct nv__bucket *bucket = bucket_at(map, i);
             if (bucket->dib)
-                map->elfree(bucket_item(bucket));
+                map->elfree(nv__bucket_item(bucket));
         }
     }
 }
 
 // hashmap_clear quickly clears the map.
-// Every item is called with the element-freeing function given in hashmap_new,
+// Every item is called with the element-freeing function given in nv__hashmap_new,
 // if present, to free any data referenced in the elements of the hashmap.
 // When the update_cap is provided, the map's capacity will be updated to match
 // the currently number of allocated buckets. This is an optimization to ensure
@@ -200,7 +200,7 @@ static void nv__free_elements(struct nv__hashmap *map)
 void nv__hashmap_clear(struct nv__hashmap *map, bool update_cap)
 {
     map->count = 0;
-    free_elements(map);
+    nv__free_elements(map);
     if (update_cap) {
         map->cap = map->nbuckets;
     }
@@ -221,7 +221,7 @@ void nv__hashmap_clear(struct nv__hashmap *map, bool update_cap)
 static bool nv__resize0(struct nv__hashmap *map, size_t new_cap)
 {
     struct nv__hashmap *map2 =
-        hashmap_new(map->elsize, new_cap, map->seed0, map->seed1, map->hash,
+        nv__hashmap_new(map->elsize, new_cap, map->seed0, map->seed1, map->hash,
                     map->compare, map->elfree, map->udata);
     if (!map2)
         return false;
@@ -262,16 +262,16 @@ static bool nv__resize(struct nv__hashmap *map, size_t new_cap)
     return nv__resize0(map, new_cap);
 }
 
-// hashmap_set_with_hash works like hashmap_set but you provide your
-// own hash. The 'hash' callback provided to the hashmap_new function
+// nv__hashmap_set_with_hash works like hashmap_set but you provide your
+// own hash. The 'hash' callback provided to the nv__hashmap_new function
 // will not be called
 const void *nv__hashmap_set_with_hash(struct nv__hashmap *map, const void *item,
                                   uint64_t hash)
 {
-    hash = clip_hash(hash);
+    hash = nv__clip_hash(hash);
     map->oom = false;
     if (map->count >= map->growat) {
-        if (!resize(map, map->nbuckets * (1 << map->growpower))) {
+        if (!nv__resize(map, map->nbuckets * (1 << map->growpower))) {
             map->oom = true;
             return NULL;
         }
@@ -280,7 +280,7 @@ const void *nv__hashmap_set_with_hash(struct nv__hashmap *map, const void *item,
     struct nv__bucket *entry = map->edata;
     entry->hash = hash;
     entry->dib = 1;
-    void *eitem = bucket_item(entry);
+    void *eitem = nv__bucket_item(entry);
     memcpy(eitem, item, map->elsize);
 
     void *bitem;
@@ -292,7 +292,7 @@ const void *nv__hashmap_set_with_hash(struct nv__hashmap *map, const void *item,
             map->count++;
             return NULL;
         }
-        bitem = bucket_item(bucket);
+        bitem = nv__bucket_item(bucket);
         if (entry->hash == bucket->hash &&
             (!map->compare || map->compare(eitem, bitem, map->udata) == 0)) {
             memcpy(map->spare, bitem, map->elsize);
@@ -303,7 +303,7 @@ const void *nv__hashmap_set_with_hash(struct nv__hashmap *map, const void *item,
             memcpy(map->spare, bucket, map->bucketsz);
             memcpy(bucket, entry, map->bucketsz);
             memcpy(entry, map->spare, map->bucketsz);
-            eitem = bucket_item(entry);
+            eitem = nv__bucket_item(entry);
         }
         i = (i + 1) & map->mask;
         entry->dib += 1;
@@ -316,23 +316,23 @@ const void *nv__hashmap_set_with_hash(struct nv__hashmap *map, const void *item,
 // memory then NULL is returned and hashmap_oom() returns true.
 const void *nv__hashmap_set(struct nv__hashmap *map, const void *item)
 {
-    return hashmap_set_with_hash(map, item, get_hash(map, item));
+    return nv__hashmap_set_with_hash(map, item, nv__get_hash(map, item));
 }
 
-// hashmap_get_with_hash works like hashmap_get but you provide your
-// own hash. The 'hash' callback provided to the hashmap_new function
+// nv__hashmap_get_with_hash works like hashmap_get but you provide your
+// own hash. The 'hash' callback provided to the nv__hashmap_new function
 // will not be called
 const void *nv__hashmap_get_with_hash(struct nv__hashmap *map, const void *key,
                                   uint64_t hash)
 {
-    hash = clip_hash(hash);
+    hash = nv__clip_hash(hash);
     size_t i = hash & map->mask;
     while (1) {
         struct nv__bucket *bucket = bucket_at(map, i);
         if (!bucket->dib)
             return NULL;
         if (bucket->hash == hash) {
-            void *bitem = bucket_item(bucket);
+            void *bitem = nv__bucket_item(bucket);
             if (!map->compare || map->compare(key, bitem, map->udata) == 0) {
                 return bitem;
             }
@@ -345,7 +345,7 @@ const void *nv__hashmap_get_with_hash(struct nv__hashmap *map, const void *key,
 // found then NULL is returned.
 const void *nv__hashmap_get(struct nv__hashmap *map, const void *key)
 {
-    return hashmap_get_with_hash(map, key, get_hash(map, key));
+    return nv__hashmap_get_with_hash(map, key, nv__get_hash(map, key));
 }
 
 // hashmap_probe returns the item in the bucket at position or NULL if an item
@@ -358,16 +358,16 @@ const void *nv__hashmap_probe(struct nv__hashmap *map, uint64_t position)
     if (!bucket->dib) {
         return NULL;
     }
-    return bucket_item(bucket);
+    return nv__bucket_item(bucket);
 }
 
-// hashmap_delete_with_hash works like hashmap_delete but you provide your
-// own hash. The 'hash' callback provided to the hashmap_new function
+// nv__hashmap_delete_with_hash works like hashmap_delete but you provide your
+// own hash. The 'hash' callback provided to the nv__hashmap_new function
 // will not be called
 const void *nv__hashmap_delete_with_hash(struct nv__hashmap *map, const void *key,
                                      uint64_t hash)
 {
-    hash = clip_hash(hash);
+    hash = nv__clip_hash(hash);
     map->oom = false;
     size_t i = hash & map->mask;
     while (1) {
@@ -375,7 +375,7 @@ const void *nv__hashmap_delete_with_hash(struct nv__hashmap *map, const void *ke
         if (!bucket->dib) {
             return NULL;
         }
-        void *bitem = bucket_item(bucket);
+        void *bitem = nv__bucket_item(bucket);
         if (bucket->hash == hash &&
             (!map->compare || map->compare(key, bitem, map->udata) == 0)) {
             memcpy(map->spare, bitem, map->elsize);
@@ -393,10 +393,10 @@ const void *nv__hashmap_delete_with_hash(struct nv__hashmap *map, const void *ke
             }
             map->count--;
             if (map->nbuckets > map->cap && map->count <= map->shrinkat) {
-                // Ignore the return value. It's ok for the resize operation to
+                // Ignore the return value. It's ok for the nv__resize operation to
                 // fail to allocate enough memory because a shrink operation
                 // does not change the integrity of the data.
-                resize(map, map->nbuckets / 2);
+                nv__resize(map, map->nbuckets / 2);
             }
             return map->spare;
         }
@@ -408,7 +408,7 @@ const void *nv__hashmap_delete_with_hash(struct nv__hashmap *map, const void *ke
 // item is not found then NULL is returned.
 const void *nv__hashmap_delete(struct nv__hashmap *map, const void *key)
 {
-    return hashmap_delete_with_hash(map, key, get_hash(map, key));
+    return nv__hashmap_delete_with_hash(map, key, nv__get_hash(map, key));
 }
 
 // hashmap_count returns the number of items in the hash map.
@@ -418,13 +418,13 @@ size_t nv__hashmap_count(struct nv__hashmap *map)
 }
 
 // hashmap_free frees the hash map
-// Every item is called with the element-freeing function given in hashmap_new,
+// Every item is called with the element-freeing function given in nv__hashmap_new,
 // if present, to free any data referenced in the elements of the hashmap.
 void hashmap_free(struct nv__hashmap *map)
 {
     if (!map)
         return;
-    free_elements(map);
+    nv__free_elements(map);
     nv__free(map->buckets);
     nv__free(map);
 }
@@ -444,7 +444,7 @@ bool hashmap_scan(struct nv__hashmap *map,
 {
     for (size_t i = 0; i < map->nbuckets; i++) {
         struct nv__bucket *bucket = bucket_at(map, i);
-        if (bucket->dib && !iter(bucket_item(bucket), udata)) {
+        if (bucket->dib && !iter(nv__bucket_item(bucket), udata)) {
             return false;
         }
     }
@@ -478,7 +478,7 @@ bool hashmap_iter(struct nv__hashmap *map, size_t *i, void **item)
         bucket = bucket_at(map, *i);
         (*i)++;
     } while (!bucket->dib);
-    *item = bucket_item(bucket);
+    *item = nv__bucket_item(bucket);
     return true;
 }
 
