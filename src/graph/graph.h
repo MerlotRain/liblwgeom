@@ -23,10 +23,6 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /// @brief undirected graph node
 struct ung_node {
     int id;
@@ -49,9 +45,5 @@ struct un_graph {
 };
 
 struct un_graph *graph_delaunay(double *pp, int num_points);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
