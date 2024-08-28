@@ -1,44 +1,43 @@
-#include "mgp.h"
+#include "nv-common.h"
 #include "bitset.h"
 
-struct int_simplify_rdp {
-    int np;              ///< number of points
-    double *pp;          ///< points
-    struct bitset *usef; ///< useful points
+struct nv__simplify_rdp {
+    int np;                  ///< number of points
+    double *pp;              ///< points
+    struct nv__bitset *usef; ///< useful points
 };
 
-static void _simplify_section(int i, int j, struct int_simplify_rdp *intrdp)
+static void nv__simplify_section(int i, int j, struct nv__simplify_rdp *intrdp)
 {
-    
 }
 
-static struct mg_object *_simplify_line(const struct mg_object *obj)
+static struct nv_geobject *nv__simplify_line(const struct nv_geobject *obj)
 {
     if (obj == NULL)
         return NULL;
 
     if (obj->npoints < 3)
-        return mg_prop_geo_clone(obj);
+        return nv_prop_geo_clone(obj);
 
-    struct int_simplify_rdp *intrdp = (struct int_simplify_rdp *)malloc(
-        sizeof(struct int_simplify_rdp) + obj->npoints * sizeof(uint8_t));
+    struct nv__simplify_rdp *intrdp = (struct nv__simplify_rdp *)nv__malloc(
+        sizeof(struct nv__simplify_rdp) + obj->npoints * sizeof(uint8_t));
     if (intrdp == NULL)
         return NULL;
     intrdp->np = obj->npoints;
     intrdp->pp = obj->pp;
-    intrdp->usef = bitset_new(obj->npoints);
+    intrdp->usef = nv__bitset_new(obj->npoints);
     if (intrdp->usef == NULL) {
-        free(intrdp);
+        nv__free(intrdp);
         return NULL;
     }
 
-    _simplify_section(0, obj->npoints - 1, intrdp);
+    nv__simplify_section(0, obj->npoints - 1, intrdp);
 
     return NULL;
 }
 
-struct mg_object *
-mg_prop_geo_simpily_douglaspeucker(const struct mg_object *obj)
+struct nv_geobject *
+nv_prop_geo_simpily_douglaspeucker(const struct nv_geobject *obj)
 {
     if (obj == NULL)
         return NULL;

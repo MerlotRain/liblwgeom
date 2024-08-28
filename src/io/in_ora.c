@@ -1,36 +1,46 @@
-/*****************************************************************************/
-/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
-/*                                                                           */
-/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
-/*                                                                           */
-/*  This library is free software, licensed under the terms of the GNU       */
-/*  General Public License as published by the Free Software Foundation,     */
-/*  either version 3 of the License, or (at your option) any later version.  */
-/*  You should have received a copy of the GNU General Public License        */
-/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
-/*****************************************************************************/
+/**
+ * Copyright (c) 2023-present Merlot.Rain
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
-#include "mgp.h"
+#include "nv-common.h"
 
-struct mg_sdo_elem_info {
+struct nv_sdo_elem_info {
     int sdo_starting_offset;
     int sdo_etype;
     int sdo_interpretation;
 };
 
-struct mg_object *mg_read_ora(const struct sdo_geometry sdo, int flag)
+struct nv_geobject *nv__geo_read_ora(const struct nv_sdo_geometry sdo, int flag)
 {
     int dimension = 2 > (sdo.sdo_gtype / 1000) ? 2 : (sdo.sdo_gtype / 1000);
 
     int tt = sdo.sdo_gtype % 100;
     if (tt > 0 && tt < 4) {
-        struct mg_sdo_elem_info *pElemInfo =
-            (struct mg_sdo_elem_info *)sdo.sdo_elem_info;
+        struct nv_sdo_elem_info *pElemInfo =
+            (struct nv_sdo_elem_info *)sdo.sdo_elem_info;
         for (int i = 0; i < sdo.sdo_elem_count / 3; i++) {
         }
     }
     else if (tt > 4 && tt < 8) {
-        // multi mg_object
+        // multi nv_geobject
     }
     return NULL;
 }

@@ -1,19 +1,29 @@
-/*****************************************************************************/
-/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
-/*                                                                           */
-/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
-/*                                                                           */
-/*  This library is free software, licensed under the terms of the GNU       */
-/*  General Public License as published by the Free Software Foundation,     */
-/*  either version 3 of the License, or (at your option) any later version.  */
-/*  You should have received a copy of the GNU General Public License        */
-/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
-/*****************************************************************************/
+/**
+ * Copyright (c) 2023-present Merlot.Rain
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
-#include "rtree.h"
+#include <nv-common.h>
 
 #define DIMS                2
 #define MAXITEMS            64
@@ -75,7 +85,7 @@ struct node {
     };
 };
 
-struct rtree {
+struct nv_rtree {
     struct rect rect;
     struct node *root;
     size_t count;
@@ -104,14 +114,18 @@ static bool feq(double a, double b)
     return !(a < b || a > b);
 }
 
-void rtree_set_udata(struct rtree *tr, void *udata)
+// nv_rtree_set_udata sets the user-defined data.
+//
+// This should be called once after nv_rtree_new() and is only used for
+// the item callbacks as defined in nv_rtree_set_item_callbacks().
+void nv_rtree_set_udata(struct nv_rtree *tr, void *udata)
 {
     tr->udata = udata;
 }
 
-static struct node *node_new(struct rtree *tr, enum kind kind)
+static struct node *node_new(struct nv_rtree *tr, enum kind kind)
 {
-    struct node *node = (struct node *)malloc(sizeof(struct node));
+    struct node *node = (struct node *)nv__malloc(sizeof(struct node));
     if (!node)
         return NULL;
     memset(node, 0, sizeof(struct node));
@@ -119,9 +133,9 @@ static struct node *node_new(struct rtree *tr, enum kind kind)
     return node;
 }
 
-static struct node *node_copy(struct rtree *tr, struct node *node)
+static struct node *node_copy(struct nv_rtree *tr, struct node *node)
 {
-    struct node *node2 = (struct node *)malloc(sizeof(struct node));
+    struct node *node2 = (struct node *)nv__malloc(sizeof(struct node));
     if (!node2)
         return NULL;
     memcpy(node2, node, sizeof(struct node));
@@ -150,7 +164,7 @@ static struct node *node_copy(struct rtree *tr, struct node *node)
                         tr->item_free(node2->datas[i].data, tr->udata);
                     }
                 }
-                free(node2);
+                nv__free(node2);
                 return NULL;
             }
         }
@@ -158,7 +172,7 @@ static struct node *node_copy(struct rtree *tr, struct node *node)
     return node2;
 }
 
-static void node_free(struct rtree *tr, struct node *node)
+static void node_free(struct nv_rtree *tr, struct node *node)
 {
     if (rc_fetch_sub(&node->rc, 1) > 0)
         return;
@@ -174,7 +188,7 @@ static void node_free(struct rtree *tr, struct node *node)
             }
         }
     }
-    free(node);
+    nv__free(node);
 }
 
 #define cow_node_or(rnode, code)                         \
@@ -352,7 +366,7 @@ static void node_move_rect_at_index_into(struct node *from, int index,
     into->count++;
 }
 
-static bool node_split_largest_axis_edge_snap(struct rtree *tr,
+static bool node_split_largest_axis_edge_snap(struct nv_rtree *tr,
                                               struct rect *rect,
                                               struct node *node,
                                               struct node **right_out)
@@ -395,8 +409,8 @@ static bool node_split_largest_axis_edge_snap(struct rtree *tr,
     return true;
 }
 
-static bool node_split(struct rtree *tr, struct rect *rect, struct node *node,
-                       struct node **right)
+static bool node_split(struct nv_rtree *tr, struct rect *rect,
+                       struct node *node, struct node **right)
 {
     return node_split_largest_axis_edge_snap(tr, rect, node, right);
 }
@@ -419,7 +433,7 @@ static int node_choose_least_enlargement(const struct node *node,
     return j;
 }
 
-static int node_choose(struct rtree *tr, const struct node *node,
+static int node_choose(struct nv_rtree *tr, const struct node *node,
                        const struct rect *rect, int depth)
 {
 #ifdef USE_PATHHINT
@@ -457,7 +471,7 @@ static struct rect node_rect_calc(const struct node *node)
 }
 
 // node_insert returns false if out of memory
-static bool node_insert(struct rtree *tr, struct rect *nr, struct node *node,
+static bool node_insert(struct nv_rtree *tr, struct rect *nr, struct node *node,
                         struct rect *ir, struct item item, int depth,
                         bool *split)
 {
@@ -501,26 +515,49 @@ static bool node_insert(struct rtree *tr, struct rect *nr, struct node *node,
     return node_insert(tr, nr, node, ir, item, depth, split);
 }
 
-struct rtree *rtree_new(void)
+// nv_rtree_new returns a new rtree
+//
+// Returns NULL if the system is out of memory.
+struct nv_rtree *nv_rtree_new(void)
 {
-    struct rtree *tr = (struct rtree *)malloc(sizeof(struct rtree));
+    struct nv_rtree *tr =
+        (struct nv_rtree *)nv__malloc(sizeof(struct nv_rtree));
     if (!tr)
         return NULL;
-    memset(tr, 0, sizeof(struct rtree));
+    memset(tr, 0, sizeof(struct nv_rtree));
     return tr;
 }
 
-void rtree_set_item_callbacks(struct rtree *tr,
-                              bool (*clone)(const void *item, void **into,
-                                            void *udata),
-                              void (*free)(const void *item, void *udata))
+// nv_rtree_set_item_callbacks sets the item clone and free callbacks that will
+// be called internally by the rtree when items are inserted and removed.
+//
+// These callbacks are optional but may be needed by programs that require
+// copy-on-write support by using the nv_rtree_clone function.
+//
+// The clone function should return true if the clone succeeded or false if the
+// system is out of memory.
+void nv_rtree_set_item_callbacks(struct nv_rtree *tr,
+                                 bool (*clone)(const void *item, void **into,
+                                               void *udata),
+                                 void (*free)(const void *item, void *udata))
 {
     tr->item_clone = clone;
     tr->item_free = free;
 }
 
-bool rtree_insert(struct rtree *tr, const double *min, const double *max,
-                  const void *data)
+// nv_rtree_insert inserts an item into the rtree.
+//
+// This operation performs a copy of the data that is pointed to in the second
+// and third arguments. The R-tree expects a rectangle, which is two arrays of
+// doubles. The first N values as the minimum corner of the rect, and the next
+// N values as the maximum corner of the rect, where N is the number of
+// dimensions.
+//
+// When inserting points, the max coordinates is optional (set to NULL).
+//
+// Returns false if the system is out of memory.
+bool nv_rtree_insert(struct nv_rtree *tr, const double *min, const double *max,
+                     const void *data)
 {
     // copy input rect
     struct rect rect;
@@ -564,7 +601,7 @@ bool rtree_insert(struct rtree *tr, const double *min, const double *max,
         }
         struct node *right;
         if (!node_split(tr, &tr->rect, tr->root, &right)) {
-            free(new_root);
+            nv__free(new_root);
             break;
         }
         new_root->rects[0] = node_rect_calc(tr->root);
@@ -582,12 +619,13 @@ bool rtree_insert(struct rtree *tr, const double *min, const double *max,
     return false;
 }
 
-void rtree_free(struct rtree *tr)
+// nv_rtree_free frees an rtree
+void nv_rtree_free(struct nv_rtree *tr)
 {
     if (tr->root) {
         node_free(tr, tr->root);
     }
-    free(tr);
+    nv__free(tr);
 }
 
 static bool node_search(struct node *node, struct rect *rect,
@@ -616,11 +654,15 @@ static bool node_search(struct node *node, struct rect *rect,
     return true;
 }
 
-void rtree_search(const struct rtree *tr, const double min[],
-                  const double max[],
-                  bool (*iter)(const double min[], const double max[],
-                               const void *data, void *udata),
-                  void *udata)
+// nv_rtree_search searches the rtree and iterates over each item that intersect
+// the provided rectangle.
+//
+// Returning false from the iter will stop the search.
+void nv_rtree_search(const struct nv_rtree *tr, const double min[],
+                     const double max[],
+                     bool (*iter)(const double min[], const double max[],
+                                  const void *data, void *udata),
+                     void *udata)
 {
     // copy input rect
     struct rect rect;
@@ -654,23 +696,27 @@ static bool node_scan(struct node *node,
     return true;
 }
 
-void rtree_scan(const struct rtree *tr,
-                bool (*iter)(const double *min, const double *max,
-                             const void *data, void *udata),
-                void *udata)
+// nv_rtree_scan iterates over every item in the rtree.
+//
+// Returning false from the iter will stop the scan.
+void nv_rtree_scan(const struct nv_rtree *tr,
+                   bool (*iter)(const double *min, const double *max,
+                                const void *data, void *udata),
+                   void *udata)
 {
     if (tr->root) {
         node_scan(tr->root, iter, udata);
     }
 }
 
-size_t rtree_count(const struct rtree *tr)
+// nv_rtree_count returns the number of items in the rtree.
+size_t nv_rtree_count(const struct nv_rtree *tr)
 {
     return tr->count;
 }
 
 static bool node_delete(
-    struct rtree *tr, struct rect *nr, struct node *node, struct rect *ir,
+    struct nv_rtree *tr, struct rect *nr, struct node *node, struct rect *ir,
     struct item item, int depth, bool *removed, bool *shrunk,
     int (*compare)(const void *a, const void *b, void *udata), void *udata)
 {
@@ -763,8 +809,8 @@ static bool node_delete(
 }
 
 // returns false if out of memory
-static bool rtree_delete0(
-    struct rtree *tr, const double *min, const double *max, const void *data,
+static bool nv_rtree_delete0(
+    struct nv_rtree *tr, const double *min, const double *max, const void *data,
     int (*compare)(const void *a, const void *b, void *udata), void *udata)
 {
     // copy input rect
@@ -811,33 +857,53 @@ static bool rtree_delete0(
     return true;
 }
 
-bool rtree_delete(struct rtree *tr, const double *min, const double *max,
-                  const void *data)
+// nv_rtree_delete deletes an item from the rtree.
+//
+// This searches the tree for an item that is contained within the provided
+// rectangle, and perform a binary comparison of its data to the provided
+// data. The first item that is found is deleted.
+//
+// Returns false if the system is out of memory.
+bool nv_rtree_delete(struct nv_rtree *tr, const double *min, const double *max,
+                     const void *data)
 {
-    return rtree_delete0(tr, min, max, data, NULL, NULL);
+    return nv_rtree_delete0(tr, min, max, data, NULL, NULL);
 }
 
-bool rtree_delete_with_comparator(
-    struct rtree *tr, const double *min, const double *max, const void *data,
+// nv_rtree_delete_with_comparator deletes an item from the rtree.
+// This searches the tree for an item that is contained within the provided
+// rectangle, and perform a comparison of its data to the provided data using
+// a compare function. The first item that is found is deleted.
+//
+// Returns false if the system is out of memory.
+bool nv_rtree_delete_with_comparator(
+    struct nv_rtree *tr, const double *min, const double *max, const void *data,
     int (*compare)(const void *a, const void *b, void *udata), void *udata)
 {
-    return rtree_delete0(tr, min, max, data, compare, udata);
+    return nv_rtree_delete0(tr, min, max, data, compare, udata);
 }
 
-struct rtree *rtree_clone(struct rtree *tr)
+// nv_rtree_clone makes an instant copy of the btree.
+//
+// This operation uses shadowing / copy-on-write.
+struct nv_rtree *nv_rtree_clone(struct nv_rtree *tr)
 {
     if (!tr)
         return NULL;
-    struct rtree *tr2 = (struct rtree *)malloc(sizeof(struct rtree));
+    struct nv_rtree *tr2 =
+        (struct nv_rtree *)nv__malloc(sizeof(struct nv_rtree));
     if (!tr2)
         return NULL;
-    memcpy(tr2, tr, sizeof(struct rtree));
+    memcpy(tr2, tr, sizeof(struct nv_rtree));
     if (tr2->root)
         rc_fetch_add(&tr2->root->rc, 1);
     return tr2;
 }
 
-void rtree_opt_relaxed_atomics(struct rtree *tr)
+// nv_rtree_opt_relaxed_atomics activates memory_order_relaxed for all atomic
+// loads. This may increase performance for single-threaded programs.
+// Optionally, define RTREE_NOATOMICS to disbale all atomics.
+void nv_rtree_opt_relaxed_atomics(struct nv_rtree *tr)
 {
     tr->relaxed = true;
 }

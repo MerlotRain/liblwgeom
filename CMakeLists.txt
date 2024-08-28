@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.0...3.20)
-project(libmathse C CXX)
+project(libnv LANGUAGES C CXX)
 
 if(MSVC)
-    set(mathse libmathse)
+    set(nv libnv)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -wd4244 -wd4800 -wd4805 -wd4101 -D_CRT_NONSTDC_NO_WARNINGS")
 else()
-    set(mathse mathse)
+    set(nv nv)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -16,22 +16,18 @@ execute_process(COMMAND ${GIT_EXECUTABLE} describe --long --tags --always
                   OUTPUT_VARIABLE NL_PACKAGE_VERSION)
 string(STRIP "${NL_PACKAGE_VERSION}" PACKAGE_VERSION)
 
-option(BUILD_SHARD_LIBRARY "build shared libmathse library" ON)
-option(BUILD_TESTS "build libmathse tests" OFF)
-option(BUILD_PROGRAMS "build program tools" OFF)
-option(BUILD_WITH_OPENCV "Compile libmathse and use OpenCV to process images" OFF)
+option(BUILD_SHARD_LIBRARY "build shared libnv library" ON)
+option(BUILD_TESTS "build libnv tests" OFF)
 option(BUILD_WITH_ICONV "build with iconv" OFF)
 option(BUILD_WITH_PROJ "build with proj" OFF)
-option(BUILD_WITH_LIBPNG16 "build with libpng16" OFF)
-option(MATHSE_DISABLE_LIBPNG_CANVAS "on libmathse libpng support" OFF)
-option(MATHSE_DISABLE_QT_CANVAS "on libmathse qt canvas support" OFF)
+option(BUILD_WITH_CAIRO "build with cairo" OFF)
 
-if(BUILD_WITH_LIBPNG16)
-  find_package(PNG REQUIRED)
-endif()
-
-if(BUILD_WITH_OPENCV)
-  find_package(OpenCV REQUIRED)
+find_package(PkgConfig REQUIRED)
+if(BUILD_WITH_CAIRO)
+  pkg_check_modules(CAIRO cairo)
+  message("found cario: " ${CAIRO_FOUND})
+  message("CAIRO_LIBRARIES=${CAIRO_LIBRARIES}")
+  message("CAIRO_INCLUDE_DIRS=${CAIRO_INCLUDE_DIRS}")
 endif()
 
 if(BUILD_WITH_ICONV)
@@ -114,50 +110,49 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
-file(GLOB_RECURSE mathse_HEADERS ${CMAKE_CURRENT_LIST_DIR}/include/*.h CONFIGURE_DEPEND)
-file(GLOB_RECURSE mathse_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c CONFIGURE_DEPEND)
-file(GLOB_RECURSE mathse_HEADER_PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/*.h CONFIGURE_DEPEND)
-
-set(MATHSE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+file(GLOB_RECURSE nv_HEADERS ${CMAKE_CURRENT_LIST_DIR}/include/*.h CONFIGURE_DEPEND)
+file(GLOB_RECURSE nv_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c CONFIGURE_DEPEND)
+file(GLOB_RECURSE nv_HEADER_PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/*.h CONFIGURE_DEPEND)
 
 if(BUILD_SHARD_LIBRARY)
-  add_library(${mathse} SHARED
-      ${mathse_HEADERS}
-      ${mathse_SOURCES}
-      ${mathse_HEADER_PRIVATE}
+  add_library(${nv} SHARED
+      ${nv_HEADERS}
+      ${nv_SOURCES}
+      ${nv_HEADER_PRIVATE}
   )
-  target_compile_definitions(${mathse} PRIVATE DLL_EXPORT)
+  target_compile_definitions(${nv} PRIVATE BUILD_NV_SHARED)
 else()
-  add_library(${mathse} STATIC
-    ${mathse_HEADERS}
-    ${mathse_SOURCES}
-    ${mathse_HEADER_PRIVATE}
+  add_library(${nv} STATIC
+    ${nv_HEADERS}
+    ${nv_SOURCES}
+    ${nv_HEADER_PRIVATE}
   )
 endif()
 
 if(WIN32)
-  target_compile_definitions(${mathse} PUBLIC _USE_MATH_DEFINES)
+  target_compile_definitions(${nv} PUBLIC _USE_MATH_DEFINES)
 endif()
 
-target_include_directories(${mathse} PUBLIC 
-  ${MATHSE_INCLUDE_DIR}
-  ${MATHSE_INCLUDE_DIR}/util
+target_include_directories(${nv} PUBLIC 
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_include_directories(${mathse} PRIVATE 
+target_include_directories(${nv} PRIVATE 
   ${CMAKE_CURRENT_SOURCE_DIR}/src
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/nv-util
 )
 
-if(BUILD_WITH_LIBPNG16)
-  target_link_libraries(${mathse} PNG::PNG)
+if(BUILD_WITH_CAIRO)
+  target_include_directories(${nv} PRIVATE ${CAIRO_INCLUDE_DIRS})
+  target_link_libraries(${nv} ${CAIRO_LIBRARIES})
 endif()
 
 if(BUILD_WITH_OPENCV)
-  target_link_libraries(${mathse} ${OpenCV_LIBS})
+  target_link_libraries(${nv} ${OpenCV_LIBS})
 endif()
 
 if(BUILD_WITH_PROJ)
-  target_link_libraries(${mathse} PROJ::proj)
+  target_link_libraries(${nv} PROJ::proj)
 endif()
 
 if(BUILD_TESTS)

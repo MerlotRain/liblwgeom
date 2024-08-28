@@ -1,39 +1,49 @@
-/*****************************************************************************/
-/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
-/*                                                                           */
-/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
-/*                                                                           */
-/*  This library is free software, licensed under the terms of the GNU       */
-/*  General Public License as published by the Free Software Foundation,     */
-/*  either version 3 of the License, or (at your option) any later version.  */
-/*  You should have received a copy of the GNU General Public License        */
-/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
-/*****************************************************************************/
+/**
+ * Copyright (c) 2023-present Merlot.Rain
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
 #include "ordinate.h"
 
-struct Ordinate ordinate_XY()
+struct uv__ordinate uv__ordinate_XY()
 {
-    struct Ordinate flag;
-    flag.value = ORDINATE_VALUE_X | ORDINATE_VALUE_Y;
+    struct uv__ordinate flag;
+    flag.value = UV__ORDINATE_VALUE_X | UV__ORDINATE_VALUE_Y;
     flag.changeAllowed = true;
     return flag;
 }
 
-void ordinate_setZ(struct Ordinate *o, bool v)
+void uv__ordinate_setZ(struct uv__ordinate *o, bool v)
 {
-    if ((o->value & ORDINATE_VALUE_Z) != v) {
+    if ((o->value & UV__ORDINATE_VALUE_Z) != v) {
         if (o->changeAllowed) {
-            o->value ^= ORDINATE_VALUE_Z;
+            o->value ^= UV__ORDINATE_VALUE_Z;
         }
     }
 }
 
-void ordinate_setM(struct Ordinate *o, bool v)
+void uv__ordinate_setM(struct uv__ordinate *o, bool v)
 {
-    if ((o->value & ORDINATE_VALUE_M) != v) {
+    if ((o->value & UV__ORDINATE_VALUE_M) != v) {
         if (o->changeAllowed) {
-            o->value ^= ORDINATE_VALUE_M;
+            o->value ^= UV__ORDINATE_VALUE_M;
         }
     }
 }

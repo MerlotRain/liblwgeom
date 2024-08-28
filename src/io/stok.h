@@ -1,44 +1,48 @@
-/*****************************************************************************/
-/*  Math Spatial Engine - Open source 2D geometry algorithm library          */
-/*                                                                           */
-/*  Copyright (C) 2013-2024 Merlot.Rain                                      */
-/*                                                                           */
-/*  This library is free software, licensed under the terms of the GNU       */
-/*  General Public License as published by the Free Software Foundation,     */
-/*  either version 3 of the License, or (at your option) any later version.  */
-/*  You should have received a copy of the GNU General Public License        */
-/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
-/*****************************************************************************/
+/**
+ * Copyright (c) 2023-present Merlot.Rain
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
 #ifndef STOK_H
 #define STOK_H
 
-#include <mathse.h>
+#include <stddef.h>
 
-#ifdef __cpluscplus
-extern "C" {
-#endif
+enum {
+    UV__STOK_EOF,  // end of string stream
+    UV__STOK_EOL,  // end of line
+    UV__STOK_NUM,  // token a number value
+    UV__STOK_WORD, // token a string value
+};
 
-#define STOK_EOF  0 // end of string stream
-#define STOK_EOL  1 // end of line
-#define STOK_NUM  2 // token a number value
-#define STOK_WORD 3 // token a string value
-
-typedef struct intstok {
+struct uv__stok {
     double ntok;
     char stok[255];
     size_t len;
     char *head; // string stream head pointer
     char *pos;  // string stream current pointer
     char *end;  // string stream end pointer
-} stok;
+};
 
-void stok_init(stok *tok, char *t);
-int stok_next_token(stok *tok);
-int stok_peek_next_token(stok *tok);
-
-#ifdef __cpluscplus
-}
-#endif
+void uv__stok_init(struct uv__stok *tok, char *t);
+int uv__stok_next_token(struct uv__stok *tok);
+int uv__stok_peek_next_token(struct uv__stok *tok);
 
 #endif
