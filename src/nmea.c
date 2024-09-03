@@ -451,7 +451,7 @@ int nmea_find_tail(const char *buff, int buff_sz, int *res_crc)
  * @param buff a constant character pointer of packet buffer.
  * @param buff_sz buffer size.
  * @param pack a pointer of packet which will filled by function.
- * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
+ * @return 1 (NV_TRUE) - if parsed successfully or 0 (NV_FALSE) - if fail.
  */
 int nmea_parse_GPGGA(const char *buff, int buff_sz, struct nmeaGPGGA *pack)
 {
@@ -493,7 +493,7 @@ int nmea_parse_GPGGA(const char *buff, int buff_sz, struct nmeaGPGGA *pack)
  * @param buff a constant character pointer of packet buffer.
  * @param buff_sz buffer size.
  * @param pack a pointer of packet which will filled by function.
- * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
+ * @return 1 (NV_TRUE) - if parsed successfully or 0 (NV_FALSE) - if fail.
  */
 int nmea_parse_GPGST(const char *buff, int buff_sz, struct nmeaGPGST *pack)
 {
@@ -533,7 +533,7 @@ int nmea_parse_GPGST(const char *buff, int buff_sz, struct nmeaGPGST *pack)
  * @param buff a constant character pointer of packet buffer.
  * @param buff_sz buffer size.
  * @param pack a pointer of packet which will filled by function.
- * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
+ * @return 1 (NV_TRUE) - if parsed successfully or 0 (NV_FALSE) - if fail.
  */
 int nmea_parse_GPGSA(const char *buff, int buff_sz, struct nmeaGPGSA *pack)
 {
@@ -569,7 +569,7 @@ int nmea_parse_GPGSA(const char *buff, int buff_sz, struct nmeaGPGSA *pack)
  * @param buff a constant character pointer of packet buffer.
  * @param buff_sz buffer size.
  * @param pack a pointer of packet which will filled by function.
- * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
+ * @return 1 (NV_TRUE) - if parsed successfully or 0 (NV_FALSE) - if fail.
  */
 int nmea_parse_GPGSV(const char *buff, int buff_sz, struct nmeaGPGSV *pack)
 {
@@ -621,7 +621,7 @@ int nmea_parse_GPGSV(const char *buff, int buff_sz, struct nmeaGPGSV *pack)
  * @param buff a constant character pointer of packet buffer.
  * @param buff_sz buffer size.
  * @param pack a pointer of packet which will filled by function.
- * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
+ * @return 1 (NV_TRUE) - if parsed successfully or 0 (NV_FALSE) - if fail.
  */
 int nmea_parse_GPRMC(const char *buff, int buff_sz, struct nmeaGPRMC *pack)
 {
@@ -669,7 +669,7 @@ int nmea_parse_GPRMC(const char *buff, int buff_sz, struct nmeaGPRMC *pack)
  * @param buff a constant character pointer of packet buffer.
  * @param buff_sz buffer size.
  * @param pack a pointer of packet which will filled by function.
- * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
+ * @return 1 (NV_TRUE) - if parsed successfully or 0 (NV_FALSE) - if fail.
  */
 int nmea_parse_GPHDT(const char *buff, int buff_sz, struct nmeaGPHDT *pack)
 {
@@ -704,7 +704,7 @@ int nmea_parse_GPHDT(const char *buff, int buff_sz, struct nmeaGPHDT *pack)
  * @param buff a constant character pointer of packet buffer.
  * @param buff_sz buffer size.
  * @param pack a pointer of packet which will filled by function.
- * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
+ * @return 1 (NV_TRUE) - if parsed successfully or 0 (NV_FALSE) - if fail.
  */
 int nmea_parse_GPVTG(const char *buff, int buff_sz, struct nmeaGPVTG *pack)
 {
@@ -741,7 +741,7 @@ int nmea_parse_GPVTG(const char *buff, int buff_sz, struct nmeaGPVTG *pack)
  * @param buff a constant character pointer of packet buffer.
  * @param buff_sz buffer size.
  * @param pack a pointer of packet which will filled by function.
- * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
+ * @return 1 (NV_TRUE) - if parsed successfully or 0 (NV_FALSE) - if fail.
  */
 int nmea_parse_HCHDG(const char *buff, int buff_sz, struct nmeaHCHDG *pack)
 {
@@ -775,7 +775,7 @@ int nmea_parse_HCHDG(const char *buff, int buff_sz, struct nmeaHCHDG *pack)
  * @param buff a constant character pointer of packet buffer.
  * @param buff_sz buffer size.
  * @param pack a pointer of packet which will filled by function.
- * @return 1 (true) - if parsed successfully or 0 (false) - if fail.
+ * @return 1 (NV_TRUE) - if parsed successfully or 0 (NV_FALSE) - if fail.
  */
 int nmea_parse_HCHDT(const char *buff, int buff_sz, struct nmeaHCHDT *pack)
 {

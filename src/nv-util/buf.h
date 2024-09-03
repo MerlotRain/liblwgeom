@@ -24,7 +24,6 @@
 #define BUF_H
 
 #include <stddef.h>
-#include <stdbool.h>
 #include <sys/types.h>
 
 #if defined(_MSC_VER)
@@ -37,8 +36,8 @@ struct nv__buf {
     size_t len, cap;
 };
 
-bool nv__buf_append(struct nv__buf *buf, const char *data, ssize_t len);
-bool nv__buf_append_byte(struct nv__buf *buf, char ch);
+int nv__buf_append(struct nv__buf *buf, const char *data, ssize_t len);
+int nv__buf_append_byte(struct nv__buf *buf, char ch);
 void nv__buf_clear(struct nv__buf *buf);
 
 #endif

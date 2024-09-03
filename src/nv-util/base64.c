@@ -24,7 +24,6 @@
 #include "encode.h"
 #include <assert.h>
 #include <limits.h>
-#include <stdbool.h>
 #include <string.h>
 
 #define RETURN_VAL_IF_FAIL(expr, ret) \
@@ -271,8 +270,8 @@ char *nv__base64_encode(const unsigned char *data, size_t len)
 
     out = (char *)nv__malloc((len / 3 + 1) * 4 + 1);
 
-    outlen = nv__base64_encode_step(data, len, false, out, &state, &save);
-    outlen += nv__base64_encode_close(false, out + outlen, &state, &save);
+    outlen = nv__base64_encode_step(data, len, NV_FALSE, out, &state, &save);
+    outlen += nv__base64_encode_close(NV_FALSE, out + outlen, &state, &save);
     out[outlen] = '\0';
 
     return (char *)out;

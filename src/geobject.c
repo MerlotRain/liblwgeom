@@ -43,12 +43,12 @@ struct nv_box nv__query_envolpe(const double *pp, int npoints, int cdim)
     return box;
 }
 
-bool nv__check_single_ring(const double *pp, int npoints, int cdim)
+int nv__check_single_ring(const double *pp, int npoints, int cdim)
 {
     assert(pp);
     // At least 4 points are required to form a ring
     if (npoints < 4)
-        return false;
+        return NV_FALSE;
 
     double x0 = pp[0];
     double y0 = pp[1];
@@ -292,10 +292,10 @@ struct nv_geobject *nv_geo_read(int flag, const char *data, size_t len)
         return nv__geo_read_wkt(data, len);
     }
     case NV_GEOMETRY_IO_WKB: {
-        return nv__geo_read_wkb(data, len, false);
+        return nv__geo_read_wkb(data, len, NV_FALSE);
     }
     case NV_GEOMETRY_IO_WKB_HEX: {
-        return nv__geo_read_wkb(data, len, true);
+        return nv__geo_read_wkb(data, len, NV_TRUE);
     }
     case NV_GEOMETRY_IO_GEOJSON: {
         return nv__geo_read_geojson(data, len);
@@ -408,10 +408,10 @@ double tolerence()
 /// @param pp point pointer
 /// @param npoints point number
 /// @param cdim coordinate dim
-bool nv_ccw(const double *pp, int npoints, int cdim)
+int nv_ccw(const double *pp, int npoints, int cdim)
 {
     if (!nv__check_single_ring(pp, npoints, cdim))
-        return false;
+        return NV_FALSE;
 
     // The ring must be a convex point at the vertex extreme value, which is the
     // product of the line segments formed by the vertices before and after the
@@ -442,7 +442,7 @@ bool nv_ccw(const double *pp, int npoints, int cdim)
     double y3 = pp[(ptrdiff_t)(((lowIndex + 1) % npoints) * cdim + 1)];
 
     double r = (x2 - x1) * (y3 - y2) - (y2 - y1) * (x3 - x2);
-    return (r > 0) ? true : false;
+    return (r > 0) ? NV_TRUE : NV_FALSE;
 }
 
 /// Get the value property of a geometric object

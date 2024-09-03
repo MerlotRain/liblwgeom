@@ -22,7 +22,7 @@
 
 #include "nv-common.h"
 
-struct nv_geobject *nv__geo_read_wkb(const char *data, size_t len, bool hex)
+struct nv_geobject *nv__geo_read_wkb(const char *data, size_t len, int hex)
 {
     return NULL;
 }

@@ -88,19 +88,19 @@ struct nv_geobject *nv__geo_read_wkt(const char *data, size_t len)
     else {
         if (strlen(type) >= 2 &&
             0 == strncmp(type + strlen(type) - 2, "ZM", 2)) {
-            uv__ordinate_setZ(&new_flags, true);
-            uv__ordinate_setM(&new_flags, true);
-            new_flags.changeAllowed = false;
+            uv__ordinate_setZ(&new_flags, NV_TRUE);
+            uv__ordinate_setM(&new_flags, NV_TRUE);
+            new_flags.changeAllowed = NV_FALSE;
         }
         else if (strlen(type) >= 1 &&
                  0 == strncmp(type + strlen(type) - 1, "M", 1)) {
-            uv__ordinate_setM(&new_flags, true);
-            new_flags.changeAllowed = false;
+            uv__ordinate_setM(&new_flags, NV_TRUE);
+            new_flags.changeAllowed = NV_FALSE;
         }
         else if (strlen(type) >= 1 &&
                  0 == strncmp(type + strlen(type) - 1, "Z", 1)) {
-            uv__ordinate_setZ(&new_flags, true);
-            new_flags.changeAllowed = false;
+            uv__ordinate_setZ(&new_flags, NV_TRUE);
+            new_flags.changeAllowed = NV_FALSE;
         }
     }
 
@@ -267,7 +267,7 @@ static void nv__wkt_get_precise_coordinates(struct uv__stok *token,
     // Check for undeclared Z dimension
     if (flag->changeAllowed &&
         (uv__stok_peek_next_token(token) == UV__STOK_NUM))
-        uv__ordinate_setZ(flag, true);
+        uv__ordinate_setZ(flag, NV_TRUE);
 
     if (flag->value & UV__ORDINATE_VALUE_Z)
         coordinates[2] = nv__wkt_get_next_number(token);
@@ -275,12 +275,12 @@ static void nv__wkt_get_precise_coordinates(struct uv__stok *token,
     // Check for undeclared M dimension
     if (flag->changeAllowed && (flag->value & UV__ORDINATE_VALUE_Z) &&
         (uv__stok_peek_next_token(token) == UV__STOK_NUM))
-        uv__ordinate_setM(flag, true);
+        uv__ordinate_setM(flag, NV_TRUE);
 
     if (flag->value & UV__ORDINATE_VALUE_M)
         coordinates[3] = nv__wkt_get_next_number(token);
 
-    flag->changeAllowed = false;
+    flag->changeAllowed = NV_FALSE;
 }
 
 struct nv_geobject *nv__wkt_read_point(struct uv__stok *token,

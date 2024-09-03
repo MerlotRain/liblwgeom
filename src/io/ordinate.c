@@ -26,11 +26,11 @@ struct uv__ordinate uv__ordinate_XY()
 {
     struct uv__ordinate flag;
     flag.value = UV__ORDINATE_VALUE_X | UV__ORDINATE_VALUE_Y;
-    flag.changeAllowed = true;
+    flag.changeAllowed = NV_TRUE;
     return flag;
 }
 
-void uv__ordinate_setZ(struct uv__ordinate *o, bool v)
+void uv__ordinate_setZ(struct uv__ordinate *o, int v)
 {
     if ((o->value & UV__ORDINATE_VALUE_Z) != v) {
         if (o->changeAllowed) {
@@ -39,7 +39,7 @@ void uv__ordinate_setZ(struct uv__ordinate *o, bool v)
     }
 }
 
-void uv__ordinate_setM(struct uv__ordinate *o, bool v)
+void uv__ordinate_setM(struct uv__ordinate *o, int v)
 {
     if ((o->value & UV__ORDINATE_VALUE_M) != v) {
         if (o->changeAllowed) {

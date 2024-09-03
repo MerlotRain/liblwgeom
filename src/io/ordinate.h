@@ -23,7 +23,6 @@
 #ifndef ORDINATE_H
 #define ORDINATE_H
 
-#include <stdbool.h>
 #include <stdint.h>
 
 enum {
@@ -35,11 +34,11 @@ enum {
 
 struct uv__ordinate {
     uint8_t value;
-    bool changeAllowed; ///< allow change
+    int changeAllowed; ///< allow change
 };
 
 struct uv__ordinate uv__ordinate_XY();
-void uv__ordinate_setZ(struct uv__ordinate *o, bool v);
-void uv__ordinate_setM(struct uv__ordinate *o, bool v);
+void uv__ordinate_setZ(struct uv__ordinate *o, int v);
+void uv__ordinate_setM(struct uv__ordinate *o, int v);
 
 #endif

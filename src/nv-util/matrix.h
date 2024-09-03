@@ -23,7 +23,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <stdbool.h>
 
 #define MATRIX_INIT            {1, 0, 0, 1, 0, 0}
 /* Return matrix m11 element */
@@ -88,8 +87,8 @@ void mtx_mirror(struct matrix *m, const double x, const double y);
 /* Matrix inversion matrix */
 void mtx_invert(struct matrix *m);
 /* Determine whether the matrix can be inverted */
-bool mtx_invertible(const struct matrix *m);
+int mtx_invertible(const struct matrix *m);
 /* Determine whether the matrix can be an identity matrix */
-bool mtx_identity(const struct matrix *m);
+int mtx_identity(const struct matrix *m);
 
 #endif

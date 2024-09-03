@@ -40,13 +40,13 @@
 /// @brief Check two box is intersects
 /// @param env1 the first Envelope
 /// @param env2 the second Envelope
-/// @return true if the two Envelopes intersect
-bool nv_box_intersects(const struct nv_box env1, const struct nv_box env2)
+/// @return NV_TRUE if the two Envelopes intersect
+int nv_box_intersects(const struct nv_box env1, const struct nv_box env2)
 {
     const double x1 = NV_MAX(env1.min.x, env2.min.x);
     const double x2 = NV_MIN(env1.max.x, env2.max.x);
     if (x1 > x2)
-        return false;
+        return NV_FALSE;
     const double y1 = NV_MAX(env1.min.y, env2.min.y);
     const double y2 = NV_MIN(env1.max.y, env2.max.y);
     return y1 <= y2;

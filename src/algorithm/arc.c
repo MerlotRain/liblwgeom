@@ -22,8 +22,8 @@
 
 #include "nv-common.h"
 
-static int nv__arc_center(struct nv_point c0, struct nv_point c1,
-                          struct nv_point c2, struct nv_point *center)
+static int nv__arc_center(struct nv_point2d c0, struct nv_point2d c1,
+                          struct nv_point2d c2, struct nv_point2d *center)
 {
     if (c0.x == c2.x && c0.y == c2.y) {
         center->x = (c0.x + c1.x) / 2.0;
@@ -31,9 +31,9 @@ static int nv__arc_center(struct nv_point c0, struct nv_point c1,
         return 1;
     }
 
-    struct nv_point a = {.x = c1.x - c2.x, .y = c1.y - c2.y};
-    struct nv_point b = {.x = c2.x - c0.x, .y = c2.y - c0.y};
-    struct nv_point c = {.x = c0.x - c1.x, .y = c0.y - c1.y};
+    struct nv_point2d a = {.x = c1.x - c2.x, .y = c1.y - c2.y};
+    struct nv_point2d b = {.x = c2.x - c0.x, .y = c2.y - c0.y};
+    struct nv_point2d c = {.x = c0.x - c1.x, .y = c0.y - c1.y};
 
     double d1 = -(b.x * c.x + b.y * c.y);
     double d2 = -(c.x * a.x + c.y * a.y);
@@ -44,8 +44,8 @@ static int nv__arc_center(struct nv_point c0, struct nv_point c1,
     double e3 = d1 * d2;
     double e = e1 + e2 + e3;
 
-    struct nv_point G3 = {.x = c0.x + c1.x + c2.x, .y = c0.y + c1.y + c2.y};
-    struct nv_point H = {.x = (e1 * c0.x + e2 * c1.x + e3 * c2.x) / e,
+    struct nv_point2d G3 = {.x = c0.x + c1.x + c2.x, .y = c0.y + c1.y + c2.y};
+    struct nv_point2d H = {.x = (e1 * c0.x + e2 * c1.x + e3 * c2.x) / e,
                          .y = (e1 * c0.y + e2 * c1.y + e3 * c2.y) / e};
 
     center->x = 0.5 * (G3.x - H.x);

@@ -23,7 +23,6 @@
 #define BTREE_H
 
 #include <stddef.h>
-#include <stdbool.h>
 #include <stdint.h>
 
 struct btree;
@@ -51,10 +50,10 @@ struct btree *btree_new(size_t elsize, size_t max_items,
 // These callbacks are optional but may be needed by programs that require
 // copy-on-write support by using the btree_clone function.
 //
-// The clone function should return true if the clone succeeded or false if the
+// The clone function should return NV_TRUE if the clone succeeded or NV_FALSE if the
 // system is out of memory.
 void btree_set_item_callbacks(struct btree *btree,
-                              bool (*clone)(const void *item, void *into,
+                              int (*clone)(const void *item, void *into,
                                             void *udata),
                               void (*free)(const void *item, void *udata));
 
@@ -64,13 +63,13 @@ void btree_free(struct btree *btree);
 // btree_free removes all items from the btree.
 void btree_clear(struct btree *btree);
 
-// btree_oom returns true if the last write operation failed because the system
+// btree_oom returns NV_TRUE if the last write operation failed because the system
 // has no more memory available.
 //
 // Functions that have the first param being a non-const btree receiver are
 // candidates for possible out-of-memory conditions, such as btree_set,
 // btree_delete, btree_load, etc.
-bool btree_oom(const struct btree *btree);
+int btree_oom(const struct btree *btree);
 
 // btree_height returns the height of the btree from root to leaf or zero if
 // the btree is empty.
@@ -87,7 +86,7 @@ struct btree *btree_clone(struct btree *btree);
 // then it is returned otherwise NULL is returned.
 //
 // If the system fails allocate the memory needed then NULL is returned
-// and btree_oom() returns true.
+// and btree_oom() returns NV_TRUE.
 const void *btree_set(struct btree *btree, const void *item);
 
 // btree_delete removes an item from the B-tree and returns it.
@@ -96,7 +95,7 @@ const void *btree_set(struct btree *btree, const void *item);
 // This operation may trigger node copies if the btree was cloned using
 // btree_clone.
 // If the system fails allocate the memory needed then NULL is returned
-// and btree_oom() returns true.
+// and btree_oom() returns NV_TRUE.
 const void *btree_delete(struct btree *btree, const void *key);
 
 // btree_load is the same as btree_set but is optimized for sequential bulk
@@ -104,7 +103,7 @@ const void *btree_delete(struct btree *btree, const void *key);
 // in exact order, but up to 25% slower when not in exact order.
 //
 // If the system fails allocate the memory needed then NULL is returned
-// and btree_oom() returns true.
+// and btree_oom() returns NV_TRUE.
 const void *btree_load(struct btree *btree, const void *item);
 
 // btree_pop_min removes the first item in the btree and returns it.
@@ -113,7 +112,7 @@ const void *btree_load(struct btree *btree, const void *item);
 // This operation may trigger node copies if the btree was cloned using
 // btree_clone.
 // If the system fails allocate the memory needed then NULL is returned
-// and btree_oom() returns true.
+// and btree_oom() returns NV_TRUE.
 const void *btree_pop_min(struct btree *btree);
 
 // btree_pop_min removes the last item in the btree and returns it.
@@ -122,7 +121,7 @@ const void *btree_pop_min(struct btree *btree);
 // This operation may trigger node copies if the btree was cloned using
 // btree_clone.
 // If the system fails allocate the memory needed then NULL is returned
-// and btree_oom() returns true.
+// and btree_oom() returns NV_TRUE.
 const void *btree_pop_max(struct btree *btree);
 
 // btree_pop_min returns the first item in the btree or NULL if btree is empty.
@@ -142,10 +141,10 @@ const void *btree_get(const struct btree *btree, const void *key);
 // greater-than-or-equal-to pivot in ascending order.
 //
 // Param pivot can be NULL, which means all items are iterated over.
-// Param iter can return false to stop iteration early.
-// Returns false if the iteration has been stopped early.
-bool btree_ascend(const struct btree *btree, const void *pivot,
-                  bool (*iter)(const void *item, void *udata), void *udata);
+// Param iter can return NV_FALSE to stop iteration early.
+// Returns NV_FALSE if the iteration has been stopped early.
+int btree_ascend(const struct btree *btree, const void *pivot,
+                  int (*iter)(const void *item, void *udata), void *udata);
 
 // btree_descend scans the tree within the range [pivot, first].
 
@@ -153,10 +152,10 @@ bool btree_ascend(const struct btree *btree, const void *pivot,
 // less-than-or-equal-to pivot in descending order.
 //
 // Param pivot can be NULL, which means all items are iterated over.
-// Param iter can return false to stop iteration early.
-// Returns false if the iteration has been stopped early.
-bool btree_descend(const struct btree *btree, const void *pivot,
-                   bool (*iter)(const void *item, void *udata), void *udata);
+// Param iter can return NV_FALSE to stop iteration early.
+// Returns NV_FALSE if the iteration has been stopped early.
+int btree_descend(const struct btree *btree, const void *pivot,
+                   int (*iter)(const void *item, void *udata), void *udata);
 
 // btree_set_hint is the same as btree_set except that an optional "hint" can
 // be provided which may make the operation quicker when done as a batch or
@@ -179,31 +178,31 @@ const void *btree_delete_hint(struct btree *btree, const void *key,
 // btree_ascend_hint is the same as btree_ascend except that an optional
 // "hint" can be provided which may make the operation quicker when done as a
 // batch or in a userspace context.
-bool btree_ascend_hint(const struct btree *btree, const void *pivot,
-                       bool (*iter)(const void *item, void *udata), void *udata,
+int btree_ascend_hint(const struct btree *btree, const void *pivot,
+                       int (*iter)(const void *item, void *udata), void *udata,
                        uint64_t *hint);
 
 // btree_descend_hint is the same as btree_descend except that an optional
 // "hint" can be provided which may make the operation quicker when done as a
 // batch or in a userspace context.
-bool btree_descend_hint(const struct btree *btree, const void *pivot,
-                        bool (*iter)(const void *item, void *udata),
+int btree_descend_hint(const struct btree *btree, const void *pivot,
+                        int (*iter)(const void *item, void *udata),
                         void *udata, uint64_t *hint);
 
 // btree_set_searcher allows for setting a custom search function.
 void btree_set_searcher(struct btree *btree,
                         int (*searcher)(const void *items, size_t nitems,
-                                        const void *key, bool *found,
+                                        const void *key, int *found,
                                         void *udata));
 
 // Loop-based iterator
 struct btree_iter *btree_iter_new(const struct btree *btree);
 void btree_iter_free(struct btree_iter *iter);
-bool btree_iter_first(struct btree_iter *iter);
-bool btree_iter_last(struct btree_iter *iter);
-bool btree_iter_next(struct btree_iter *iter);
-bool btree_iter_prev(struct btree_iter *iter);
-bool btree_iter_seek(struct btree_iter *iter, const void *key);
+int btree_iter_first(struct btree_iter *iter);
+int btree_iter_last(struct btree_iter *iter);
+int btree_iter_next(struct btree_iter *iter);
+int btree_iter_prev(struct btree_iter *iter);
+int btree_iter_seek(struct btree_iter *iter, const void *key);
 const void *btree_iter_item(struct btree_iter *iter);
 
 #endif

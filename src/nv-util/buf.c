@@ -26,7 +26,7 @@
 
 // buf_append appends data to buffer. To append a null-terminated c-string
 // specify -1 for the len.
-bool nv__buf_append(struct nv__buf *buf, const char *data, ssize_t len)
+int nv__buf_append(struct nv__buf *buf, const char *data, ssize_t len)
 {
     if (len < 0) {
         len = strlen(data);
@@ -38,7 +38,7 @@ bool nv__buf_append(struct nv__buf *buf, const char *data, ssize_t len)
         }
         char *data = (char *)nv__malloc(cap + 1);
         if (!data) {
-            return false;
+            return NV_FALSE;
         }
         memcpy(data, buf->data, buf->len);
         nv__free(buf->data);
@@ -48,12 +48,12 @@ bool nv__buf_append(struct nv__buf *buf, const char *data, ssize_t len)
     memcpy(buf->data + buf->len, data, len);
     buf->len += len;
     buf->data[buf->len] = '\0';
-    return true;
+    return NV_TRUE;
 }
 
 // buf_append_byte appends a single byte to buffer.
-// Returns false if the
-bool nv__buf_append_byte(struct nv__buf *buf, char ch)
+// Returns NV_FALSE if the
+int nv__buf_append_byte(struct nv__buf *buf, char ch)
 {
     if (buf->len == buf->cap) {
         return nv__buf_append(buf, &ch, 1);
@@ -61,7 +61,7 @@ bool nv__buf_append_byte(struct nv__buf *buf, char ch)
     buf->data[buf->len] = ch;
     buf->len++;
     buf->data[buf->len] = '\0';
-    return true;
+    return NV_TRUE;
 }
 
 // buf_clear clears the buffer and frees all data

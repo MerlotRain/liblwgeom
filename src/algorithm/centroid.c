@@ -23,10 +23,10 @@
 #include "nv-common.h"
 
 struct nv__centriod {
-    struct nv_point p_cent_sum;
+    struct nv_point2d p_cent_sum;
     size_t pt_num;
 
-    struct nv_point l_cent_sum;
+    struct nv_point2d l_cent_sum;
     double total_length;
 
     double total_area;

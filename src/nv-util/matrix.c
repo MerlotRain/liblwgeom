@@ -129,14 +129,14 @@ void mtx_invert(struct matrix *m)
     m->m_dy = (mm[1] * mm[4] - mm[0] * mm[5]) / D;
 }
 
-bool mtx_invertible(const struct matrix *m)
+int mtx_invertible(const struct matrix *m)
 {
     if (m->m_m[0] * m->m_m[3] - m->m_m[1] * m->m_m[2] != 0)
-        return true;
-    return false;
+        return NV_TRUE;
+    return NV_FALSE;
 }
 
-bool mtx_identity(const struct matrix *m)
+int mtx_identity(const struct matrix *m)
 {
     return m->m_m11 == 1 && m->m_m12 == 0 && m->m_m21 == 0 && m->m_m22 == 1 &&
            m->m_dx == 0 && m->m_dy == 0;

@@ -25,7 +25,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
 
 struct nv__hashmap;
 
@@ -36,16 +35,16 @@ struct nv__hashmap *nv__hashmap_new(
     void (*elfree)(void *item), void *udata);
 
 void nv__hashmap_free(struct nv__hashmap *map);
-void nv__hashmap_clear(struct nv__hashmap *map, bool update_cap);
+void nv__hashmap_clear(struct nv__hashmap *map, int update_cap);
 size_t nv__hashmap_count(struct nv__hashmap *map);
-bool nv__hashmap_oom(struct nv__hashmap *map);
+int nv__hashmap_oom(struct nv__hashmap *map);
 const void *nv__hashmap_get(struct nv__hashmap *map, const void *item);
 const void *nv__hashmap_set(struct nv__hashmap *map, const void *item);
 const void *nv__hashmap_delete(struct nv__hashmap *map, const void *item);
 const void *nv__hashmap_probe(struct nv__hashmap *map, uint64_t position);
-bool nv__hashmap_scan(struct nv__hashmap *map,
-                      bool (*iter)(const void *item, void *udata), void *udata);
-bool nv__hashmap_iter(struct nv__hashmap *map, size_t *i, void **item);
+int nv__hashmap_scan(struct nv__hashmap *map,
+                      int (*iter)(const void *item, void *udata), void *udata);
+int nv__hashmap_iter(struct nv__hashmap *map, size_t *i, void **item);
 
 uint64_t nv__hashmap_sip(const void *data, size_t len, uint64_t seed0,
                          uint64_t seed1);

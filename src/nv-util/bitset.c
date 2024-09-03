@@ -60,7 +60,7 @@ void nv__bitset_free(struct nv__bitset *bs)
     nv__free(bs);
 }
 
-/// @brief Set the \a index bit to true
+/// @brief Set the \a index bit to NV_TRUE
 /// @param bs The bitset
 /// @param index The index of the bit
 /// @return
@@ -73,7 +73,7 @@ void nv__bitset_set(struct nv__bitset *bs, size_t index)
     bs->data[index / 8] |= (1 << (index % 8)); // set bit
 }
 
-/// @brief Clear the \a index bit to false
+/// @brief Clear the \a index bit to NV_FALSE
 /// @param bs The bitset
 /// @param index The index of the bit
 /// @return
@@ -86,13 +86,13 @@ void nv__bitset_clear(struct nv__bitset *bs, size_t index)
     bs->data[index / 8] &= ~(1 << (index % 8)); // clear bit
 }
 
-/// @brief Test if the \a index bit is true or false
+/// @brief Test if the \a index bit is NV_TRUE or NV_FALSE
 /// @param bs The bitset
 /// @param index The index of the bit
-bool nv__bitset_test(struct nv__bitset *bs, size_t index)
+int nv__bitset_test(struct nv__bitset *bs, size_t index)
 {
     if (index >= bs->length) {
-        return false;
+        return NV_FALSE;
     }
 
     return bs->data[index / 8] & (char)(1 << (index % 8)); // test bit
@@ -128,9 +128,9 @@ int nv__bitset_state(struct nv__bitset *bs)
     }
 }
 
-/// @brief Count the number of bits set to true
+/// @brief Count the number of bits set to NV_TRUE
 /// @param bs The bitset
-/// @return The number of bits set to true
+/// @return The number of bits set to NV_TRUE
 size_t nv__bitset_count(struct nv__bitset *bs)
 {
     int count = 0;

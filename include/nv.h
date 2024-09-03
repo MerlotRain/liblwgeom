@@ -27,198 +27,113 @@
 extern "C" {
 #endif
 
-#ifndef NV_EXTERN
-#ifdef _WIN32
-#if defined(BUILD_NV_SHARED)
-#define NV_EXTERN __declspec(dllexport)
-#elif defined(USING_NV_SHARED)
-#define NV_EXTERN __declspec(dllimport)
-#else
-/* Building static library. */
-#define NV_EXTERN /* nothing */
-#endif
-#elif __GNUC__ >= 4
-#define NV_EXTERN __attribute__((visibility("default")))
-#elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550) /* Sun Studio >= 8 */
-#define NV_EXTERN __global
-#else
-#define NV_EXTERN /* nothing */
-#endif
-#endif /* NV_EXTERN */
-
 #include "nv/version.h"
 #include "nv/logging.h"
-
 #include <assert.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 
-#ifndef NV_FALLTHROUGH
-#if (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__) >= 700) && \
-    !defined(__INTEL_COMPILER)
-#define NV_FALLTHROUGH __attribute__((fallthrough))
-#else
-#define NV_FALLTHROUGH
-#endif
-#endif
+#define NV_TRUE 1
+#define NV_FALSE 0
 
-#ifndef NV_MAX
-#define NV_MAX(a, b) ((a) > (b) ? (a) : (b))
-#endif
+#define NV_GEOM_POINT       0
+#define NV_GEOM_LINE        1
+#define NV_GEOM_POLY        2
+#define NV_GEOM_COLLECTION  3
 
-#ifndef NV_MIN
-#define NV_MIN(a, b) ((a) < (b) ? (a) : (b))
-#endif
-
-#define NV_MAX3(a, b, c) \
-    ((a) > (b) ? ((a) > (c) ? (a) : (c)) : ((b) > (c) ? (b) : (c)))
-
-#define NV_MIN3(a, b, c) \
-    ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
-
-#define NV_DBL_NEAR(a, b) (fabs((a) - (b)) < 4 * DBL_EPSILON)
-
-NV_EXTERN unsigned int nv_version(void);
-NV_EXTERN const char *nv_version_string(void);
+extern unsigned int nv_version(void);
+extern const char *nv_version_string(void);
 
 typedef void *(*nv_malloc_func)(size_t size);
 typedef void *(*nv_realloc_func)(void *ptr, size_t size);
 typedef void *(*nv_calloc_func)(size_t count, size_t size);
 typedef void (*nv_free_func)(void *ptr);
 
-NV_EXTERN int uv_replace_allocator(nv_malloc_func malloc_func,
+extern int uv_replace_allocator(nv_malloc_func malloc_func,
                                    nv_realloc_func realloc_func,
                                    nv_calloc_func calloc_func,
                                    nv_free_func free_func);
 
-NV_EXTERN int nv_error_code();
-NV_EXTERN char *nv_error_messgae();
+extern int nv_error_code();
+extern char *nv_error_messgae();
 
-/* ---------------------------------- Point --------------------------------- */
 
-struct nv_point {
+/* POINT2D */
+
+struct nv_point2d {
     double x;
     double y;
 };
 
-NV_EXTERN double nv_angle(const struct nv_point p0);
-NV_EXTERN double nv_angle2(const struct nv_point p0, const struct nv_point p1);
-NV_EXTERN bool nv_acute(const struct nv_point p0, const struct nv_point p1,
-                        const struct nv_point p2);
-NV_EXTERN bool nv_obtuse(const struct nv_point p0, const struct nv_point p1,
-                         const struct nv_point p2);
-NV_EXTERN double nv_angle_between(const struct nv_point tip1,
-                                  const struct nv_point tail,
-                                  const struct nv_point tip2);
-NV_EXTERN double nv_interior_angle(const struct nv_point p0,
-                                   const struct nv_point p1,
-                                   const struct nv_point p2);
-NV_EXTERN bool nv_angle_bisector(const struct nv_point A,
-                                 const struct nv_point B,
-                                 const struct nv_point C,
-                                 const struct nv_point D, struct nv_point *p,
-                                 double *angle);
 
-NV_EXTERN double nv_dis_point_to_segment(const struct nv_point p,
-                                         const struct nv_point A,
-                                         const struct nv_point B);
-NV_EXTERN double nv_dis_point_to_perpendicular(const struct nv_point p,
-                                               const struct nv_point A,
-                                               const struct nv_point B);
-NV_EXTERN void
-nv_segment_intersection(const struct nv_point p1, const struct nv_point p2,
-                        const struct nv_point p3, const struct nv_point p4,
-                        struct nv_point *pin, bool *intersection);
+extern double nv_angle(const struct nv_point2d p0);
+extern double nv_angle2(const struct nv_point2d p0, const struct nv_point2d p1);
+extern int nv_acute(const struct nv_point2d p0, const struct nv_point2d p1,
+                        const struct nv_point2d p2);
+extern int nv_obtuse(const struct nv_point2d p0, const struct nv_point2d p1,
+                         const struct nv_point2d p2);
+extern double nv_angle_between(const struct nv_point2d tip1,
+                                  const struct nv_point2d tail,
+                                  const struct nv_point2d tip2);
+extern double nv_interior_angle(const struct nv_point2d p0,
+                                   const struct nv_point2d p1,
+                                   const struct nv_point2d p2);
+extern int nv_angle_bisector(const struct nv_point2d A,
+                                 const struct nv_point2d B,
+                                 const struct nv_point2d C,
+                                 const struct nv_point2d D, struct nv_point2d *p,
+                                 double *angle);
+extern double nv_dis_point_to_segment(const struct nv_point2d p,
+                                         const struct nv_point2d A,
+                                         const struct nv_point2d B);
+extern double nv_dis_point_to_perpendicular(const struct nv_point2d p,
+                                               const struct nv_point2d A,
+                                               const struct nv_point2d B);
+extern void
+nv_segment_intersection(const struct nv_point2d p1, const struct nv_point2d p2,
+                        const struct nv_point2d p3, const struct nv_point2d p4,
+                        struct nv_point2d *pin, int *intersection);
 
 /* ----------------------------------- Box ---------------------------------- */
 
 struct nv_box {
-    struct nv_point min;
-    struct nv_point max;
+    struct nv_point2d min;
+    struct nv_point2d max;
 };
 
-NV_EXTERN bool nv_box_intersects(const struct nv_box env1,
+extern int nv_box_intersects(const struct nv_box env1,
                                  const struct nv_box env2);
-NV_EXTERN struct nv_box nv_box_intersection(const struct nv_box env1,
+extern struct nv_box nv_box_intersection(const struct nv_box env1,
                                             const struct nv_box env2);
-NV_EXTERN struct nv_box nv_box_union(const struct nv_box env1,
+extern struct nv_box nv_box_union(const struct nv_box env1,
                                      const struct nv_box env2);
-NV_EXTERN struct nv_geobject *nv_box_stroke(struct nv_box e, int gdim);
-
-/* ---------------------------- Ellipse & Cricle ---------------------------- */
-
-/// nv_ ellipse is used to describe an ellipse or circle.
-/// Before V1.0, it would be treated as a regular geometric shape and
-/// temporarily not included in the unified management of the nv_geom model,
-/// while providing relevant algorithms for circles or ellipses.
-struct nv_ellipse {
-    struct nv_point center;
-    double major;
-    double minor;
-    double azimuth;
-};
-
-enum {
-
-    /// The eccentricity of the ellipse. - double
-    NV_ELLIPSE_PROP_VALUE_ECCENTRICITY = 0,
-    /// The area of the ellipse. - double
-    NV_ELLIPSE_PROP_VALUE_AREA = 1,
-    /// The perimeter of the ellipse. - double
-    NV_ELLIPSE_PROP_VALUE_PERIMETER = 2,
-    /// Two foci of the ellipse. The axes are oriented by the azimuth and are on
-    /// the semi-major axis. - nv_point[2]
-    NV_ELLIPSE_PROP_VALUE_FOCI = 4,
-    /// The distance between the center and each foci. - double
-    NV_ELLIPSE_PROP_FOCUS_DISTANCE = 8
-};
-
-enum {
-    /// Two points form a circle, and the line segment between these two points
-    /// is the diameter of the circle
-    NV_CONSTRUCT_CIRCLE_2P,
-    /// Three points form a circle, and these three points are on the circle
-    NV_CONSTRUCT_CIRCLE_3P,
-    /// To construct a circle with three tangent lines, six points need to be
-    /// passed in. These six points form three straight lines, which can
-    /// generate 0-2 circles. They are also the inscribed circles of a triangle
-    NV_CONSTRUCT_CIRCLE_ICT
-};
-
-NV_EXTERN void nv_construct_circle(const struct nv_point *p, int t,
-                                   struct nv_ellipse *es, int *n);
-NV_EXTERN void nv_ellipse_prop_value(const struct nv_ellipse ell, int flags,
-                                     double *values);
-NV_EXTERN struct nv_geobject *nv_ellipse_stroke(struct nv_ellipse e,
-                                                uint32_t param);
-
-/* ----------------------------------- Arc ---------------------------------- */
-
-struct nv_arc {
-    struct nv_point start;
-    struct nv_point along;
-    struct nv_point end;
-};
-
-NV_EXTERN struct nv_geobject *nv_arc_stroke(struct nv_arc arc,
-                                            double maxAngleStepSizeDegress);
+extern struct nv_geobject *nv_box_stroke(struct nv_box e, int gdim);
 
 /* ----------------------------- geometry object ---------------------------- */
 
 struct nv_geobject;
 
-NV_EXTERN struct nv_geobject *nv_geo_create_single(int gdim, int pn, int cdim,
-                                                   const double *pp, int flag);
-NV_EXTERN struct nv_geobject *nv_geo_create_multi(int gdim, int snum,
-                                                  struct nv_geobject **subs);
-NV_EXTERN void nv_geo_free(struct nv_geobject *obj);
-NV_EXTERN int nv_geo_dim_c(const struct nv_geobject *obj);
-NV_EXTERN int nv_geo_dim_g(const struct nv_geobject *obj);
-NV_EXTERN int nv_geo_sub_n(const struct nv_geobject *obj);
-NV_EXTERN struct nv_geobject *nv_geo_sub_at(const struct nv_geobject *obj,
+extern struct nv_geobject* nv_geo_point(const double* pp, int hasz, int hasm);
+extern struct nv_geobject* nv_geo_line(uint32_t npoints, const double* points, int hasz, int hasm);
+extern struct nv_geobject* nv_geo_poly(const struct nv_geobject* shell, uint32_t nholes, const struct nv_geobject** holes);
+extern struct nv_geobject* nv_geo_create_mpoint(char hasz, char hasm);
+extern struct nv_geobject* nv_geo_create_mline(char hasz, char hasm);
+extern struct nv_geobject* nv_geo_create_mpoly(char hasz, char hasm);
+extern struct nv_geobject* nv_geo_create_collection(uint8_t type, char hasz, char hasm);
+extern struct nv_geobject* nv_geo_create_collection2(uint8_t type, uint32_t ngeoms, struct nv_geobject* geoms);
+
+extern struct nv_geobject* nv_geo_mpoint_add_point(struct nv_geobject* mobj, struct nv_geobject* obj);
+extern struct nv_geobject* nv_geo_mline_add_line(struct nv_geobject* mobj, struct nv_geobject* obj);
+extern struct nv_geobject* nv_geo_mpoly_add_poly(struct nv_geobject* mobj, struct nv_geobject* obj);
+extern struct nv_geobject* nv_geo_collection_add_geom(struct nv_geobject* mobj, struct nv_geobject* obj);
+
+extern void nv_geo_free(struct nv_geobject *obj);
+extern int nv_geo_dim_c(const struct nv_geobject *obj);
+extern int nv_geo_dim_g(const struct nv_geobject *obj);
+extern int nv_geo_sub_n(const struct nv_geobject *obj);
+extern struct nv_geobject *nv_geo_sub_at(const struct nv_geobject *obj,
                                             int i);
-NV_EXTERN int nv_geo_point_n(const struct nv_geobject *obj);
+extern int nv_geo_point_n(const struct nv_geobject *obj);
 
 enum {
     NV_GEOMETRY_IO_WKT,     /* geometry IO type wkt */
@@ -241,29 +156,29 @@ struct nv_sdo_geometry {
     double *sdo_ordinates;
 };
 
-NV_EXTERN struct nv_geobject *nv_geo_read(int flag, const char *data,
+extern struct nv_geobject *nv_geo_read(int flag, const char *data,
                                           size_t len);
-NV_EXTERN int nv_geo_write(int flag, const struct nv_geobject *obj, char **data,
+extern int nv_geo_write(int flag, const struct nv_geobject *obj, char **data,
                            size_t *len);
-NV_EXTERN struct nv_geobject *nv_geo_read_ora(const struct nv_sdo_geometry sdo,
+extern struct nv_geobject *nv_geo_read_ora(const struct nv_sdo_geometry sdo,
                                               int flag);
-NV_EXTERN int nv_geo_write_ora(const struct nv_geobject *obj,
+extern int nv_geo_write_ora(const struct nv_geobject *obj,
                                struct nv_sdo_geometry *sdo);
 
 struct nv_i4;
 
 struct nv_reader2;
 
-NV_EXTERN struct nv_geobject *nv_i4_object(struct nv_i4 *i4);
-NV_EXTERN void nv_i4_propProp(const struct nv_i4 *i4, int *propSize,
+extern struct nv_geobject *nv_i4_object(struct nv_i4 *i4);
+extern void nv_i4_propProp(const struct nv_i4 *i4, int *propSize,
                               int **prop);
-NV_EXTERN int nv_i4_prop_value(const struct nv_i4 *i4, size_t index);
-NV_EXTERN struct nv_reader2 *nv_reader2_init(size_t size);
-NV_EXTERN void nv_reader2_free(struct nv_reader2 *reader);
-NV_EXTERN void nv_reader2_push(struct nv_reader2 *reader,
+extern int nv_i4_prop_value(const struct nv_i4 *i4, size_t index);
+extern struct nv_reader2 *nv_reader2_init(size_t size);
+extern void nv_reader2_free(struct nv_reader2 *reader);
+extern void nv_reader2_push(struct nv_reader2 *reader,
                                const struct nv_geobject *obj, int propSize,
                                int *prop);
-NV_EXTERN struct nv_i4 *nv_reader2_iterator(struct nv_reader2 *writer);
+extern struct nv_i4 *nv_reader2_iterator(struct nv_reader2 *writer);
 
 /* --------------------------- geometry algorithm --------------------------- */
 
@@ -392,48 +307,48 @@ enum {
     NV_GEOMETRY_CHECK_2_PSEUDO_ENDPOINT = 0x04
 };
 
-NV_EXTERN double nv_tolerance(double tol);
-NV_EXTERN double nv_prop_value(const struct nv_geobject *obj, int mode);
-NV_EXTERN struct nv_geobject *nv_prop_geo(const struct nv_geobject *obj,
+extern double nv_tolerance(double tol);
+extern double nv_prop_value(const struct nv_geobject *obj, int mode);
+extern struct nv_geobject *nv_prop_geo(const struct nv_geobject *obj,
                                           int mode);
 
-NV_EXTERN void nv_prop_geo2(const struct nv_geobject *obj, int mode,
+extern void nv_prop_geo2(const struct nv_geobject *obj, int mode,
                             double *paras);
-NV_EXTERN int nv_left_right(const struct nv_geobject *obj, double *xy);
-NV_EXTERN bool nv_ccw(const double *pp, int npoints, int cdim);
-NV_EXTERN void nv_vertex_convex(const struct nv_geobject *obj, int index,
+extern int nv_left_right(const struct nv_geobject *obj, double *xy);
+extern int nv_ccw(const double *pp, int npoints, int cdim);
+extern void nv_vertex_convex(const struct nv_geobject *obj, int index,
                                 int *convex);
-NV_EXTERN void nv_building_regularization(double *xy, int np);
-NV_EXTERN void nv_kmeans(struct nv_reader2 *P, int n, struct nv_reader2 **W);
+extern void nv_building_regularization(double *xy, int np);
+extern void nv_kmeans(struct nv_reader2 *P, int n, struct nv_reader2 **W);
 
 /* ---------------------------------- RTree --------------------------------- */
 
-NV_EXTERN struct nv_rtree *nv_rtree_new(void);
-NV_EXTERN void nv_rtree_free(struct nv_rtree *tr);
-NV_EXTERN struct nv_rtree *nv_rtree_clone(struct nv_rtree *tr);
-NV_EXTERN void nv_rtree_set_item_callbacks(
+extern struct nv_rtree *nv_rtree_new(void);
+extern void nv_rtree_free(struct nv_rtree *tr);
+extern struct nv_rtree *nv_rtree_clone(struct nv_rtree *tr);
+extern void nv_rtree_set_item_callbacks(
     struct nv_rtree *tr,
-    bool (*clone)(const void *item, void **into, void *udata),
+    int (*clone)(const void *item, void **into, void *udata),
     void (*free)(const void *item, void *udata));
-NV_EXTERN void nv_rtree_set_udata(struct nv_rtree *tr, void *udata);
-NV_EXTERN bool nv_rtree_insert(struct nv_rtree *tr, const double *min,
+extern void nv_rtree_set_udata(struct nv_rtree *tr, void *udata);
+extern int nv_rtree_insert(struct nv_rtree *tr, const double *min,
                                const double *max, const void *data);
-NV_EXTERN void
+extern void
 nv_rtree_search(const struct nv_rtree *tr, const double *min, const double *max,
-                bool (*iter)(const double *min, const double *max,
+                int (*iter)(const double *min, const double *max,
                              const void *data, void *udata),
                 void *udata);
-NV_EXTERN void nv_rtree_scan(const struct nv_rtree *tr,
-                             bool (*iter)(const double *min, const double *max,
+extern void nv_rtree_scan(const struct nv_rtree *tr,
+                             int (*iter)(const double *min, const double *max,
                                           const void *data, void *udata),
                              void *udata);
-NV_EXTERN size_t nv_rtree_count(const struct nv_rtree *tr);
-NV_EXTERN bool nv_rtree_delete(struct nv_rtree *tr, const double *min,
+extern size_t nv_rtree_count(const struct nv_rtree *tr);
+extern int nv_rtree_delete(struct nv_rtree *tr, const double *min,
                                const double *max, const void *data);
-NV_EXTERN bool nv_rtree_delete_with_comparator(
+extern int nv_rtree_delete_with_comparator(
     struct nv_rtree *tr, const double *min, const double *max, const void *data,
     int (*compare)(const void *a, const void *b, void *udata), void *udata);
-NV_EXTERN void nv_rtree_opt_relaxed_atomics(struct nv_rtree *tr);
+extern void nv_rtree_opt_relaxed_atomics(struct nv_rtree *tr);
 
 /* ---------------------------------- NMEA ---------------------------------- */
 
@@ -608,12 +523,12 @@ struct nmeaHCHDT {
     char t_flag;      ///< Static text [T]
 };
 
-NV_EXTERN void nmea_zero_GPGGA(struct nmeaGPGGA *pack);
-NV_EXTERN void nmea_zero_GPGST(struct nmeaGPGST *pack);
-NV_EXTERN void nmea_zero_GPGSA(struct nmeaGPGSA *pack);
-NV_EXTERN void nmea_zero_GPGSV(struct nmeaGPGSV *pack);
-NV_EXTERN void nmea_zero_GPRMC(struct nmeaGPRMC *pack);
-NV_EXTERN void nmea_zero_GPVTG(struct nmeaGPVTG *pack);
+extern void nmea_zero_GPGGA(struct nmeaGPGGA *pack);
+extern void nmea_zero_GPGST(struct nmeaGPGST *pack);
+extern void nmea_zero_GPGSA(struct nmeaGPGSA *pack);
+extern void nmea_zero_GPGSV(struct nmeaGPGSV *pack);
+extern void nmea_zero_GPRMC(struct nmeaGPRMC *pack);
+extern void nmea_zero_GPVTG(struct nmeaGPVTG *pack);
 
 /**
  * Position data in fractional degrees or radians
@@ -680,76 +595,76 @@ struct nmeaINFO {
 
 void nmea_zero_INFO(struct nmeaINFO *info);
 
-NV_EXTERN int nmea_pack_type(const char *buff, int buff_sz);
-NV_EXTERN int nmea_find_tail(const char *buff, int buff_sz, int *res_crc);
+extern int nmea_pack_type(const char *buff, int buff_sz);
+extern int nmea_find_tail(const char *buff, int buff_sz, int *res_crc);
 
-NV_EXTERN int nmea_parse_GPGGA(const char *buff, int buff_sz,
+extern int nmea_parse_GPGGA(const char *buff, int buff_sz,
                                struct nmeaGPGGA *pack);
-NV_EXTERN int nmea_parse_GPGSA(const char *buff, int buff_sz,
+extern int nmea_parse_GPGSA(const char *buff, int buff_sz,
                                struct nmeaGPGSA *pack);
-NV_EXTERN int nmea_parse_GPGSV(const char *buff, int buff_sz,
+extern int nmea_parse_GPGSV(const char *buff, int buff_sz,
                                struct nmeaGPGSV *pack);
-NV_EXTERN int nmea_parse_GPRMC(const char *buff, int buff_sz,
+extern int nmea_parse_GPRMC(const char *buff, int buff_sz,
                                struct nmeaGPRMC *pack);
-NV_EXTERN int nmea_parse_GPVTG(const char *buff, int buff_sz,
+extern int nmea_parse_GPVTG(const char *buff, int buff_sz,
                                struct nmeaGPVTG *pack);
-NV_EXTERN int nmea_parse_HCHDG(const char *buff, int buff_sz,
+extern int nmea_parse_HCHDG(const char *buff, int buff_sz,
                                struct nmeaHCHDG *pack);
-NV_EXTERN int nmea_parse_HCHDT(const char *buff, int buff_sz,
+extern int nmea_parse_HCHDT(const char *buff, int buff_sz,
                                struct nmeaHCHDT *pack);
-NV_EXTERN int nmea_parse_GPGST(const char *buff, int buff_sz,
+extern int nmea_parse_GPGST(const char *buff, int buff_sz,
                                struct nmeaGPGST *pack);
-NV_EXTERN int nmea_parse_GPHDT(const char *buff, int buff_sz,
+extern int nmea_parse_GPHDT(const char *buff, int buff_sz,
                                struct nmeaGPHDT *pack);
 
-NV_EXTERN void nmea_GPGGA2info(struct nmeaGPGGA *pack, struct nmeaINFO *info);
-NV_EXTERN void nmea_GPGST2info(struct nmeaGPGST *pack, struct nmeaINFO *info);
-NV_EXTERN void nmea_GPGSA2info(struct nmeaGPGSA *pack, struct nmeaINFO *info);
-NV_EXTERN void nmea_GPGSV2info(struct nmeaGPGSV *pack, struct nmeaINFO *info);
-NV_EXTERN void nmea_GPRMC2info(struct nmeaGPRMC *pack, struct nmeaINFO *info);
-NV_EXTERN void nmea_GPVTG2info(struct nmeaGPVTG *pack, struct nmeaINFO *info);
+extern void nmea_GPGGA2info(struct nmeaGPGGA *pack, struct nmeaINFO *info);
+extern void nmea_GPGST2info(struct nmeaGPGST *pack, struct nmeaINFO *info);
+extern void nmea_GPGSA2info(struct nmeaGPGSA *pack, struct nmeaINFO *info);
+extern void nmea_GPGSV2info(struct nmeaGPGSV *pack, struct nmeaINFO *info);
+extern void nmea_GPRMC2info(struct nmeaGPRMC *pack, struct nmeaINFO *info);
+extern void nmea_GPVTG2info(struct nmeaGPVTG *pack, struct nmeaINFO *info);
 
 /*
  * degree VS radian
  */
-NV_EXTERN double nmea_degree2radian(double val);
-NV_EXTERN double nmea_radian2degree(double val);
+extern double nmea_degree2radian(double val);
+extern double nmea_radian2degree(double val);
 
 /*
  * NDEG (NMEA degree)
  */
-NV_EXTERN double nmea_ndeg2degree(double val);
-NV_EXTERN double nmea_degree2ndeg(double val);
+extern double nmea_ndeg2degree(double val);
+extern double nmea_degree2ndeg(double val);
 
-NV_EXTERN double nmea_ndeg2radian(double val);
-NV_EXTERN double nmea_radian2ndeg(double val);
+extern double nmea_ndeg2radian(double val);
+extern double nmea_radian2ndeg(double val);
 
 /*
  * DOP
  */
-NV_EXTERN double nmea_calc_pdop(double hdop, double vdop);
-NV_EXTERN double nmea_dop2meters(double dop);
-NV_EXTERN double nmea_meters2dop(double meters);
+extern double nmea_calc_pdop(double hdop, double vdop);
+extern double nmea_dop2meters(double dop);
+extern double nmea_meters2dop(double meters);
 
 /*
  * positions work
  */
-NV_EXTERN void nmea_info2pos(const struct nmeaINFO *info, struct nmeaPOS *pos);
-NV_EXTERN void nmea_pos2info(const struct nmeaPOS *pos, struct nmeaINFO *info);
+extern void nmea_info2pos(const struct nmeaINFO *info, struct nmeaPOS *pos);
+extern void nmea_pos2info(const struct nmeaPOS *pos, struct nmeaINFO *info);
 
-NV_EXTERN double nmea_distance(const struct nmeaPOS *from_pos,
+extern double nmea_distance(const struct nmeaPOS *from_pos,
                                const struct nmeaPOS *to_pos);
 
-NV_EXTERN double nmea_distance_ellipsoid(const struct nmeaPOS *from_pos,
+extern double nmea_distance_ellipsoid(const struct nmeaPOS *from_pos,
                                          const struct nmeaPOS *to_pos,
                                          double *from_azimuth,
                                          double *to_azimuth);
 
-NV_EXTERN int nmea_move_horz(const struct nmeaPOS *start_pos,
+extern int nmea_move_horz(const struct nmeaPOS *start_pos,
                              struct nmeaPOS *end_pos, double azimuth,
                              double distance);
 
-NV_EXTERN int nmea_move_horz_ellipsoid(const struct nmeaPOS *start_pos,
+extern int nmea_move_horz_ellipsoid(const struct nmeaPOS *start_pos,
                                        struct nmeaPOS *end_pos, double azimuth,
                                        double distance, double *end_azimuth);
 
@@ -797,26 +712,26 @@ typedef struct geohash_area {
     geohash_range latitude;
 } geohash_area;
 
-NV_EXTERN void get_geohash_range(geohash_range *long_range,
+extern void get_geohash_range(geohash_range *long_range,
                                  geohash_range *lat_range);
-NV_EXTERN int geohash_encode(const geohash_range *long_range,
+extern int geohash_encode(const geohash_range *long_range,
                              const geohash_range *lat_range, double longitude,
                              double latitude, uint8_t step, geohash_bits *hash);
-NV_EXTERN int geohash_encode_type(double longitude, double latitude,
+extern int geohash_encode_type(double longitude, double latitude,
                                   uint8_t step, geohash_bits *hash);
-NV_EXTERN int geohash_encode_WGS84(double longitude, double latitude,
+extern int geohash_encode_WGS84(double longitude, double latitude,
                                    uint8_t step, geohash_bits *hash);
 
-NV_EXTERN int geohash_decode(const geohash_range long_range,
+extern int geohash_decode(const geohash_range long_range,
                              const geohash_range lat_range,
                              const geohash_bits hash, geohash_area *area);
-NV_EXTERN int geohash_decode_type(const geohash_bits hash, geohash_area *area);
-NV_EXTERN int geohash_decode_WGS84(const geohash_bits hash, geohash_area *area);
-NV_EXTERN int geohash_decode_area_longlat(const geohash_area *area, double *xy);
-NV_EXTERN int geohash_decode_longlat_type(const geohash_bits hash, double *xy);
-NV_EXTERN int geohash_decode_longlat_WGS84(const geohash_bits hash, double *xy);
+extern int geohash_decode_type(const geohash_bits hash, geohash_area *area);
+extern int geohash_decode_WGS84(const geohash_bits hash, geohash_area *area);
+extern int geohash_decode_area_longlat(const geohash_area *area, double *xy);
+extern int geohash_decode_longlat_type(const geohash_bits hash, double *xy);
+extern int geohash_decode_longlat_WGS84(const geohash_bits hash, double *xy);
 
-NV_EXTERN void geohash_query_neighbors(const geohash_bits *hash,
+extern void geohash_query_neighbors(const geohash_bits *hash,
                                        geohash_neighbors *neighbors);
 
 struct mm_texture {
@@ -854,6 +769,67 @@ struct mm_material {
     unsigned int map_d;
     unsigned int map_bump;
 };
+
+
+
+
+/* ---------------------------- Ellipse & Cricle ---------------------------- */
+
+/// nv_ ellipse is used to describe an ellipse or circle.
+/// Before V1.0, it would be treated as a regular geometric shape and
+/// temporarily not included in the unified management of the nv_geom model,
+/// while providing relevant algorithms for circles or ellipses.
+struct nv_ellipse {
+    struct nv_point2d center;
+    double major;
+    double minor;
+    double azimuth;
+};
+
+enum {
+
+    /// The eccentricity of the ellipse. - double
+    NV_ELLIPSE_PROP_VALUE_ECCENTRICITY = 0,
+    /// The area of the ellipse. - double
+    NV_ELLIPSE_PROP_VALUE_AREA = 1,
+    /// The perimeter of the ellipse. - double
+    NV_ELLIPSE_PROP_VALUE_PERIMETER = 2,
+    /// Two foci of the ellipse. The axes are oriented by the azimuth and are on
+    /// the semi-major axis. - nv_point[2]
+    NV_ELLIPSE_PROP_VALUE_FOCI = 4,
+    /// The distance between the center and each foci. - double
+    NV_ELLIPSE_PROP_FOCUS_DISTANCE = 8
+};
+
+enum {
+    /// Two points form a circle, and the line segment between these two points
+    /// is the diameter of the circle
+    NV_CONSTRUCT_CIRCLE_2P,
+    /// Three points form a circle, and these three points are on the circle
+    NV_CONSTRUCT_CIRCLE_3P,
+    /// To construct a circle with three tangent lines, six points need to be
+    /// passed in. These six points form three straight lines, which can
+    /// generate 0-2 circles. They are also the inscribed circles of a triangle
+    NV_CONSTRUCT_CIRCLE_ICT
+};
+
+extern void nv_construct_circle(const struct nv_point2d *p, int t,
+                                   struct nv_ellipse *es, int *n);
+extern void nv_ellipse_prop_value(const struct nv_ellipse ell, int flags,
+                                     double *values);
+extern struct nv_geobject *nv_ellipse_stroke(struct nv_ellipse e,
+                                                uint32_t param);
+
+/* ----------------------------------- Arc ---------------------------------- */
+
+struct nv_arc {
+    struct nv_point2d start;
+    struct nv_point2d along;
+    struct nv_point2d end;
+};
+
+extern struct nv_geobject *nv_arc_stroke(struct nv_arc arc,
+                                            double maxAngleStepSizeDegress);
 
 #ifdef __cpluscplus
 }

@@ -24,12 +24,11 @@
 #define BITSET_H
 
 #include <stddef.h>
-#include <stdbool.h>
 
 enum {
-    NV__BITSET_STATE_NONE, ///< All bits are false
-    NV__BITSET_STATE_ALL,  ///< All bits are true
-    NV__BITSET_STATE_ANY   ///< Some bits are true
+    NV__BITSET_STATE_NONE, ///< All bits are NV_FALSE
+    NV__BITSET_STATE_ALL,  ///< All bits are NV_TRUE
+    NV__BITSET_STATE_ANY   ///< Some bits are NV_TRUE
 };
 
 struct nv__bitset;
@@ -38,7 +37,7 @@ struct nv__bitset *nv__bitset_new(size_t size);
 void nv__bitset_free(struct nv__bitset *bs);
 void nv__bitset_set(struct nv__bitset *bs, size_t index);
 void nv__bitset_clear(struct nv__bitset *bs, size_t index);
-bool nv__bitset_test(struct nv__bitset *bs, size_t index);
+int nv__bitset_test(struct nv__bitset *bs, size_t index);
 void nv__bitset_flip(struct nv__bitset *bs, size_t index);
 int nv__bitset_state(struct nv__bitset *bs);
 size_t nv__bitset_count(struct nv__bitset *bs);

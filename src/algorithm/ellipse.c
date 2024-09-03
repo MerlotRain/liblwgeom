@@ -25,9 +25,9 @@
 #include <string.h>
 
 /// triangle inscribed circle
-static struct nv_ellipse nv__tri_inscribed_circle(const struct nv_point p1,
-                                                  const struct nv_point p2,
-                                                  const struct nv_point p3)
+static struct nv_ellipse nv__tri_inscribed_circle(const struct nv_point2d p1,
+                                                  const struct nv_point2d p2,
+                                                  const struct nv_point2d p3)
 {
     double l[3] = {NV_POINTDISTANCE2(p1, p2), NV_POINTDISTANCE2(p2, p3),
                    NV_POINTDISTANCE2(p3, p1)};
@@ -44,24 +44,24 @@ static struct nv_ellipse nv__tri_inscribed_circle(const struct nv_point p1,
 }
 
 /// check cricle list contains one circle
-static bool nv__contains_circle(const struct nv_ellipse *es, int n,
-                                const struct nv_point c, double r)
+static int nv__contains_circle(const struct nv_ellipse *es, int n,
+                                const struct nv_point2d c, double r)
 {
     for (int i = 0; i < n; ++i) {
         if (NV_POINTDISTANCE2(es[i].center, c) &&
             NV_DOUBLE_NEARES2(es[i].major, r)) {
-            return true;
+            return NV_TRUE;
         }
     }
-    return false;
+    return NV_FALSE;
 }
 
 /// Returns a new point which corresponds to this point projected by a specified
 /// distance with specified angles
-static struct nv_point nv__point_project(const struct nv_point p, double dis,
+static struct nv_point2d nv__point_project(const struct nv_point2d p, double dis,
                                          double azimuth)
 {
-    struct nv_point pr;
+    struct nv_point2d pr;
     const double rads = azimuth * M_PI / 180.0;
     double dx = 0.0, dy = 0.0, dz = 0.0;
 
@@ -92,9 +92,9 @@ static double nv__line_angle(double x1, double y1, double x2, double y2)
     return nv__normalized_angle(a);
 }
 
-static bool nv__is_perpendicular(const struct nv_point pt1,
-                                 const struct nv_point pt2,
-                                 const struct nv_point pt3)
+static int nv__is_perpendicular(const struct nv_point2d pt1,
+                                 const struct nv_point2d pt2,
+                                 const struct nv_point2d pt3)
 {
     double yDelta_a = pt2.y - pt1.y;
     double xDelta_a = pt2.x - pt1.x;
@@ -102,40 +102,40 @@ static bool nv__is_perpendicular(const struct nv_point pt1,
     double xDelta_b = pt3.x - pt2.x;
 
     if (NV_DOUBLE_NEARES(xDelta_a) && NV_DOUBLE_NEARES(yDelta_b)) {
-        return false;
+        return NV_FALSE;
     }
 
     if (NV_DOUBLE_NEARES(yDelta_a)) {
-        return true;
+        return NV_TRUE;
     }
     else if (NV_DOUBLE_NEARES(yDelta_b)) {
-        return true;
+        return NV_TRUE;
     }
     else if (NV_DOUBLE_NEARES(xDelta_a)) {
-        return true;
+        return NV_TRUE;
     }
     else if (NV_DOUBLE_NEARES(xDelta_b)) {
-        return true;
+        return NV_TRUE;
     }
-    return false;
+    return NV_FALSE;
 }
 
-static void nv__from_2parallels_line(const struct nv_point pt1_par1,
-                                     const struct nv_point pt2_par1,
-                                     const struct nv_point pt1_par2,
-                                     const struct nv_point pt2_par2,
-                                     const struct nv_point pt1_line1,
-                                     const struct nv_point pt2_line1,
+static void nv__from_2parallels_line(const struct nv_point2d pt1_par1,
+                                     const struct nv_point2d pt2_par1,
+                                     const struct nv_point2d pt1_par2,
+                                     const struct nv_point2d pt2_par2,
+                                     const struct nv_point2d pt1_line1,
+                                     const struct nv_point2d pt2_line1,
                                      struct nv_ellipse *rs, int *n)
 {
     int _en = 0;
     const double radius =
         nv_dis_point_to_perpendicular(pt1_par1, pt1_par2, pt2_par2) / 2.0;
 
-    bool isInter;
-    const struct nv_point ptInter;
+    int isInter;
+    const struct nv_point2d ptInter;
 
-    struct nv_point ptInter_par1line1, ptInter_par2line1;
+    struct nv_point2d ptInter_par1line1, ptInter_par2line1;
     double angle1, angle2;
     double x, y;
     nv_angle_bisector(pt1_par1, pt2_par1, pt1_line1, pt2_line1,
@@ -144,7 +144,7 @@ static void nv__from_2parallels_line(const struct nv_point pt1_par1,
     nv_angle_bisector(pt1_par2, pt2_par2, pt1_line1, pt2_line1,
                       &ptInter_par2line1, &angle2);
 
-    struct nv_point center;
+    struct nv_point2d center;
     nv_segment_intersection(
         ptInter_par1line1, nv__point_project(ptInter_par1line1, 1.0, angle1),
         ptInter_par2line1, nv__point_project(ptInter_par2line1, 1.0, angle2),
@@ -219,7 +219,7 @@ static void nv__from_2parallels_line(const struct nv_point pt1_par1,
 /// @param es circles
 /// @param n number of circles
 /// @return
-void nv_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
+void nv_construct_circle(const struct nv_point2d *p, int t, struct nv_ellipse *rs,
                          int *n)
 {
     assert(p);
@@ -236,10 +236,10 @@ void nv_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
     /// @param pt2 Second point.
     ///
     if (NV_CONSTRUCT_CIRCLE_2P == t) {
-        struct nv_point pt1 = p[0];
-        struct nv_point pt2 = p[1];
+        struct nv_point2d pt1 = p[0];
+        struct nv_point2d pt2 = p[1];
 
-        struct nv_point center = {.x = ((pt1.x + pt2.x) / 2.0),
+        struct nv_point2d center = {.x = ((pt1.x + pt2.x) / 2.0),
                                   .y = ((pt1.y + pt2.y) / 2.0)};
         double radius = sqrt((pt1.x - pt2.x) * (pt1.x - pt2.x) +
                              (pt1.y - pt2.y) * (pt1.y - pt2.y)) /
@@ -264,10 +264,10 @@ void nv_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
     /// @param pt3 Third point.
     ///
     else if (NV_CONSTRUCT_CIRCLE_3P == t) {
-        struct nv_point p1, p2, p3;
-        struct nv_point pt1 = p[0];
-        struct nv_point pt2 = p[1];
-        struct nv_point pt3 = p[2];
+        struct nv_point2d p1, p2, p3;
+        struct nv_point2d pt1 = p[0];
+        struct nv_point2d pt2 = p[1];
+        struct nv_point2d pt3 = p[2];
         if (!nv__is_perpendicular(pt1, pt2, pt3)) {
             p1 = pt1;
             p2 = pt2;
@@ -314,7 +314,7 @@ void nv_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
         const double aSlope = yDelta_a / xDelta_a;
         const double bSlope = yDelta_b / xDelta_b;
         if ((NV_DOUBLE_NEARES(xDelta_a)) && (NV_DOUBLE_NEARES(yDelta_b))) {
-            struct nv_point center;
+            struct nv_point2d center;
             center.x = 0.5 * (p2.x + p3.x);
             center.y = 0.5 * (p1.y + p2.y);
             double radius = NV_POINTDISTANCE2(center, pt1);
@@ -330,7 +330,7 @@ void nv_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
             *n = 0;
             return;
         }
-        struct nv_point center;
+        struct nv_point2d center;
         center.x = (aSlope * bSlope * (p1.y - p3.y) + bSlope * (p1.x + p2.x) -
                     aSlope * (p2.x + p3.x)) /
                    (2.0 * (bSlope - aSlope));
@@ -360,17 +360,17 @@ void nv_construct_circle(const struct nv_point *p, int t, struct nv_ellipse *rs,
     /// (since QGIS 3.18)
     ///
     else if (NV_CONSTRUCT_CIRCLE_ICT == t) {
-        struct nv_point pt1_tg1 = p[0];
-        struct nv_point pt2_tg1 = p[1];
-        struct nv_point pt1_tg2 = p[2];
-        struct nv_point pt2_tg2 = p[3];
-        struct nv_point pt1_tg3 = p[4];
-        struct nv_point pt2_tg3 = p[5];
+        struct nv_point2d pt1_tg1 = p[0];
+        struct nv_point2d pt2_tg1 = p[1];
+        struct nv_point2d pt1_tg2 = p[2];
+        struct nv_point2d pt2_tg2 = p[3];
+        struct nv_point2d pt1_tg3 = p[4];
+        struct nv_point2d pt2_tg3 = p[5];
 
-        struct nv_point p1, p2, p3;
-        bool isIntersect_tg1tg2 = false;
-        bool isIntersect_tg1tg3 = false;
-        bool isIntersect_tg2tg3 = false;
+        struct nv_point2d p1, p2, p3;
+        int isIntersect_tg1tg2 = NV_FALSE;
+        int isIntersect_tg1tg3 = NV_FALSE;
+        int isIntersect_tg2tg3 = NV_FALSE;
         nv_segment_intersection(pt1_tg1, pt2_tg1, pt1_tg2, pt2_tg2, &p1,
                                 &isIntersect_tg1tg2);
         nv_segment_intersection(pt1_tg1, pt2_tg1, pt1_tg3, pt2_tg3, &p2,
@@ -455,10 +455,10 @@ void nv_ellipse_prop_value(const struct nv_ellipse ell, int flags,
     // calc foci
     if (flags & NV_ELLIPSE_PROP_VALUE_FOCI) {
         double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
-        struct nv_point p1 = nv__point_project(ell.center, dis, ell.azimuth);
-        struct nv_point p2 = nv__point_project(ell.center, -dis, ell.azimuth);
-        memcpy(values + pos, &p1, sizeof(struct nv_point));
-        memcpy(values + pos + 2, &p2, sizeof(struct nv_point));
+        struct nv_point2d p1 = nv__point_project(ell.center, dis, ell.azimuth);
+        struct nv_point2d p2 = nv__point_project(ell.center, -dis, ell.azimuth);
+        memcpy(values + pos, &p1, sizeof(struct nv_point2d));
+        memcpy(values + pos + 2, &p2, sizeof(struct nv_point2d));
         pos += 4;
     }
 
@@ -500,7 +500,7 @@ struct nv_geobject *nv_ellipse_stroke(struct nv_ellipse e, uint32_t param)
         return NULL;
     }
 
-    struct nv_point qu = nv__point_project(e.center, e.major, e.azimuth);
+    struct nv_point2d qu = nv__point_project(e.center, e.major, e.azimuth);
     double az = atan2(qu.y - e.center.y, qu.x - e.center.x);
 
     for (size_t i = 0; i < nseg; ++i) {

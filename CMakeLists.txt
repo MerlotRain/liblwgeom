@@ -16,7 +16,6 @@ execute_process(COMMAND ${GIT_EXECUTABLE} describe --long --tags --always
                   OUTPUT_VARIABLE NL_PACKAGE_VERSION)
 string(STRIP "${NL_PACKAGE_VERSION}" PACKAGE_VERSION)
 
-option(BUILD_SHARD_LIBRARY "build shared libnv library" ON)
 option(BUILD_TESTS "build libnv tests" OFF)
 option(BUILD_WITH_ICONV "build with iconv" OFF)
 option(BUILD_WITH_PROJ "build with proj" OFF)
@@ -114,20 +113,11 @@ file(GLOB_RECURSE nv_HEADERS ${CMAKE_CURRENT_LIST_DIR}/include/*.h CONFIGURE_DEP
 file(GLOB_RECURSE nv_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c CONFIGURE_DEPEND)
 file(GLOB_RECURSE nv_HEADER_PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/*.h CONFIGURE_DEPEND)
 
-if(BUILD_SHARD_LIBRARY)
-  add_library(${nv} SHARED
-      ${nv_HEADERS}
-      ${nv_SOURCES}
-      ${nv_HEADER_PRIVATE}
-  )
-  target_compile_definitions(${nv} PRIVATE BUILD_NV_SHARED)
-else()
-  add_library(${nv} STATIC
-    ${nv_HEADERS}
-    ${nv_SOURCES}
-    ${nv_HEADER_PRIVATE}
-  )
-endif()
+add_library(${nv} STATIC
+  ${nv_HEADERS}
+  ${nv_SOURCES}
+  ${nv_HEADER_PRIVATE}
+)
 
 if(WIN32)
   target_compile_definitions(${nv} PUBLIC _USE_MATH_DEFINES)

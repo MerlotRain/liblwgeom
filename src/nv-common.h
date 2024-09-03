@@ -27,6 +27,76 @@
 #include <math.h>
 #include <nv.h>
 
+#ifndef NV_MAX
+#define NV_MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef NV_MIN
+#define NV_MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
+#define NV_MAX3(a, b, c) \
+    ((a) > (b) ? ((a) > (c) ? (a) : (c)) : ((b) > (c) ? (b) : (c)))
+
+#define NV_MIN3(a, b, c) \
+    ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
+
+#define NV_DBL_NEAR(a, b) (fabs((a) - (b)) < 4 * DBL_EPSILON)
+
+
+#ifndef NV_FALLTHROUGH
+#if (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__) >= 700) && \
+    !defined(__INTEL_COMPILER)
+#define NV_FALLTHROUGH __attribute__((fallthrough))
+#else
+#define NV_FALLTHROUGH
+#endif
+#endif
+
+#define NV_FLAG_Z           0x01
+#define NV_FLAG_M           0x02
+#define NV_FLAG_REFERENCE   0x04
+#define NV_FLAG_SHELL_RING  0x08
+#define NV_FLAG_HOLE_RING   0x10
+
+#define NV_FLAGS_GET_Z(flags) ((flags) & NV_FLAG_Z)
+#define NV_FLAGS_GET_M(flags) ((flags) & NV_FLAG_M)
+#define NV_FLAGS_GET_REFERENCE(flags) ((flags) & NV_FLAG_REFERENCE)
+#define NV_FLAGS_GET_SHELL_RING(flags) ((flags) & NV_FLAG_SHELL_RING)
+#define NV_FLAGS_GET_HOLE_RING(flags) ((flags) & NV_FLAG_HOLE_RING)
+
+#define NV_FLAGS_SET_Z(flags, value) ((flags) = (value) ? ((flags) | NV_FLAG_Z) : ((flags) & ~NV_FLAG_Z))
+#define NV_FLAGS_SET_M(flags, value) ((flags) = (value) ? ((flags) | NV_FLAG_M) : ((flags) & ~NV_FLAG_M))
+#define NV_FLAGS_SET_REFERENCE(flags) ((flags) = (value) ? ((flags) | NV_FLAG_REFERENCE) : ((flags) & ~NV_FLAG_REFERENCE))
+#define NV_FLAGS_SET_SHELL_RING(flags) ((flags) = (value) ? ((flags) | NV_FLAG_SHELL_RING) : ((flags) & ~NV_FLAG_SHELL_RING))
+#define NV_FLAGS_SET_HOLE_RING(flags) ((flags) = (value) ? ((flags) | NV_FLAG_HOLE_RING) : ((flags) & ~NV_FLAG_HOLE_RING))
+
+struct nv_point3d {
+    double x;
+    double y;
+    double z;
+};
+
+struct nv_point3dz {
+    double x;
+    double y;
+    double z;
+};
+
+struct nv_point3dm {
+    double x;
+    double y;
+    double m;
+};
+
+struct nv_point4d {
+    double x;
+    double y;
+    double z;
+    double m;
+};
+
+
 /* Allocator prototypes */
 void *nv__calloc(size_t count, size_t size);
 void *nv__malloc(size_t size);
@@ -35,6 +105,13 @@ void *nv__realloc(void *ptr, size_t size);
 void nv_record_error(int code, const char *fmt, ...);
 
 /* ---------------------------- mg kernel struct ---------------------------- */
+
+struct nv__point2d
+{
+    double x;
+    double y;
+};
+
 
 /// It is a geometric description that is consistent with sdo-geometry in the
 /// coordinate dimension, and any constructed geometry does not have an M value,
@@ -46,15 +123,16 @@ void nv_record_error(int code, const char *fmt, ...);
 /// Normally, we consider the ring you input to be correct, or generally
 /// correct, and at least it will not exhibit self intersection or other
 /// situations.
+
 struct nv_geobject {
-    int ngeoms;        ///< number of geometries
+    struct nv_box env; ///< geometry envelope
     int gdim;          ///< geometry dimension 0:point, 1:line, 2:area
     int cdim;          ///< coordinate dimension 2:2D, 3:3D
     int npoints;       ///< number of points
-    int flag;          ///< flag 0: reference input, 1: memory copy
-    int clockwise;     ///< 1: clockwise, 0: counterclockwise
     double *pp;        ///< point pointer
-    struct nv_box env; ///< geometry envelope
+    int flag;          ///< flag
+    
+    uint32_t ngeoms;   ///< number of geometries
     struct nv_geobject **objects; ///< multi objects pointer
 };
 
@@ -102,12 +180,12 @@ extern double tolerence();
 #define NV_PP_Y(obj, i)         ((obj)->pp[(i) * (obj)->cdim + 1])
 
 struct nv_box nv__query_envolpe(const double *pp, int npoints, int cdim);
-bool nv__check_single_ring(const double *pp, int npoints, int cdim);
+int nv__check_single_ring(const double *pp, int npoints, int cdim);
 
 /* ----------------------- geometry IO extern function ---------------------- */
 
 struct nv_geobject *nv__geo_read_wkt(const char *wkt, size_t len);
-struct nv_geobject *nv__geo_read_wkb(const char *wkb, size_t len, bool hex);
+struct nv_geobject *nv__geo_read_wkb(const char *wkb, size_t len, int hex);
 struct nv_geobject *nv__geo_read_ewkt(const char *ewkt, size_t len);
 struct nv_geobject *nv__geo_read_ewkb(const char *ewkb, size_t len);
 struct nv_geobject *nv__geo_read_geojson(const char *json, size_t len);
@@ -116,7 +194,7 @@ struct nv_geobject *nv__geo_read_gml2(const char *gml, size_t len);
 struct nv_geobject *nv__geo_read_gml3(const char *gml, size_t len);
 
 int nv__geo_write_wkt(const struct nv_geobject *obj, char **wkt, size_t *len);
-int nv__geo_write_wkb(const struct nv_geobject *obj, bool hex, char **wkb,
+int nv__geo_write_wkb(const struct nv_geobject *obj, int hex, char **wkb,
                       size_t *len);
 int nv__geo_write_ewkt(const struct nv_geobject *obj, char **ewkt, size_t *len);
 int nv__geo_write_ewkb(const struct nv_geobject *obj, char **ewkb, size_t *len);

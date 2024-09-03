@@ -57,7 +57,7 @@ struct nv__hashmap {
     size_t shrinkat;
     uint8_t loadfactor;
     uint8_t growpower;
-    bool oom;
+    int oom;
     void *buckets;
     void *spare;
     void *edata;
@@ -198,7 +198,7 @@ static void nv__free_elements(struct nv__hashmap *map)
 // the hashmap. When the update_cap is provided, the map's capacity will be
 // updated to match the currently number of allocated buckets. This is an
 // optimization to ensure that this operation does not perform any allocations.
-void nv__hashmap_clear(struct nv__hashmap *map, bool update_cap)
+void nv__hashmap_clear(struct nv__hashmap *map, int update_cap)
 {
     map->count = 0;
     nv__free_elements(map);
@@ -219,13 +219,13 @@ void nv__hashmap_clear(struct nv__hashmap *map, bool update_cap)
     map->shrinkat = map->nbuckets * SHRINK_AT;
 }
 
-static bool nv__resize0(struct nv__hashmap *map, size_t new_cap)
+static int nv__resize0(struct nv__hashmap *map, size_t new_cap)
 {
     struct nv__hashmap *map2 =
         nv__hashmap_new(map->elsize, new_cap, map->seed0, map->seed1, map->hash,
                         map->compare, map->elfree, map->udata);
     if (!map2)
-        return false;
+        return NV_FALSE;
     for (size_t i = 0; i < map->nbuckets; i++) {
         struct nv__bucket *entry = nv__bucket_at(map, i);
         if (!entry->dib) {
@@ -255,10 +255,10 @@ static bool nv__resize0(struct nv__hashmap *map, size_t new_cap)
     map->growat = map2->growat;
     map->shrinkat = map2->shrinkat;
     nv__free(map2);
-    return true;
+    return NV_TRUE;
 }
 
-static bool nv__resize(struct nv__hashmap *map, size_t new_cap)
+static int nv__resize(struct nv__hashmap *map, size_t new_cap)
 {
     return nv__resize0(map, new_cap);
 }
@@ -270,10 +270,10 @@ const void *nv__hashmap_set_with_hash(struct nv__hashmap *map, const void *item,
                                       uint64_t hash)
 {
     hash = nv__clip_hash(hash);
-    map->oom = false;
+    map->oom = NV_FALSE;
     if (map->count >= map->growat) {
         if (!nv__resize(map, map->nbuckets * (1 << map->growpower))) {
-            map->oom = true;
+            map->oom = NV_TRUE;
             return NULL;
         }
     }
@@ -314,7 +314,7 @@ const void *nv__hashmap_set_with_hash(struct nv__hashmap *map, const void *item,
 // hashmap_set inserts or replaces an item in the hash map. If an item is
 // replaced then it is returned otherwise NULL is returned. This operation
 // may allocate memory. If the system is unable to allocate additional
-// memory then NULL is returned and hashmap_oom() returns true.
+// memory then NULL is returned and hashmap_oom() returns NV_TRUE.
 const void *nv__hashmap_set(struct nv__hashmap *map, const void *item)
 {
     return nv__hashmap_set_with_hash(map, item, nv__get_hash(map, item));
@@ -369,7 +369,7 @@ const void *nv__hashmap_delete_with_hash(struct nv__hashmap *map,
                                          const void *key, uint64_t hash)
 {
     hash = nv__clip_hash(hash);
-    map->oom = false;
+    map->oom = NV_FALSE;
     size_t i = hash & map->mask;
     while (1) {
         struct nv__bucket *bucket = nv__bucket_at(map, i);
@@ -431,26 +431,26 @@ void nv__hashmap_free(struct nv__hashmap *map)
     nv__free(map);
 }
 
-// hashmap_oom returns true if the last hashmap_set() call failed due to the
+// hashmap_oom returns NV_TRUE if the last hashmap_set() call failed due to the
 // system being out of memory.
-bool nv__hashmap_oom(struct nv__hashmap *map)
+int nv__hashmap_oom(struct nv__hashmap *map)
 {
     return map->oom;
 }
 
 // hashmap_scan iterates over all items in the hash map
-// Param `iter` can return false to stop iteration early.
-// Returns false if the iteration has been stopped early.
-bool nv__hashmap_scan(struct nv__hashmap *map,
-                      bool (*iter)(const void *item, void *udata), void *udata)
+// Param `iter` can return NV_FALSE to stop iteration early.
+// Returns NV_FALSE if the iteration has been stopped early.
+int nv__hashmap_scan(struct nv__hashmap *map,
+                      int (*iter)(const void *item, void *udata), void *udata)
 {
     for (size_t i = 0; i < map->nbuckets; i++) {
         struct nv__bucket *bucket = nv__bucket_at(map, i);
         if (bucket->dib && !iter(nv__bucket_item(bucket), udata)) {
-            return false;
+            return NV_FALSE;
         }
     }
-    return true;
+    return NV_TRUE;
 }
 
 // nv__hashmap_iter iterates one key at a time yielding a reference to an
@@ -469,19 +469,19 @@ bool nv__hashmap_scan(struct nv__hashmap *map,
 //
 // This function has not been tested for thread safety.
 //
-// The function returns true if an item was retrieved; false if the end of the
+// The function returns NV_TRUE if an item was retrieved; NV_FALSE if the end of the
 // iteration has been reached.
-bool nv__hashmap_iter(struct nv__hashmap *map, size_t *i, void **item)
+int nv__hashmap_iter(struct nv__hashmap *map, size_t *i, void **item)
 {
     struct nv__bucket *bucket;
     do {
         if (*i >= map->nbuckets)
-            return false;
+            return NV_FALSE;
         bucket = nv__bucket_at(map, *i);
         (*i)++;
     } while (!bucket->dib);
     *item = nv__bucket_item(bucket);
-    return true;
+    return NV_TRUE;
 }
 
 //-----------------------------------------------------------------------------
