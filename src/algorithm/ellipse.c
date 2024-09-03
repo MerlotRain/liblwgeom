@@ -20,7 +20,7 @@
  * IN THE SOFTWARE.
  */
 
-#include "nv-common.h"
+#include "geom-internal.h"
 #include <math.h>
 #include <string.h>
 
@@ -45,7 +45,7 @@ static struct nv_ellipse nv__tri_inscribed_circle(const struct nv_point2d p1,
 
 /// check cricle list contains one circle
 static int nv__contains_circle(const struct nv_ellipse *es, int n,
-                                const struct nv_point2d c, double r)
+                               const struct nv_point2d c, double r)
 {
     for (int i = 0; i < n; ++i) {
         if (NV_POINTDISTANCE2(es[i].center, c) &&
@@ -58,8 +58,8 @@ static int nv__contains_circle(const struct nv_ellipse *es, int n,
 
 /// Returns a new point which corresponds to this point projected by a specified
 /// distance with specified angles
-static struct nv_point2d nv__point_project(const struct nv_point2d p, double dis,
-                                         double azimuth)
+static struct nv_point2d nv__point_project(const struct nv_point2d p,
+                                           double dis, double azimuth)
 {
     struct nv_point2d pr;
     const double rads = azimuth * M_PI / 180.0;
@@ -93,8 +93,8 @@ static double nv__line_angle(double x1, double y1, double x2, double y2)
 }
 
 static int nv__is_perpendicular(const struct nv_point2d pt1,
-                                 const struct nv_point2d pt2,
-                                 const struct nv_point2d pt3)
+                                const struct nv_point2d pt2,
+                                const struct nv_point2d pt3)
 {
     double yDelta_a = pt2.y - pt1.y;
     double xDelta_a = pt2.x - pt1.x;
@@ -219,8 +219,8 @@ static void nv__from_2parallels_line(const struct nv_point2d pt1_par1,
 /// @param es circles
 /// @param n number of circles
 /// @return
-void nv_construct_circle(const struct nv_point2d *p, int t, struct nv_ellipse *rs,
-                         int *n)
+void nv_construct_circle(const struct nv_point2d *p, int t,
+                         struct nv_ellipse *rs, int *n)
 {
     assert(p);
     assert(rs);
@@ -240,7 +240,7 @@ void nv_construct_circle(const struct nv_point2d *p, int t, struct nv_ellipse *r
         struct nv_point2d pt2 = p[1];
 
         struct nv_point2d center = {.x = ((pt1.x + pt2.x) / 2.0),
-                                  .y = ((pt1.y + pt2.y) / 2.0)};
+                                    .y = ((pt1.y + pt2.y) / 2.0)};
         double radius = sqrt((pt1.x - pt2.x) * (pt1.x - pt2.x) +
                              (pt1.y - pt2.y) * (pt1.y - pt2.y)) /
                         2;
@@ -514,5 +514,6 @@ struct nv_geom *nv_ellipse_stroke(struct nv_ellipse e, uint32_t param)
     pp[nseg * 2] = pp[0];
     pp[nseg * 2 + 1] = pp[1];
 
-    return nv_geo_create_single(gdim, nseg + 1, 2, pp, 0);
+    return NULL;
+    // nv_geo_create_single(gdim, nseg + 1, 2, pp, 0);
 }

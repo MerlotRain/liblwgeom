@@ -21,6 +21,7 @@
  */
 
 #include "matrix.h"
+#include <nv-common.h>
 #include <math.h>
 
 void mtx_left_multiply(struct matrix *m, const struct matrix *mat)

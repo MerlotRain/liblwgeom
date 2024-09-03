@@ -20,9 +20,9 @@
  * IN THE SOFTWARE.
  */
 
-#include "nv-common.h"
+#include "geom-internal.h"
 
-double _nv_prop_length_value(const struct nv_geom *obj)
+double nv__prop_length_value(const struct nv_geom *obj)
 {
     size_t n = obj->npoints;
     if (n <= 1) {
@@ -32,8 +32,8 @@ double _nv_prop_length_value(const struct nv_geom *obj)
     double x0 = obj->pp[0];
     double y0 = obj->pp[1];
     for (int i = 1; i < n; ++i) {
-        double x1 = obj->pp[(ptrdiff_t)(i * obj->cdim)];
-        double y1 = obj->pp[(ptrdiff_t)((i * obj->cdim) + 1)];
+        double x1 = nv__geo_get_x(obj, i);
+        double y1 = nv__geo_get_y(obj, i);
         double dx = x1 - x0;
         double dy = y1 - y0;
 
@@ -51,11 +51,11 @@ double nv_prop_length_value(const struct nv_geom *obj)
 
     double sum = 0.0;
     if (obj->ngeoms == 0) {
-        sum = _nv_prop_length_value(obj);
+        sum = nv__prop_length_value(obj);
     }
     else {
         for (int i = 0; i < obj->ngeoms; ++i) {
-            sum += _nv_prop_length_value(obj->objects[i]);
+            sum += nv__prop_length_value(obj->objects[i]);
         }
     }
     return sum;

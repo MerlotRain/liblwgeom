@@ -442,7 +442,7 @@ int nv__hashmap_oom(struct nv__hashmap *map)
 // Param `iter` can return NV_FALSE to stop iteration early.
 // Returns NV_FALSE if the iteration has been stopped early.
 int nv__hashmap_scan(struct nv__hashmap *map,
-                      int (*iter)(const void *item, void *udata), void *udata)
+                     int (*iter)(const void *item, void *udata), void *udata)
 {
     for (size_t i = 0; i < map->nbuckets; i++) {
         struct nv__bucket *bucket = nv__bucket_at(map, i);
@@ -469,8 +469,8 @@ int nv__hashmap_scan(struct nv__hashmap *map,
 //
 // This function has not been tested for thread safety.
 //
-// The function returns NV_TRUE if an item was retrieved; NV_FALSE if the end of the
-// iteration has been reached.
+// The function returns NV_TRUE if an item was retrieved; NV_FALSE if the end of
+// the iteration has been reached.
 int nv__hashmap_iter(struct nv__hashmap *map, size_t *i, void **item)
 {
     struct nv__bucket *bucket;

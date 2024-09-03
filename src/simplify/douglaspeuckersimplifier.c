@@ -1,4 +1,4 @@
-#include "nv-common.h"
+#include "geom-internal.h"
 #include "bitset.h"
 
 struct nv__simplify_rdp {
@@ -36,8 +36,7 @@ static struct nv_geom *nv__simplify_line(const struct nv_geom *obj)
     return NULL;
 }
 
-struct nv_geom *
-nv_prop_geo_simpily_douglaspeucker(const struct nv_geom *obj)
+struct nv_geom *nv_prop_geo_simpily_douglaspeucker(const struct nv_geom *obj)
 {
     if (obj == NULL)
         return NULL;

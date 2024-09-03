@@ -50,11 +50,11 @@ struct btree *btree_new(size_t elsize, size_t max_items,
 // These callbacks are optional but may be needed by programs that require
 // copy-on-write support by using the btree_clone function.
 //
-// The clone function should return NV_TRUE if the clone succeeded or NV_FALSE if the
-// system is out of memory.
+// The clone function should return NV_TRUE if the clone succeeded or NV_FALSE
+// if the system is out of memory.
 void btree_set_item_callbacks(struct btree *btree,
                               int (*clone)(const void *item, void *into,
-                                            void *udata),
+                                           void *udata),
                               void (*free)(const void *item, void *udata));
 
 // btree_free removes all items from the btree and frees any allocated memory.
@@ -63,8 +63,8 @@ void btree_free(struct btree *btree);
 // btree_free removes all items from the btree.
 void btree_clear(struct btree *btree);
 
-// btree_oom returns NV_TRUE if the last write operation failed because the system
-// has no more memory available.
+// btree_oom returns NV_TRUE if the last write operation failed because the
+// system has no more memory available.
 //
 // Functions that have the first param being a non-const btree receiver are
 // candidates for possible out-of-memory conditions, such as btree_set,
@@ -144,7 +144,7 @@ const void *btree_get(const struct btree *btree, const void *key);
 // Param iter can return NV_FALSE to stop iteration early.
 // Returns NV_FALSE if the iteration has been stopped early.
 int btree_ascend(const struct btree *btree, const void *pivot,
-                  int (*iter)(const void *item, void *udata), void *udata);
+                 int (*iter)(const void *item, void *udata), void *udata);
 
 // btree_descend scans the tree within the range [pivot, first].
 
@@ -155,7 +155,7 @@ int btree_ascend(const struct btree *btree, const void *pivot,
 // Param iter can return NV_FALSE to stop iteration early.
 // Returns NV_FALSE if the iteration has been stopped early.
 int btree_descend(const struct btree *btree, const void *pivot,
-                   int (*iter)(const void *item, void *udata), void *udata);
+                  int (*iter)(const void *item, void *udata), void *udata);
 
 // btree_set_hint is the same as btree_set except that an optional "hint" can
 // be provided which may make the operation quicker when done as a batch or
@@ -179,15 +179,15 @@ const void *btree_delete_hint(struct btree *btree, const void *key,
 // "hint" can be provided which may make the operation quicker when done as a
 // batch or in a userspace context.
 int btree_ascend_hint(const struct btree *btree, const void *pivot,
-                       int (*iter)(const void *item, void *udata), void *udata,
-                       uint64_t *hint);
+                      int (*iter)(const void *item, void *udata), void *udata,
+                      uint64_t *hint);
 
 // btree_descend_hint is the same as btree_descend except that an optional
 // "hint" can be provided which may make the operation quicker when done as a
 // batch or in a userspace context.
 int btree_descend_hint(const struct btree *btree, const void *pivot,
-                        int (*iter)(const void *item, void *udata),
-                        void *udata, uint64_t *hint);
+                       int (*iter)(const void *item, void *udata), void *udata,
+                       uint64_t *hint);
 
 // btree_set_searcher allows for setting a custom search function.
 void btree_set_searcher(struct btree *btree,

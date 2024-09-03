@@ -23,7 +23,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-
 #define MATRIX_INIT            {1, 0, 0, 1, 0, 0}
 /* Return matrix m11 element */
 #define MATRIX_M11(m)          ((m)->m_m11)

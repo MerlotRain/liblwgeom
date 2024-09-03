@@ -20,20 +20,20 @@
  * IN THE SOFTWARE.
  */
 
-#include "nv-common.h"
+#include "geom-internal.h"
 
-double _nv_prop_area_value(const struct nv_geom *obj)
+double nv__prop_area_value(const struct nv_geom *obj)
 {
-    int rlen = obj->npoints;
+    uint32_t rlen = obj->npoints;
     if (rlen < 3)
         return 0.0;
 
     double sum = 0.0;
     double x0 = obj->pp[0];
     for (size_t i = 1; i < rlen - 1; i++) {
-        double x = obj->pp[i * obj->cdim] - x0;
-        double y1 = obj->pp[(i + 1) * obj->cdim + 1];
-        double y2 = obj->pp[(i - 1) * obj->cdim + 1];
+        double x = nv__geo_get_x(obj, i) - x0;
+        double y1 = nv__geo_get_y(obj, i + 1);
+        double y2 = nv__geo_get_y(obj, i - 1);
         sum += x * (y2 - y1);
     }
     return (sum / 2.0);
@@ -46,11 +46,11 @@ double nv_prop_area_value(const struct nv_geom *obj)
 
     double sum = 0.0;
     if (obj->ngeoms == 0) {
-        sum = _nv_prop_area_value(obj);
+        sum = nv__prop_area_value(obj);
     }
     else {
         for (int i = 0; i < obj->ngeoms; ++i) {
-            sum += _nv_prop_area_value(obj->objects[i]);
+            sum += nv__prop_area_value(obj->objects[i]);
         }
     }
     return sum;

@@ -366,9 +366,9 @@ static void node_move_rect_at_index_into(struct node *from, int index,
 }
 
 static int node_split_largest_axis_edge_snap(struct nv_rtree *tr,
-                                              struct rect *rect,
-                                              struct node *node,
-                                              struct node **right_out)
+                                             struct rect *rect,
+                                             struct node *node,
+                                             struct node **right_out)
 {
     int axis = rect_largest_axis(rect);
     struct node *right = node_new(tr, node->kind);
@@ -408,8 +408,8 @@ static int node_split_largest_axis_edge_snap(struct nv_rtree *tr,
     return NV_TRUE;
 }
 
-static int node_split(struct nv_rtree *tr, struct rect *rect,
-                       struct node *node, struct node **right)
+static int node_split(struct nv_rtree *tr, struct rect *rect, struct node *node,
+                      struct node **right)
 {
     return node_split_largest_axis_edge_snap(tr, rect, node, right);
 }
@@ -471,8 +471,7 @@ static struct rect node_rect_calc(const struct node *node)
 
 // node_insert returns NV_FALSE if out of memory
 static int node_insert(struct nv_rtree *tr, struct rect *nr, struct node *node,
-                        struct rect *ir, struct item item, int depth,
-                        int *split)
+                       struct rect *ir, struct item item, int depth, int *split)
 {
     if (node->kind == LEAF) {
         if (node->count == MAXITEMS) {
@@ -533,11 +532,11 @@ struct nv_rtree *nv_rtree_new(void)
 // These callbacks are optional but may be needed by programs that require
 // copy-on-write support by using the nv_rtree_clone function.
 //
-// The clone function should return NV_TRUE if the clone succeeded or NV_FALSE if the
-// system is out of memory.
+// The clone function should return NV_TRUE if the clone succeeded or NV_FALSE
+// if the system is out of memory.
 void nv_rtree_set_item_callbacks(struct nv_rtree *tr,
                                  int (*clone)(const void *item, void **into,
-                                               void *udata),
+                                              void *udata),
                                  void (*free)(const void *item, void *udata))
 {
     tr->item_clone = clone;
@@ -556,7 +555,7 @@ void nv_rtree_set_item_callbacks(struct nv_rtree *tr,
 //
 // Returns NV_FALSE if the system is out of memory.
 int nv_rtree_insert(struct nv_rtree *tr, const double *min, const double *max,
-                     const void *data)
+                    const void *data)
 {
     // copy input rect
     struct rect rect;
@@ -628,9 +627,9 @@ void nv_rtree_free(struct nv_rtree *tr)
 }
 
 static int node_search(struct node *node, struct rect *rect,
-                        int (*iter)(const double *min, const double *max,
-                                     const void *data, void *udata),
-                        void *udata)
+                       int (*iter)(const double *min, const double *max,
+                                   const void *data, void *udata),
+                       void *udata)
 {
     if (node->kind == LEAF) {
         for (int i = 0; i < node->count; i++) {
@@ -660,7 +659,7 @@ static int node_search(struct node *node, struct rect *rect,
 void nv_rtree_search(const struct nv_rtree *tr, const double min[],
                      const double max[],
                      int (*iter)(const double min[], const double max[],
-                                  const void *data, void *udata),
+                                 const void *data, void *udata),
                      void *udata)
 {
     // copy input rect
@@ -674,9 +673,9 @@ void nv_rtree_search(const struct nv_rtree *tr, const double min[],
 }
 
 static int node_scan(struct node *node,
-                      int (*iter)(const double *min, const double *max,
-                                   const void *data, void *udata),
-                      void *udata)
+                     int (*iter)(const double *min, const double *max,
+                                 const void *data, void *udata),
+                     void *udata)
 {
     if (node->kind == LEAF) {
         for (int i = 0; i < node->count; i++) {
@@ -700,7 +699,7 @@ static int node_scan(struct node *node,
 // Returning NV_FALSE from the iter will stop the scan.
 void nv_rtree_scan(const struct nv_rtree *tr,
                    int (*iter)(const double *min, const double *max,
-                                const void *data, void *udata),
+                               const void *data, void *udata),
                    void *udata)
 {
     if (tr->root) {
@@ -864,7 +863,7 @@ static int nv_rtree_delete0(
 //
 // Returns NV_FALSE if the system is out of memory.
 int nv_rtree_delete(struct nv_rtree *tr, const double *min, const double *max,
-                     const void *data)
+                    const void *data)
 {
     return nv_rtree_delete0(tr, min, max, data, NULL, NULL);
 }

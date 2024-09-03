@@ -58,23 +58,40 @@ int nv__check_single_ring(const double *pp, int npoints, int cdim)
     return NV_DOUBLE_NEARES2(x0, xn) && NV_DOUBLE_NEARES2(y0, yn);
 }
 
+double nv__geo_get_x(const struct nv_geom *obj, uint32_t i)
+{
+    return 0.0;
+}
 
+double nv__geo_get_y(const struct nv_geom *obj, uint32_t i)
+{
+    return 0.0;
+}
+
+double nv__geo_get_z(const struct nv_geom *obj, uint32_t i)
+{
+    return 0.0;
+}
+
+double nv__geo_get_m(const struct nv_geom *obj, uint32_t i)
+{
+    return 0.0;
+}
 
 /* ---------------------------- geometry factory ---------------------------- */
 
-struct nv_geom* nv_geo_point(const double* pp, int hasz, int hasm)
+struct nv_geom *nv_geo_point(const double *pp, int hasz, int hasm)
 {
     assert(pp);
-    struct nv_geom* obj = (struct nv_geom*)nv__malloc(sizeof(struct nv_geom));
-    if(!obj)
+    struct nv_geom *obj = (struct nv_geom *)nv__malloc(sizeof(struct nv_geom));
+    if (!obj)
         return NULL;
     memset(obj, 0, sizeof(struct nv_geom));
     obj->type = NV_GEOM_POINT;
     obj->npoints = 1;
     size_t msize = NV_POINTBYTESIZE(hasz, hasm) * sizeof(double);
-    obj->pp = (double*) nv__malloc(msize);
-    if(!obj->pp)
-    {
+    obj->pp = (double *)nv__malloc(msize);
+    if (!obj->pp) {
         nv_geo_free(obj);
         return NULL;
     }
@@ -86,162 +103,113 @@ struct nv_geom* nv_geo_point(const double* pp, int hasz, int hasm)
     return obj;
 }
 
-struct nv_geom* nv_geo_line(uint32_t npoints, const double* points, int hasz, int hasm);
-struct nv_geom* nv_geo_poly(const struct nv_geom* shell, uint32_t nholes, const struct nv_geom** holes);
-struct nv_geom* nv_geo_create_empty_mpoint(char hasz, char hasm);
-struct nv_geom* nv_geo_create_empty_mline(char hasz, char hasm);
-struct nv_geom* nv_geo_create_empty_mpoly(char hasz, char hasm);
-struct nv_geom* nv_geo_create_empty_collection(uint8_t type, char hasz, char hasm);
-struct nv_geom* nv_geo_create_empty_collection2(uint8_t type, uint32_t ngeoms, struct nv_geom* geoms);
-
-struct nv_geom* nv_geo_mpoint_add_point(struct nv_geom* mobj, struct nv_geom* obj);
-struct nv_geom* nv_geo_mline_add_line(struct nv_geom* mobj, struct nv_geom* obj);
-struct nv_geom* nv_geo_mpoly_add_poly(struct nv_geom* mobj, struct nv_geom* obj);
-struct nv_geom* nv_geo_collection_add_geom(struct nv_geom* mobj, struct nv_geom* obj);
-
-void nv_geo_free(struct nv_geom *obj);
-
-int nv_geo_hasz(const struct nv_geom* obj);
-int nv_geo_hasm(const struct nv_geom* obj);
-int nv_geo_dim_c(const struct nv_geom *obj);
-int nv_geo_dim_g(const struct nv_geom *obj);
-int nv_geo_sub_n(const struct nv_geom *obj);
-struct nv_geom *nv_geo_sub_at(const struct nv_geom *obj,
-                                            int i);
-int nv_geo_point_n(const struct nv_geom *obj);
-int nv_geo_point_at(const struct nv_geom* obj, int n, double* point);
-double* nv_geo_points(const struct nv_geom* obj);
-
-
-
-/// @brief create a single geometry object
-/// @param gdim geometry dimension 0:point, 1:line, 2:area
-/// @param pn point number
-/// @param cdim coordinate dimension 2:2D, 3:3D
-/// @param pp point coordinates
-/// @param flag geometry type 0: reference pp, 1: copy pp
-struct nv_geom *nv_geo_create_single(int gdim, int pn, int cdim,
-                                         const double *pp, int flag)
+struct nv_geom *nv_geo_line(uint32_t npoints, const double *points, int hasz,
+                            int hasm)
 {
-    assert(pp);
-    struct nv_geom *obj =
-        (struct nv_geom *)nv__malloc(sizeof(struct nv_geom));
-    if (obj == NULL)
-        return NULL;
-    memset(obj, 0, sizeof(struct nv_geom));
-
-    obj->ngeoms = 1;
-    obj->gdim = gdim;
-    obj->cdim = cdim;
-    obj->npoints = pn;
-    obj->flag = flag;
-    if (flag == 0) {
-        obj->pp = (double *)pp;
-    }
-    else {
-        obj->pp = (double *)nv__malloc(sizeof(double) * pn * cdim);
-        if (obj->pp == NULL) {
-            nv_geo_free(obj);
-            return NULL;
-        }
-        memcpy(obj->pp, pp, sizeof(double) * pn * cdim);
-    }
-    obj->env = nv__query_envolpe(obj->pp, obj->npoints, obj->cdim);
-    return obj;
+    return NULL;
+}
+struct nv_geom *nv_geo_poly(const struct nv_geom *shell, uint32_t nholes,
+                            const struct nv_geom **holes)
+{
+    return NULL;
 }
 
-/// @brief create a multi geometry object
-///
-/// When multiple geometries of different dimensions are passed in, only
-/// geometries with the same dimension as \a gdim will be accepted. When the
-/// result of the combination is only one geometry, it will degenerate into a
-/// simple geometry.
-///
-/// @param gdim geometry dimension 0:point, 1:line, 2:area
-/// @param snum geometry number
-/// @param subs geometry array
-/// @return geometry object
-struct nv_geom *nv_geo_create_multi(int gdim, int snum,
-                                        struct nv_geom **subs)
+struct nv_geom *nv_geo_create_empty_mpoint(char hasz, char hasm)
 {
-    assert(subs);
-    struct nv_geom *obj =
-        (struct nv_geom *)nv__malloc(sizeof(struct nv_geom));
-    if (obj == NULL)
-        return NULL;
-    memset(obj, 0, sizeof(struct nv_geom));
+    return NULL;
+}
 
-    obj->gdim = gdim;
-    for (int i = 0; i < snum; ++i) {
-        struct nv_geom *sub = subs[i];
-        if (sub == NULL)
-            continue;
+struct nv_geom *nv_geo_create_empty_mline(char hasz, char hasm)
+{
+    return NULL;
+}
 
-        // single sub
-        if (sub->ngeoms == 1) {
-            if (sub->gdim == obj->gdim) {
-                obj->ngeoms++;
+struct nv_geom *nv_geo_create_empty_mpoly(char hasz, char hasm)
+{
+    return NULL;
+}
 
-                struct nv_geom **tobjs = (struct nv_geom **)nv__realloc(
-                    obj->objects, obj->ngeoms * sizeof(struct nv_geom *));
-                if (tobjs == NULL) {
-                    nv_geo_free(obj);
-                    return NULL;
-                }
-                obj->objects = tobjs;
+struct nv_geom *nv_geo_create_empty_collection(uint8_t type, char hasz,
+                                               char hasm)
+{
+    return NULL;
+}
 
-                if (obj->objects == NULL) {
-                    nv_geo_free(obj);
-                    return NULL;
-                }
-                obj->objects[obj->ngeoms - 1] = sub;
-            }
-        }
-        // multi sub
-        else {
-            for (int j = 0; j < sub->ngeoms; ++j) {
-                struct nv_geom *ssub = sub->objects[j];
-                if (ssub == NULL)
-                    continue;
-                if (ssub->gdim == obj->gdim) {
-                    obj->ngeoms++;
+struct nv_geom *nv_geo_create_empty_collection2(uint8_t type, uint32_t ngeoms,
+                                                struct nv_geom *geoms)
+{
+    return NULL;
+}
 
-                    struct nv_geom **tobjs =
-                        (struct nv_geom **)nv__realloc(
-                            obj->objects,
-                            obj->ngeoms * sizeof(struct nv_geom *));
-                    if (tobjs == NULL) {
-                        nv_geo_free(obj);
-                        return NULL;
-                    }
-                    obj->objects = tobjs;
+struct nv_geom *nv_geo_mpoint_add_point(struct nv_geom *mobj,
+                                        struct nv_geom *obj)
+{
+    return NULL;
+}
 
-                    if (obj->objects == NULL) {
-                        nv_geo_free(obj);
-                        return NULL;
-                    }
-                    obj->objects[obj->ngeoms - 1] = ssub;
-                }
-            }
-        }
-    }
+struct nv_geom *nv_geo_mline_add_line(struct nv_geom *mobj, struct nv_geom *obj)
+{
+    return NULL;
+}
 
-    if (obj->ngeoms == 1) {
-        // degenerate
-        obj->flag = obj->objects[0]->flag;
-        obj->npoints = obj->objects[0]->npoints;
-        obj->pp = obj->objects[0]->pp;
-        nv__free(obj->objects[0]);
-        nv__free(obj->objects);
-        obj->objects = NULL;
-    }
-    return obj;
+struct nv_geom *nv_geo_mpoly_add_poly(struct nv_geom *mobj, struct nv_geom *obj)
+{
+    return NULL;
+}
+struct nv_geom *nv_geo_collection_add_geom(struct nv_geom *mobj,
+                                           struct nv_geom *obj)
+{
+    return NULL;
+}
+
+int nv_geo_hasz(const struct nv_geom *obj)
+{
+    return 0;
+}
+
+int nv_geo_hasm(const struct nv_geom *obj)
+{
+    return 0;
+}
+
+int nv_geo_dim_c(const struct nv_geom *obj)
+{
+    return 0;
+}
+
+int nv_geo_dim_g(const struct nv_geom *obj)
+{
+    return 0;
+}
+
+int nv_geo_sub_n(const struct nv_geom *obj)
+{
+    return 0;
+}
+struct nv_geom *nv_geo_sub_at(const struct nv_geom *obj, int i)
+{
+    return NULL;
+}
+
+int nv_geo_point_n(const struct nv_geom *obj)
+{
+    return 0;
+}
+
+int nv_geo_point_at(const struct nv_geom *obj, int n, double *point)
+{
+    return 0;
+}
+
+double *nv_geo_points(const struct nv_geom *obj)
+{
+    return NULL;
 }
 
 void nv__geo_free(struct nv_geom *g)
 {
     assert(g);
-    if (g->flag != 0) {
+    if (g->flags != 0) {
         nv__free(g->pp);
     }
     nv__free(g);
@@ -250,90 +218,21 @@ void nv__geo_free(struct nv_geom *g)
 /// @brief free geometry object
 /// @param obj
 /// @return
-void nv_geo_free(struct nv_geom *g)
-{
-    assert(g);
-    if (g->ngeoms == 1) {
-        nv__geo_free(g);
-    }
-    else {
-        for (int i = 0; i < g->ngeoms; ++i) {
-            struct nv_geom *sub = g->objects[i];
-            if (sub == NULL)
-                continue;
-            nv__geo_free(sub);
-        }
-    }
-}
-
-/// @brief return geometry coordinate dimension
-/// @param obj
-/// @return 2 or 3
-int nv_geo_dim_c(const struct nv_geom *obj)
+void nv_geo_free(struct nv_geom *obj)
 {
     assert(obj);
-    return obj->cdim;
-}
-
-/// @brief return geometry dimension
-/// @param obj
-/// @return 0:point, 1:line, 2:area
-/// TODO: 3:collection
-int nv_geo_dim_g(const struct nv_geom *obj)
-{
-    assert(obj);
-    return obj->gdim;
-}
-
-/// @brief return geometry number
-/// @param obj
-/// @return geometry number
-int nv_geo_sub_n(const struct nv_geom *obj)
-{
-    assert(obj);
-    return obj->ngeoms;
-}
-
-/// @brief return sub of multi geometry
-/// @param obj multi geometry
-/// @param i index
-/// @return sub geometry, When \a obj is a single geometry object, returns
-/// itself
-struct nv_geom *nv_geo_sub_at(const struct nv_geom *obj, int i)
-{
-    assert(obj);
-    if (obj->ngeoms == 1) {
-        if (i == 0) {
-            return (struct nv_geom *)obj;
-        }
-    }
-    else {
-        if (i < obj->ngeoms) {
-            return obj->objects[i];
-        }
-    }
-    return NULL;
-}
-
-/// @brief return point number
-/// @param obj
-/// @return point number
-int nv_geo_point_n(const struct nv_geom *obj)
-{
-    assert(obj);
-    if (obj->ngeoms == 1) {
-        return obj->npoints;
-    }
-    else {
-        int n = 0;
-        for (int i = 0; i < obj->ngeoms; ++i) {
-            struct nv_geom *sub = obj->objects[i];
-            if (sub == NULL)
-                continue;
-            n += sub->npoints;
-        }
-        return 0;
-    }
+    return;
+    //    if (g->ngeoms == 1) {
+    //        nv__geo_free(g);
+    //    }
+    //    else {
+    //        for (int i = 0; i < g->ngeoms; ++i) {
+    //            struct nv_geom *sub = g->objects[i];
+    //            if (sub == NULL)
+    //                continue;
+    //            nv__geo_free(sub);
+    //        }
+    //    }
 }
 
 /* ------------------------------- geometry io ------------------------------ */
@@ -375,8 +274,7 @@ struct nv_geom *nv_geo_read(int flag, const char *data, size_t len)
     return NULL;
 }
 
-int nv_geo_write(int flag, const struct nv_geom *obj, char **data,
-                 size_t *len)
+int nv_geo_write(int flag, const struct nv_geom *obj, char **data, size_t *len)
 {
     return 0;
 }
@@ -427,8 +325,8 @@ void nv_free_reader2(struct nv_geo_reader2 *reader)
 {
 }
 
-void nv_input_reader(struct nv_geo_reader2 *reader,
-                     const struct nv_geom *obj, int propSize, int *prop)
+void nv_input_reader(struct nv_geo_reader2 *reader, const struct nv_geom *obj,
+                     int propSize, int *prop)
 {
 }
 

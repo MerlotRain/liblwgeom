@@ -20,7 +20,7 @@
  * IN THE SOFTWARE.
  */
 
-#include "nv-common.h"
+#include "geom-internal.h"
 
 struct nv__centriod {
     struct nv_point2d p_cent_sum;
@@ -38,19 +38,19 @@ void nv__centriod_single(const struct nv_geom *obj,
                          struct nv__centriod *centriod)
 {
     assert(obj);
-    if (obj->gdim == 0) {
+    if (nv_geo_dim_g(obj) == 0) {
         centriod->p_cent_sum.x += obj->pp[0];
         centriod->p_cent_sum.y += obj->pp[1];
         centriod->pt_num += 1;
     }
-    else if (obj->gdim == 1) {
+    else if (nv_geo_dim_g(obj) == 1) {
         size_t npts = obj->npoints;
         double line_len = 0.0;
         for (size_t i = 0; i < npts - 1; ++i) {
-            double x1 = obj->pp[i * obj->cdim];
-            double y1 = obj->pp[i * obj->cdim + 1];
-            double x2 = obj->pp[(i + 1) * obj->cdim];
-            double y2 = obj->pp[(i + 1) * obj->cdim + 1];
+            double x1 = nv__geo_get_x(obj, i);
+            double y1 = nv__geo_get_y(obj, i);
+            double x2 = nv__geo_get_x(obj, i + 1);
+            double y2 = nv__geo_get_y(obj, i + 1);
             double segment_len = NV_POINTDISTANCE(x1, y1, x2, y2);
             if (segment_len == 0.0)
                 continue;
@@ -68,13 +68,13 @@ void nv__centriod_single(const struct nv_geom *obj,
             centriod->pt_num += 1;
         }
     }
-    else if (obj->gdim == 2) {
+    else if (nv_geo_dim_g(obj) == 2) {
         double area = nv_prop_area_value(obj);
         double tx = 0.0;
         double ty = 0.0;
         for (int i = 0; i < obj->npoints; ++i) {
-            tx += obj->pp[i * obj->cdim];
-            ty += obj->pp[i * obj->cdim + 1];
+            tx += nv__geo_get_x(obj, i);
+            ty += nv__geo_get_y(obj, i);
         }
         centriod->total_area += area;
         centriod->total_ax += (tx / obj->npoints);
@@ -95,15 +95,15 @@ void nv_prop_geo_centriod(const struct nv_geom *obj, double *xy)
         }
     }
 
-    if (obj->gdim == 0) {
+    if (nv_geo_dim_g(obj) == 0) {
         xy[0] = centriod.p_cent_sum.x / centriod.pt_num;
         xy[1] = centriod.p_cent_sum.y / centriod.pt_num;
     }
-    else if (obj->gdim == 1) {
+    else if (nv_geo_dim_g(obj) == 1) {
         xy[0] = centriod.l_cent_sum.x / centriod.total_length;
         xy[1] = centriod.l_cent_sum.y / centriod.total_length;
     }
-    else if (obj->gdim == 2) {
+    else if (nv_geo_dim_g(obj) == 2) {
         xy[0] = centriod.total_area / centriod.total_ax;
         xy[1] = centriod.total_area / centriod.total_ay;
     }

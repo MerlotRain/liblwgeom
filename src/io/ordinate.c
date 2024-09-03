@@ -21,6 +21,7 @@
  */
 
 #include "ordinate.h"
+#include <nv.h>
 
 struct uv__ordinate uv__ordinate_XY()
 {

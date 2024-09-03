@@ -44,13 +44,12 @@
 
 #define NV_DBL_NEAR(a, b) (fabs((a) - (b)) < 4 * DBL_EPSILON)
 
-
 #ifndef NV_FALLTHROUGH
 #if (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__) >= 700) && \
     !defined(__INTEL_COMPILER)
-#define NV_FALLTHROUGH __attribute__((fallthrough))
+#define NV_FALLTHROUGH __attribute__((fallthrough));
 #else
-#define NV_FALLTHROUGH
+#define NV_FALLTHROUGH ;
 #endif
 #endif
 
@@ -60,6 +59,5 @@ void *nv__malloc(size_t size);
 void nv__free(void *ptr);
 void *nv__realloc(void *ptr, size_t size);
 void nv__record_error(int code, const char *fmt, ...);
-
 
 #endif /* LIBNV_COMMON_H */

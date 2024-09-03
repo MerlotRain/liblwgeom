@@ -20,7 +20,7 @@
  * IN THE SOFTWARE.
  */
 
-#include "nv-common.h"
+#include "geom-internal.h"
 
 struct nv_geom *nv_prop_geo_clone(const struct nv_geom *obj)
 {

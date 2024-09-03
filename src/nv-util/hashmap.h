@@ -43,7 +43,7 @@ const void *nv__hashmap_set(struct nv__hashmap *map, const void *item);
 const void *nv__hashmap_delete(struct nv__hashmap *map, const void *item);
 const void *nv__hashmap_probe(struct nv__hashmap *map, uint64_t position);
 int nv__hashmap_scan(struct nv__hashmap *map,
-                      int (*iter)(const void *item, void *udata), void *udata);
+                     int (*iter)(const void *item, void *udata), void *udata);
 int nv__hashmap_iter(struct nv__hashmap *map, size_t *i, void **item);
 
 uint64_t nv__hashmap_sip(const void *data, size_t len, uint64_t seed0,

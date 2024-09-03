@@ -19,7 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#include "nv-common.h"
+#include "geom-internal.h"
 #include "nv.h"
 #include <math.h>
 
@@ -64,7 +64,8 @@ static double nv__diff(double ang1, double ang2)
     return delAngle;
 }
 
-static double nv__azimuth(const struct nv_point2d p1, const struct nv_point2d p2)
+static double nv__azimuth(const struct nv_point2d p1,
+                          const struct nv_point2d p2)
 {
     const double dx = p2.x - p1.x;
     const double dy = p2.y - p1.y;
@@ -72,8 +73,8 @@ static double nv__azimuth(const struct nv_point2d p1, const struct nv_point2d p2
 }
 
 static int nv__line_intersection(double p1x, double p1y, struct nv_point2d v1,
-                                  double p2x, double p2y, struct nv_point2d v2,
-                                  struct nv_point2d *intersection)
+                                 double p2x, double p2y, struct nv_point2d v2,
+                                 struct nv_point2d *intersection)
 {
     const double d = v1.y * v2.x - v1.x * v2.y;
 
@@ -115,7 +116,7 @@ double nv_angle2(const struct nv_point2d p0, const struct nv_point2d p1)
 /// @param p2 the third point
 /// @return NV_TRUE if the angle is acute
 int nv_acute(const struct nv_point2d p0, const struct nv_point2d p1,
-              const struct nv_point2d p2)
+             const struct nv_point2d p2)
 {
     double dx0 = p0.x - p1.x;
     double dy0 = p0.y - p1.y;
@@ -131,7 +132,7 @@ int nv_acute(const struct nv_point2d p0, const struct nv_point2d p1,
 /// @param p2 the third point
 /// @return NV_TRUE if the angle is obtuse
 int nv_obtuse(const struct nv_point2d p0, const struct nv_point2d p1,
-               const struct nv_point2d p2)
+              const struct nv_point2d p2)
 {
     double dx0 = p0.x - p1.x;
     double dy0 = p0.y - p1.y;
@@ -146,7 +147,8 @@ int nv_obtuse(const struct nv_point2d p0, const struct nv_point2d p1,
 /// @param tail the tail point
 /// @param tip2 the second tip point
 /// @return the unoriented smallest angle between two vectors
-double nv_angle_between(const struct nv_point2d tip1, const struct nv_point2d tail,
+double nv_angle_between(const struct nv_point2d tip1,
+                        const struct nv_point2d tail,
                         const struct nv_point2d tip2)
 {
     double a1 = nv_angle2(tail, tip1);
@@ -178,8 +180,8 @@ double nv_interior_angle(const struct nv_point2d p0, const struct nv_point2d p1,
 /// @param angle
 /// @return
 int nv_angle_bisector(const struct nv_point2d A, const struct nv_point2d B,
-                       const struct nv_point2d C, const struct nv_point2d D,
-                       struct nv_point2d *p, double *angle)
+                      const struct nv_point2d C, const struct nv_point2d D,
+                      struct nv_point2d *p, double *angle)
 {
 
     *angle = (nv__azimuth(A, B) + nv__azimuth(C, D)) / 2.0;
@@ -194,7 +196,8 @@ int nv_angle_bisector(const struct nv_point2d A, const struct nv_point2d B,
 /// @param A one point of the line
 /// @param B another point of the line (must be different to A)
 /// @return the distance from p to line segment AB
-double nv_dis_point_to_segment(const struct nv_point2d p, const struct nv_point2d A,
+double nv_dis_point_to_segment(const struct nv_point2d p,
+                               const struct nv_point2d A,
                                const struct nv_point2d B)
 {
     if (NV_DOUBLE_NEARES2(A.x, B.x) && NV_DOUBLE_NEARES2(A.y, B.y)) {
@@ -266,9 +269,11 @@ double nv_dis_point_to_perpendicular(const struct nv_point2d p,
            sqrt(((B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y)));
 }
 
-void nv_segment_intersection(const struct nv_point2d p1, const struct nv_point2d p2,
-                             const struct nv_point2d p3, const struct nv_point2d p4,
-                             struct nv_point2d *pin, int *intersection)
+void nv_segment_intersection(const struct nv_point2d p1,
+                             const struct nv_point2d p2,
+                             const struct nv_point2d p3,
+                             const struct nv_point2d p4, struct nv_point2d *pin,
+                             int *intersection)
 {
     *intersection = NV_FALSE;
     double vl = NV_POINTDISTANCE2(p1, p2);

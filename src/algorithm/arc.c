@@ -46,7 +46,7 @@ static int nv__arc_center(struct nv_point2d c0, struct nv_point2d c1,
 
     struct nv_point2d G3 = {.x = c0.x + c1.x + c2.x, .y = c0.y + c1.y + c2.y};
     struct nv_point2d H = {.x = (e1 * c0.x + e2 * c1.x + e3 * c2.x) / e,
-                         .y = (e1 * c0.y + e2 * c1.y + e3 * c2.y) / e};
+                           .y = (e1 * c0.y + e2 * c1.y + e3 * c2.y) / e};
 
     center->x = 0.5 * (G3.x - H.x);
     center->y = 0.5 * (G3.y - H.y);
@@ -57,8 +57,7 @@ static int nv__arc_center(struct nv_point2d c0, struct nv_point2d c1,
 /// @param arc arc
 /// @param maxAngleStepSizeDegress max angle step size
 /// @return nv_geom
-struct nv_geom *nv_arc_stroke(struct nv_arc arc,
-                                  double maxAngleStepSizeDegress)
+struct nv_geom *nv_arc_stroke(struct nv_arc arc, double maxAngleStepSizeDegress)
 {
     double startAngle, alongAngle, endAngle;
     double cx, cy, radius;

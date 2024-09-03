@@ -10,7 +10,7 @@
 /*  along with this program.  If not, see <http://www.gnu.org/licenses/>.    */
 /*****************************************************************************/
 
-#include <nv.h>
+#include <nv-common.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
