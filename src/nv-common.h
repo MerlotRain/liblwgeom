@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <nv.h>
+#include "logging.h"
 
 #ifndef NV_MAX
 #define NV_MAX(a, b) ((a) > (b) ? (a) : (b))

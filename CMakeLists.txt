@@ -109,7 +109,22 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
-file(GLOB_RECURSE nv_HEADERS ${CMAKE_CURRENT_LIST_DIR}/include/*.h CONFIGURE_DEPEND)
+#-----------------------------------------------------------------------------
+# version about
+#-----------------------------------------------------------------------------
+set(NV_VERSION_MAJOR 1)
+set(NV_VERSION_MINOR 0)
+set(NV_VERSION_PATCH 1)
+
+configure_file("${CMAKE_CURRENT_LIST_DIR}/nv.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/nv.h"
+    @ONLY
+)
+
+#-----------------------------------------------------------------------------
+# source files
+#-----------------------------------------------------------------------------
+set(nv_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/nv.h)
 file(GLOB_RECURSE nv_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c CONFIGURE_DEPEND)
 file(GLOB_RECURSE nv_HEADER_PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/*.h CONFIGURE_DEPEND)
 
@@ -124,7 +139,7 @@ if(WIN32)
 endif()
 
 target_include_directories(${nv} PUBLIC 
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 target_include_directories(${nv} PRIVATE 
