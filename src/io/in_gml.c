@@ -21,12 +21,12 @@
  */
 #include "nv-common.h"
 
-struct nv_geobject *nv__geo_read_gml2(const char *data, size_t len)
+struct nv_geom *nv__geo_read_gml2(const char *data, size_t len)
 {
     return NULL;
 }
 
-struct nv_geobject *nv__geo_read_gml3(const char *data, size_t len)
+struct nv_geom *nv__geo_read_gml3(const char *data, size_t len)
 {
     return NULL;
 }

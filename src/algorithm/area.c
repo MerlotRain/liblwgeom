@@ -22,7 +22,7 @@
 
 #include "nv-common.h"
 
-double _nv_prop_area_value(const struct nv_geobject *obj)
+double _nv_prop_area_value(const struct nv_geom *obj)
 {
     int rlen = obj->npoints;
     if (rlen < 3)
@@ -40,7 +40,7 @@ double _nv_prop_area_value(const struct nv_geobject *obj)
 }
 
 /// calc geometry area
-double nv_prop_area_value(const struct nv_geobject *obj)
+double nv_prop_area_value(const struct nv_geom *obj)
 {
     assert(obj);
 

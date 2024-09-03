@@ -11,7 +11,7 @@ static void nv__simplify_section(int i, int j, struct nv__simplify_rdp *intrdp)
 {
 }
 
-static struct nv_geobject *nv__simplify_line(const struct nv_geobject *obj)
+static struct nv_geom *nv__simplify_line(const struct nv_geom *obj)
 {
     if (obj == NULL)
         return NULL;
@@ -36,8 +36,8 @@ static struct nv_geobject *nv__simplify_line(const struct nv_geobject *obj)
     return NULL;
 }
 
-struct nv_geobject *
-nv_prop_geo_simpily_douglaspeucker(const struct nv_geobject *obj)
+struct nv_geom *
+nv_prop_geo_simpily_douglaspeucker(const struct nv_geom *obj)
 {
     if (obj == NULL)
         return NULL;

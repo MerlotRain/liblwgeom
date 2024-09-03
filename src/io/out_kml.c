@@ -22,7 +22,7 @@
 
 #include "nv-common.h"
 
-int nv__geo_write_kml(const struct nv_geobject *g, char **data, size_t *len)
+int nv__geo_write_kml(const struct nv_geom *g, char **data, size_t *len)
 {
     return 0;
 }

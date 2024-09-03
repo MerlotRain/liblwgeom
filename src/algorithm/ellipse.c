@@ -470,7 +470,7 @@ void nv_ellipse_prop_value(const struct nv_ellipse ell, int flags,
     }
 }
 
-/// @brief stroke ellipse to nv_geobject
+/// @brief stroke ellipse to nv_geom
 /// @param e ellipse
 /// @param param geometry dim and segment count
 /// Use the highest bit of an integer to represent the geometric dimension, 1:
@@ -482,8 +482,8 @@ void nv_ellipse_prop_value(const struct nv_ellipse ell, int flags,
 /// param: 246 create a polygon, segment to 46 linesegments
 /// param: 52: error code, use default value
 ///
-/// @return nv_geobject
-struct nv_geobject *nv_ellipse_stroke(struct nv_ellipse e, uint32_t param)
+/// @return nv_geom
+struct nv_geom *nv_ellipse_stroke(struct nv_ellipse e, uint32_t param)
 {
     if (param < 1)
         return NULL;

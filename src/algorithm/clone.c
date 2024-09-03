@@ -22,12 +22,12 @@
 
 #include "nv-common.h"
 
-struct nv_geobject *nv_prop_geo_clone(const struct nv_geobject *obj)
+struct nv_geom *nv_prop_geo_clone(const struct nv_geom *obj)
 {
     assert(obj);
 
-    struct nv_geobject *clone =
-        (struct nv_geobject *)nv__malloc(sizeof(struct nv_geobject));
+    struct nv_geom *clone =
+        (struct nv_geom *)nv__malloc(sizeof(struct nv_geom));
     if (clone == NULL) {
         return NULL;
     }

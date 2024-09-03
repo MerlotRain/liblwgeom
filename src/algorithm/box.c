@@ -90,11 +90,11 @@ struct nv_box nv_box_union(const struct nv_box env1, const struct nv_box env2)
     return b;
 }
 
-/// @brief Convert nv_box object to nv_geobject
+/// @brief Convert nv_box object to nv_geom
 /// @param e the nv_box object
 /// @param gdim the geometry dimension
-/// @return the nv_geobject object
-struct nv_geobject *nv_box_stroke(struct nv_box e, int gdim)
+/// @return the nv_geom object
+struct nv_geom *nv_box_stroke(struct nv_box e, int gdim)
 {
     return NULL; // TODO
 }

@@ -34,7 +34,7 @@ struct nv__centriod {
     double total_ay;
 };
 
-void nv__centriod_single(const struct nv_geobject *obj,
+void nv__centriod_single(const struct nv_geom *obj,
                          struct nv__centriod *centriod)
 {
     assert(obj);
@@ -82,7 +82,7 @@ void nv__centriod_single(const struct nv_geobject *obj,
     }
 }
 
-void nv_prop_geo_centriod(const struct nv_geobject *obj, double *xy)
+void nv_prop_geo_centriod(const struct nv_geom *obj, double *xy)
 {
     assert(obj);
     struct nv__centriod centriod;

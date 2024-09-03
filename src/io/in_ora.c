@@ -28,7 +28,7 @@ struct nv_sdo_elem_info {
     int sdo_interpretation;
 };
 
-struct nv_geobject *nv__geo_read_ora(const struct nv_sdo_geometry sdo, int flag)
+struct nv_geom *nv__geo_read_ora(const struct nv_sdo_geometry sdo, int flag)
 {
     int dimension = 2 > (sdo.sdo_gtype / 1000) ? 2 : (sdo.sdo_gtype / 1000);
 
@@ -40,7 +40,7 @@ struct nv_geobject *nv__geo_read_ora(const struct nv_sdo_geometry sdo, int flag)
         }
     }
     else if (tt > 4 && tt < 8) {
-        // multi nv_geobject
+        // multi nv_geom
     }
     return NULL;
 }

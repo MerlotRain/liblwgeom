@@ -86,7 +86,7 @@ static char last_error[2048];
 
 static int last_errno = 0;
 
-void nv_record_error(int code, const char *fmt, ...)
+void nv__record_error(int code, const char *fmt, ...)
 {
     memset(last_error, 0, 2048);
     va_list args;

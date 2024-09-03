@@ -48,30 +48,30 @@ static char *nv__wkt_get_next_empty_or_opener(struct uv__stok *token,
 
 static char *nv__wkt_get_next_closer_comma(struct uv__stok *token);
 
-static struct nv_geobject *nv__wkt_read_point(struct uv__stok *token,
+static struct nv_geom *nv__wkt_read_point(struct uv__stok *token,
                                               struct uv__ordinate *flag);
 
-static struct nv_geobject *nv__wkt_read_linestring(struct uv__stok *token,
+static struct nv_geom *nv__wkt_read_linestring(struct uv__stok *token,
                                                    struct uv__ordinate *flag);
 
-static struct nv_geobject *nv__wkt_read_linearring(struct uv__stok *token,
+static struct nv_geom *nv__wkt_read_linearring(struct uv__stok *token,
                                                    struct uv__ordinate *flag);
 
-static struct nv_geobject *nv__wkt_read_polygon(struct uv__stok *token,
+static struct nv_geom *nv__wkt_read_polygon(struct uv__stok *token,
                                                 struct uv__ordinate *flag);
 
-static struct nv_geobject *nv__wkt_read_multipoint(struct uv__stok *token,
+static struct nv_geom *nv__wkt_read_multipoint(struct uv__stok *token,
                                                    struct uv__ordinate *flag);
 
-static struct nv_geobject *
+static struct nv_geom *
 nv__wkt_read_multilinestring(struct uv__stok *token, struct uv__ordinate *flag);
 
-static struct nv_geobject *nv__wkt_read_multipolygon(struct uv__stok *token,
+static struct nv_geom *nv__wkt_read_multipolygon(struct uv__stok *token,
                                                      struct uv__ordinate *flag);
 
 /* -------------------------------- inner wkt ------------------------------- */
 
-struct nv_geobject *nv__geo_read_wkt(const char *data, size_t len)
+struct nv_geom *nv__geo_read_wkt(const char *data, size_t len)
 {
     char *p = setlocale(LC_NUMERIC, NULL);
     setlocale(LC_NUMERIC, "C");
@@ -283,7 +283,7 @@ static void nv__wkt_get_precise_coordinates(struct uv__stok *token,
     flag->changeAllowed = NV_FALSE;
 }
 
-struct nv_geobject *nv__wkt_read_point(struct uv__stok *token,
+struct nv_geom *nv__wkt_read_point(struct uv__stok *token,
                                        struct uv__ordinate *flag)
 {
     double *coord = NULL;
@@ -296,7 +296,7 @@ struct nv_geobject *nv__wkt_read_point(struct uv__stok *token,
     return NULL;
 }
 
-struct nv_geobject *nv__wkt_read_linestring(struct uv__stok *token,
+struct nv_geom *nv__wkt_read_linestring(struct uv__stok *token,
                                             struct uv__ordinate *flag)
 {
     double *coord = NULL;
@@ -309,7 +309,7 @@ struct nv_geobject *nv__wkt_read_linestring(struct uv__stok *token,
     return NULL;
 }
 
-struct nv_geobject *nv__wkt_read_linearring(struct uv__stok *token,
+struct nv_geom *nv__wkt_read_linearring(struct uv__stok *token,
                                             struct uv__ordinate *flag)
 {
     double *coord = NULL;
@@ -322,18 +322,18 @@ struct nv_geobject *nv__wkt_read_linearring(struct uv__stok *token,
     return NULL;
 }
 
-struct nv_geobject *nv__wkt_read_polygon(struct uv__stok *token,
+struct nv_geom *nv__wkt_read_polygon(struct uv__stok *token,
                                          struct uv__ordinate *flag)
 {
     char *nextToken = nv__wkt_get_next_empty_or_opener(token, flag);
     if (strncmp(nextToken, "EMPTY", 5) == 0)
         return NULL;
 
-    struct nv_geobject **subs =
-        (struct nv_geobject **)nv__calloc(1, sizeof(struct nv_geobject *));
+    struct nv_geom **subs =
+        (struct nv_geom **)nv__calloc(1, sizeof(struct nv_geom *));
     if (subs == NULL)
         return NULL;
-    struct nv_geobject *shell = nv__wkt_read_linearring(token, flag);
+    struct nv_geom *shell = nv__wkt_read_linearring(token, flag);
     subs[0] = shell;
     nextToken = nv__wkt_get_next_closer_comma(token);
     while (strcmp(nextToken, ",") == 0) {
@@ -342,19 +342,19 @@ struct nv_geobject *nv__wkt_read_polygon(struct uv__stok *token,
     return NULL;
 }
 
-struct nv_geobject *nv__wkt_read_multipoint(struct uv__stok *token,
+struct nv_geom *nv__wkt_read_multipoint(struct uv__stok *token,
                                             struct uv__ordinate *flag)
 {
     return NULL;
 }
 
-struct nv_geobject *nv__wkt_read_multilinestring(struct uv__stok *token,
+struct nv_geom *nv__wkt_read_multilinestring(struct uv__stok *token,
                                                  struct uv__ordinate *flag)
 {
     return NULL;
 }
 
-struct nv_geobject *nv__wkt_read_multipolygon(struct uv__stok *token,
+struct nv_geom *nv__wkt_read_multipolygon(struct uv__stok *token,
                                               struct uv__ordinate *flag)
 {
     return NULL;

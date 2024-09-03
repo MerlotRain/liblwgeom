@@ -22,7 +22,7 @@
 
 #include "nv-common.h"
 
-double nv_prop_width_value(const struct nv_geobject *obj)
+double nv_prop_width_value(const struct nv_geom *obj)
 {
     assert(obj);
     double xmin = 0.0;
@@ -42,7 +42,7 @@ double nv_prop_width_value(const struct nv_geobject *obj)
         xmin = obj->objects[0]->pp[0];
         xmax = obj->objects[0]->pp[0];
         for (int i = 0; i < obj->ngeoms; ++i) {
-            struct nv_geobject *sub = obj->objects[i];
+            struct nv_geom *sub = obj->objects[i];
             if (sub == NULL)
                 continue;
             for (int j = 0; j < sub->npoints; ++j) {
@@ -56,7 +56,7 @@ double nv_prop_width_value(const struct nv_geobject *obj)
     }
 }
 
-double nv_prop_height_value(const struct nv_geobject *obj)
+double nv_prop_height_value(const struct nv_geom *obj)
 {
     assert(obj);
     double xmin = 0.0;
@@ -78,7 +78,7 @@ double nv_prop_height_value(const struct nv_geobject *obj)
         xmin = obj->objects[0]->pp[1];
         xmax = obj->objects[0]->pp[1];
         for (int i = 0; i < obj->ngeoms; ++i) {
-            struct nv_geobject *sub = obj->objects[i];
+            struct nv_geom *sub = obj->objects[i];
             if (sub == NULL)
                 continue;
             for (int j = 0; j < sub->npoints; ++j) {

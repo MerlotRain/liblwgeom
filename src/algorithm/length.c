@@ -22,7 +22,7 @@
 
 #include "nv-common.h"
 
-double _nv_prop_length_value(const struct nv_geobject *obj)
+double _nv_prop_length_value(const struct nv_geom *obj)
 {
     size_t n = obj->npoints;
     if (n <= 1) {
@@ -45,7 +45,7 @@ double _nv_prop_length_value(const struct nv_geobject *obj)
 }
 
 /// calc geometry length
-double nv_prop_length_value(const struct nv_geobject *obj)
+double nv_prop_length_value(const struct nv_geom *obj)
 {
     assert(obj);
 

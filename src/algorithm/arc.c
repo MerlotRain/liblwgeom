@@ -53,11 +53,11 @@ static int nv__arc_center(struct nv_point2d c0, struct nv_point2d c1,
     return 1;
 }
 
-/// @brief stroke arc to nv_geobject
+/// @brief stroke arc to nv_geom
 /// @param arc arc
 /// @param maxAngleStepSizeDegress max angle step size
-/// @return nv_geobject
-struct nv_geobject *nv_arc_stroke(struct nv_arc arc,
+/// @return nv_geom
+struct nv_geom *nv_arc_stroke(struct nv_arc arc,
                                   double maxAngleStepSizeDegress)
 {
     double startAngle, alongAngle, endAngle;
