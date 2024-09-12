@@ -64,6 +64,14 @@ void *nv__malloc(size_t size)
     return NULL;
 }
 
+void *nv__malloc0(size_t size)
+{
+    void* m = nv__malloc(size);
+    if(m)
+        memset(m, 0, size);
+    return m;
+}
+
 void nv__free(void *ptr)
 {
     nv__allocator.local_free(ptr);
@@ -103,4 +111,16 @@ int error_code()
 char *error_messgae()
 {
     return last_error;
+}
+
+size_t nv__nearest_pow(size_t v)
+{
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v |= v >> 32;
+    ++v;
+    return v;
 }

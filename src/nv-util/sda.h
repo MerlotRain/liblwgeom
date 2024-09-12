@@ -25,22 +25,25 @@
 
 #include <stddef.h>
 #include "nv-common.h"
-#include <string.h>
 
 struct nv__sda {
     char *data;
-    int len;
+    size_t len;
 };
 
 struct nv__sda *nv__sda_new(size_t element_size);
-struct nv__sda *nv__sda_free(struct nv__sda *sda);
-#define nv__sda_index(a, t, i)      (((t *)(void *)(a)->data)[(i)])
-#define nv__sda_append_val(a, v)    nv__sda_append_vals(a, &(v), 1)
-#define nv__sda_prepend_val(a, v)   nv__sda_prepend_vals(a, &(v), 1)
-#define nv__sda_insert_val(a, i, v) nv__sda_insert_vals(a, i, &(v), 1)
+char *nv__sda_free(struct nv__sda *sda, NV_BOOLEAN free_segment);
 struct nv__sda *nv__sda_append_vals(struct nv__sda *a, void *data, size_t len);
 struct nv__sda *nv__sda_prepend_vals(struct nv__sda *a, void *data, size_t len);
 struct nv__sda *nv__sda_insert_vals(struct nv__sda *a, size_t index_,
                                     void *data, size_t len);
+struct nv__sda *nv__sda_set_size(struct nv__sda *a, size_t length);
+struct nv__sda *nv__sda_remove_range(struct nv__sda *a, size_t index_,
+                                     size_t length);
+void nv__sda_set_clear_func(struct nv__sda *a, void(*func)(void *));
 
+#define nv__sda_index(a, t, i)      (((t *) (void *) (a)->data)[(i)])
+#define nv__sda_append_val(a, v)    nv__sda_append_vals(a, &(v), 1)
+#define nv__sda_prepend_val(a, v)   nv__sda_prepend_vals(a, &(v), 1)
+#define nv__sda_insert_val(a, i, v) nv__sda_insert_vals(a, i, &(v), 1)
 #endif

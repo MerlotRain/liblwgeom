@@ -31,6 +31,7 @@ extern "C" {
 #include <stdint.h>
 #include <stddef.h>
 
+typedef int NV_BOOLEAN;
 #define NV_TRUE            1
 #define NV_FALSE           0
 

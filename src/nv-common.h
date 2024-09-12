@@ -55,9 +55,12 @@
 
 /* Allocator prototypes */
 void *nv__calloc(size_t count, size_t size);
+void *nv__malloc0(size_t size);
 void *nv__malloc(size_t size);
 void nv__free(void *ptr);
 void *nv__realloc(void *ptr, size_t size);
 void nv__record_error(int code, const char *fmt, ...);
+
+void nv__nearest_pow(size_t v);
 
 #endif /* LIBNV_COMMON_H */
