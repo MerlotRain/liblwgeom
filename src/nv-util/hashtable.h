@@ -20,30 +20,20 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef SDA_H
-#define SDA_H
+#ifndef HASHTABLE_H
+#define HASHTABLE_H
 
 #include <stddef.h>
 #include "nv-common.h"
 
-struct nv__sda {
-    char *data;
-    size_t len;
-};
+struct nv__hashtable *nv__hashtable_new(HashFunc hash_func, EqualFunc key_equal_func, 
+        DestoryFunc key_destroy_func, DestoryFunc value_destroy_func);
 
-struct nv__sda *nv__sda_new(size_t element_size);
-char *nv__sda_free(struct nv__sda *sda, NV_BOOLEAN free_segment);
-struct nv__sda *nv__sda_append_vals(struct nv__sda *a, void *data, size_t len);
-struct nv__sda *nv__sda_prepend_vals(struct nv__sda *a, void *data, size_t len);
-struct nv__sda *nv__sda_insert_vals(struct nv__sda *a, size_t index_,
-                                    void *data, size_t len);
-struct nv__sda *nv__sda_set_size(struct nv__sda *a, size_t length);
-struct nv__sda *nv__sda_remove_range(struct nv__sda *a, size_t index_,
-                                     size_t length);
-void nv__sda_set_clear_func(struct nv__sda *a, DestoryFunc func);
+void nv__hashtable_free(struct nv__hashtable *hash_table);
+NV_BOOLEAN nv__hashtable_insert(struct nv__hashtable *hash_table, void *key, void *value);
+NV_BOOLEAN nv__hashtable_replace(struct nv__hashtable *hash_table, void* key, void *value);
+NV_BOOLEAN nv__hashtable_remove(struct nv__hashtable *hash_table, void* key);
+NV_BOOLEAN nv__hashtable_remove_all(struct nv__hashtable *hash_table);
+NV_BOOLEAN nv__hashtable_contains(struct nv__hashtable *hash_table, const void *key);
 
-#define nv__sda_index(a, t, i)      (((t *) (void *) (a)->data)[(i)])
-#define nv__sda_append_val(a, v)    nv__sda_append_vals(a, &(v), 1)
-#define nv__sda_prepend_val(a, v)   nv__sda_prepend_vals(a, &(v), 1)
-#define nv__sda_insert_val(a, i, v) nv__sda_insert_vals(a, i, &(v), 1)
 #endif

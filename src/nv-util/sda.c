@@ -28,8 +28,7 @@
 #include <assert.h>
 #include <string.h>
 #include <limits.h>
-
-typedef void(*clearFunc)(void *);
+#include <stdlib.h>
 
 struct nv__sda_real
 {
@@ -37,7 +36,7 @@ struct nv__sda_real
     size_t len;
     size_t elt_capacity;
     size_t elt_size;
-    clearFunc clear_func;
+    DestoryFunc clear_func;
 };
 
 #define nv__sda_elt_len(array, i) ((size_t)(array)->elt_size * (i))
@@ -200,7 +199,7 @@ struct nv__sda *nv__sda_remove_range(struct nv__sda *a, size_t index_,
     return a;  
 }
 
-void nv__sda_set_clear_func(struct nv__sda *a, void(*func)(void *))
+void nv__sda_set_clear_func(struct nv__sda *a, , DestoryFunc func)
 {
     struct nv__sda_real *array = (struct nv__sda_real*)(a);
     if(array == NULL)

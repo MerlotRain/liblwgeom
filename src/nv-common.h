@@ -61,6 +61,14 @@ void nv__free(void *ptr);
 void *nv__realloc(void *ptr, size_t size);
 void nv__record_error(int code, const char *fmt, ...);
 
-void nv__nearest_pow(size_t v);
+size_t nv__nearest_pow(size_t v);
+
+// nv-util callback function
+typedef void (*DestoryFunc)(void *);
+typedef void (*EqualFunc)(const void *, const void *);
+typedef void (*HashFunc)(const void *);
+
+// default hash function
+size_t nv__str_hash(const void *str);
 
 #endif /* LIBNV_COMMON_H */
