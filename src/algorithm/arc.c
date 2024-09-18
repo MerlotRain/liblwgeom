@@ -20,10 +20,9 @@
  * IN THE SOFTWARE.
  */
 
-#include "nv-common.h"
+#include "liblwgeom_internel.h"
 
-static int nv__arc_center(struct nv_point2d c0, struct nv_point2d c1,
-                          struct nv_point2d c2, struct nv_point2d *center)
+static int nv__arc_center(POINT2D c0, POINT2D c1, POINT2D c2, POINT2D *center)
 {
     if (c0.x == c2.x && c0.y == c2.y) {
         center->x = (c0.x + c1.x) / 2.0;
@@ -31,9 +30,9 @@ static int nv__arc_center(struct nv_point2d c0, struct nv_point2d c1,
         return 1;
     }
 
-    struct nv_point2d a = {.x = c1.x - c2.x, .y = c1.y - c2.y};
-    struct nv_point2d b = {.x = c2.x - c0.x, .y = c2.y - c0.y};
-    struct nv_point2d c = {.x = c0.x - c1.x, .y = c0.y - c1.y};
+    POINT2D a = {.x = c1.x - c2.x, .y = c1.y - c2.y};
+    POINT2D b = {.x = c2.x - c0.x, .y = c2.y - c0.y};
+    POINT2D c = {.x = c0.x - c1.x, .y = c0.y - c1.y};
 
     double d1 = -(b.x * c.x + b.y * c.y);
     double d2 = -(c.x * a.x + c.y * a.y);
@@ -44,9 +43,9 @@ static int nv__arc_center(struct nv_point2d c0, struct nv_point2d c1,
     double e3 = d1 * d2;
     double e = e1 + e2 + e3;
 
-    struct nv_point2d G3 = {.x = c0.x + c1.x + c2.x, .y = c0.y + c1.y + c2.y};
-    struct nv_point2d H = {.x = (e1 * c0.x + e2 * c1.x + e3 * c2.x) / e,
-                           .y = (e1 * c0.y + e2 * c1.y + e3 * c2.y) / e};
+    POINT2D G3 = {.x = c0.x + c1.x + c2.x, .y = c0.y + c1.y + c2.y};
+    POINT2D H = {.x = (e1 * c0.x + e2 * c1.x + e3 * c2.x) / e,
+                 .y = (e1 * c0.y + e2 * c1.y + e3 * c2.y) / e};
 
     center->x = 0.5 * (G3.x - H.x);
     center->y = 0.5 * (G3.y - H.y);
@@ -57,7 +56,7 @@ static int nv__arc_center(struct nv_point2d c0, struct nv_point2d c1,
 /// @param arc arc
 /// @param maxAngleStepSizeDegress max angle step size
 /// @return nv_geom
-struct nv_geom *nv_arc_stroke(struct nv_arc arc, double maxAngleStepSizeDegress)
+LWGEOM *nv_arc_stroke(struct nv_arc arc, double maxAngleStepSizeDegress)
 {
     double startAngle, alongAngle, endAngle;
     double cx, cy, radius;

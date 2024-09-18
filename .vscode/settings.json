@@ -143,7 +143,8 @@
     "vec4us": "c",
     "viewport": "c",
     "nv.h": "c",
-    "nv-common.h": "c"
+    "nv-common.h": "c",
+    "liblwgeom_internel.h": "c"
   },
   "cmake.configureArgs": [
     "-DBUILD_TESTS=ON",

@@ -20,27 +20,34 @@
  * IN THE SOFTWARE.
  */
 
-#include "graph.h"
-#include <stddef.h>
-#include <nv-common.h>
+#ifndef LIBLWGEOM_INTERNEL_H
+#define LIBLWGEOM_INTERNEL_H
 
-struct un_graph *graph_delaunay(double *pp, int num_points)
-{
-    struct un_graph *delanuay =
-        (struct un_graph *)lwmalloc(sizeof(struct un_graph));
-    if (delanuay == NULL)
-        return NULL;
+#include "liblwgeom.h"
 
-    delanuay->nodes =
-        (struct ung_node *)lwmalloc(num_points * sizeof(struct ung_node));
-    if (delanuay->nodes == NULL) {
-        lwfree(delanuay);
-        return NULL;
-    }
-    delanuay->pp = pp;
-    delanuay->num_nodes = num_points;
-    delanuay->edges = NULL;
-    delanuay->num_edges = 0;
+#ifndef NV_MAX
+#define NV_MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
 
-    return delanuay;
-}
+#ifndef NV_MIN
+#define NV_MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
+#define NV_MAX3(a, b, c) \
+    ((a) > (b) ? ((a) > (c) ? (a) : (c)) : ((b) > (c) ? (b) : (c)))
+
+#define NV_MIN3(a, b, c) \
+    ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
+
+// nv-util callback function
+typedef void (*DestoryFunc)(void *);
+typedef void (*EqualFunc)(const void *, const void *);
+typedef void (*HashFunc)(const void *);
+
+// default hash function
+size_t lw_str_hash(const void *str);
+size_t lw_nearest_pow(size_t v);
+
+
+
+#endif /* LIBLWGEOM_INTERNEL_H */

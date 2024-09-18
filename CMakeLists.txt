@@ -22,6 +22,7 @@ option(BUILD_WITH_PROJ "build with proj" OFF)
 option(BUILD_WITH_CAIRO "build with cairo" OFF)
 
 find_package(PkgConfig REQUIRED)
+pkg_check_modules(CUnit cunit)
 if(BUILD_WITH_CAIRO)
   pkg_check_modules(CAIRO cairo)
   message("found cario: " ${CAIRO_FOUND})
@@ -115,11 +116,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set(NV_VERSION_MAJOR 1)
 set(NV_VERSION_MINOR 0)
 set(NV_VERSION_PATCH 1)
-
-configure_file("${CMAKE_CURRENT_LIST_DIR}/nv.h.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/nv.h"
-    @ONLY
-)
 
 #-----------------------------------------------------------------------------
 # source files

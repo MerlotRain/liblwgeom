@@ -19,20 +19,14 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-
 #include "liblwgeom_internel.h"
 
-LWGEOM *nv_prop_geo_clone(const LWGEOM *obj)
+LWGEOM *lwgeom_read_gml2(const char *data, size_t len)
 {
-    assert(obj);
+    return NULL;
+}
 
-    LWGEOM *clone = (LWGEOM *)lwmalloc(sizeof(LWGEOM));
-    if (clone == NULL) {
-        return NULL;
-    }
-
-    clone->ngeoms = obj->ngeoms;
-    if (obj->ngeoms == 1) {
-    }
+LWGEOM *lwgeom_read_gml3(const char *data, size_t len)
+{
     return NULL;
 }

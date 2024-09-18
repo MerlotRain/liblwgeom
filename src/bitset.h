@@ -20,27 +20,31 @@
  * IN THE SOFTWARE.
  */
 
-#include "graph.h"
+#ifndef BITSET_H
+#define BITSET_H
+
 #include <stddef.h>
-#include <nv-common.h>
 
-struct un_graph *graph_delaunay(double *pp, int num_points)
-{
-    struct un_graph *delanuay =
-        (struct un_graph *)lwmalloc(sizeof(struct un_graph));
-    if (delanuay == NULL)
-        return NULL;
+enum {
+    LWBITSET_STATE_NONE, ///< All bits are LW_FALSE
+    LWBITSET_STATE_ALL,  ///< All bits are LW_TRUE
+    LWBITSET_STATE_ANY   ///< Some bits are LW_TRUE
+};
 
-    delanuay->nodes =
-        (struct ung_node *)lwmalloc(num_points * sizeof(struct ung_node));
-    if (delanuay->nodes == NULL) {
-        lwfree(delanuay);
-        return NULL;
-    }
-    delanuay->pp = pp;
-    delanuay->num_nodes = num_points;
-    delanuay->edges = NULL;
-    delanuay->num_edges = 0;
+typedef struct {
+    size_t length;
+    size_t capacity;
+    char data[];
+} bitset_t;
 
-    return delanuay;
-}
+bitset_t *bitset_new(size_t size);
+void bitset_free(bitset_t *bs);
+void bitset_set(bitset_t *bs, size_t index);
+void bitset_clear(bitset_t *bs, size_t index);
+int bitset_test(bitset_t *bs, size_t index);
+void bitset_flip(bitset_t *bs, size_t index);
+int bitset_state(bitset_t *bs);
+size_t bitset_count(bitset_t *bs);
+size_t bitset_size(bitset_t *bs);
+
+#endif

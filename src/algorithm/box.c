@@ -20,17 +20,17 @@
  * IN THE SOFTWARE.
  */
 
-#include "geom-internal.h"
+#include "liblwgeom_internel.h"
 #include <float.h>
 #include <math.h>
 
 /// check box is null?
 #define MV_BOX_NULL(B)                                                        \
     (isnan(B.min.x) && isnan(B.max.x) && isnan(B.min.y) && isnan(B.max.y)) || \
-        (NV_DOUBLE_NEARES2(B.min.x, DBL_MAX) &&                               \
-         NV_DOUBLE_NEARES2(B.min.y, DBL_MAX) &&                               \
-         NV_DOUBLE_NEARES2(B.max.x, -DBL_MAX) &&                              \
-         NV_DOUBLE_NEARES2(B.max.y, -DBL_MAX))
+        (LW_DOUBLE_NEARES2(B.min.x, DBL_MAX) &&                               \
+         LW_DOUBLE_NEARES2(B.min.y, DBL_MAX) &&                               \
+         LW_DOUBLE_NEARES2(B.max.x, -DBL_MAX) &&                              \
+         LW_DOUBLE_NEARES2(B.max.y, -DBL_MAX))
 
 /// init box
 #define MV_BOX_INIT(B)                                      \
@@ -40,13 +40,13 @@
 /// @brief Check two box is intersects
 /// @param env1 the first Envelope
 /// @param env2 the second Envelope
-/// @return NV_TRUE if the two Envelopes intersect
+/// @return LW_TRUE if the two Envelopes intersect
 int nv_box_intersects(const struct nv_box env1, const struct nv_box env2)
 {
     const double x1 = NV_MAX(env1.min.x, env2.min.x);
     const double x2 = NV_MIN(env1.max.x, env2.max.x);
     if (x1 > x2)
-        return NV_FALSE;
+        return LW_FALSE;
     const double y1 = NV_MAX(env1.min.y, env2.min.y);
     const double y2 = NV_MIN(env1.max.y, env2.max.y);
     return y1 <= y2;
@@ -94,7 +94,7 @@ struct nv_box nv_box_union(const struct nv_box env1, const struct nv_box env2)
 /// @param e the nv_box object
 /// @param gdim the geometry dimension
 /// @return the nv_geom object
-struct nv_geom *nv_box_stroke(struct nv_box e, int gdim)
+LWGEOM *nv_box_stroke(struct nv_box e, int gdim)
 {
     return NULL; // TODO
 }

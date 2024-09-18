@@ -22,17 +22,24 @@
 
 #include "liblwgeom_internel.h"
 
-LWGEOM *nv_prop_geo_clone(const LWGEOM *obj)
+typedef struct {
+    int sdo_starting_offset;
+    int sdo_etype;
+    int sdo_interpretation;
+} GEOM_SDO_ELEM_INFO;
+
+LWGEOM *lwgeom_read_ora(const LWGEOM_SDO sdo, int flag)
 {
-    assert(obj);
+    int dimension = 2 > (sdo.sdo_gtype / 1000) ? 2 : (sdo.sdo_gtype / 1000);
 
-    LWGEOM *clone = (LWGEOM *)lwmalloc(sizeof(LWGEOM));
-    if (clone == NULL) {
-        return NULL;
+    int tt = sdo.sdo_gtype % 100;
+    if (tt > 0 && tt < 4) {
+        GEOM_SDO_ELEM_INFO *pElemInfo = (GEOM_SDO_ELEM_INFO *)sdo.sdo_elem_info;
+        for (int i = 0; i < sdo.sdo_elem_count / 3; i++) {
+        }
     }
-
-    clone->ngeoms = obj->ngeoms;
-    if (obj->ngeoms == 1) {
+    else if (tt > 4 && tt < 8) {
+        // multi nv_geom
     }
     return NULL;
 }

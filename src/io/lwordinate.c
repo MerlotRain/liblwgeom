@@ -20,27 +20,30 @@
  * IN THE SOFTWARE.
  */
 
-#include "graph.h"
-#include <stddef.h>
-#include <nv-common.h>
+#include "ordinate.h"
 
-struct un_graph *graph_delaunay(double *pp, int num_points)
+struct uv__ordinate uv__ordinate_XY()
 {
-    struct un_graph *delanuay =
-        (struct un_graph *)lwmalloc(sizeof(struct un_graph));
-    if (delanuay == NULL)
-        return NULL;
+    struct uv__ordinate flag;
+    flag.value = UV__ORDINATE_VALUE_X | UV__ORDINATE_VALUE_Y;
+    flag.changeAllowed = LW_TRUE;
+    return flag;
+}
 
-    delanuay->nodes =
-        (struct ung_node *)lwmalloc(num_points * sizeof(struct ung_node));
-    if (delanuay->nodes == NULL) {
-        lwfree(delanuay);
-        return NULL;
+void uv__ordinate_setZ(struct uv__ordinate *o, int v)
+{
+    if ((o->value & UV__ORDINATE_VALUE_Z) != v) {
+        if (o->changeAllowed) {
+            o->value ^= UV__ORDINATE_VALUE_Z;
+        }
     }
-    delanuay->pp = pp;
-    delanuay->num_nodes = num_points;
-    delanuay->edges = NULL;
-    delanuay->num_edges = 0;
+}
 
-    return delanuay;
+void uv__ordinate_setM(struct uv__ordinate *o, int v)
+{
+    if ((o->value & UV__ORDINATE_VALUE_M) != v) {
+        if (o->changeAllowed) {
+            o->value ^= UV__ORDINATE_VALUE_M;
+        }
+    }
 }

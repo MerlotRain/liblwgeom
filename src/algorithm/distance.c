@@ -20,4 +20,4 @@
  * IN THE SOFTWARE.
  */
 
-#include "nv-common.h"
+#include "liblwgeom_internel.h"

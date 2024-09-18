@@ -20,7 +20,7 @@
  * IN THE SOFTWARE.
  */
 
-#include "nv-common.h"
+#include "liblwgeom_internel.h"
 #include <float.h>
 
 struct bbr_seg {

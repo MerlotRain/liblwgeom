@@ -22,17 +22,15 @@
 
 #include "liblwgeom_internel.h"
 
-LWGEOM *nv_prop_geo_clone(const LWGEOM *obj)
+#include <string.h>
+#include <locale.h>
+
+#include <assert.h>
+#include <ctype.h>
+
+/* -------------------------------- inner wkt ------------------------------- */
+
+int lwgeom_write_wkt(const LWGEOM *obj, char **data, size_t *len)
 {
-    assert(obj);
-
-    LWGEOM *clone = (LWGEOM *)lwmalloc(sizeof(LWGEOM));
-    if (clone == NULL) {
-        return NULL;
-    }
-
-    clone->ngeoms = obj->ngeoms;
-    if (obj->ngeoms == 1) {
-    }
-    return NULL;
+    return 0;
 }

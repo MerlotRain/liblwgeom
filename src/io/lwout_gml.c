@@ -22,17 +22,12 @@
 
 #include "liblwgeom_internel.h"
 
-LWGEOM *nv_prop_geo_clone(const LWGEOM *obj)
+int lwgeom_write_gml2(const LWGEOM *g, char **data, size_t *len)
 {
-    assert(obj);
+    return 0;
+}
 
-    LWGEOM *clone = (LWGEOM *)lwmalloc(sizeof(LWGEOM));
-    if (clone == NULL) {
-        return NULL;
-    }
-
-    clone->ngeoms = obj->ngeoms;
-    if (obj->ngeoms == 1) {
-    }
-    return NULL;
+int lwgeom_write_gml3(const LWGEOM *g, char **data, size_t *len)
+{
+    return 0;
 }

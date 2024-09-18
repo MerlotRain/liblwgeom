@@ -20,13 +20,13 @@
  * IN THE SOFTWARE.
  */
 
-#include "geom-internal.h"
+#include "liblwgeom_internel.h"
 
 struct nv__centriod {
-    struct nv_point2d p_cent_sum;
+    POINT2D p_cent_sum;
     size_t pt_num;
 
-    struct nv_point2d l_cent_sum;
+    POINT2D l_cent_sum;
     double total_length;
 
     double total_area;
@@ -34,8 +34,7 @@ struct nv__centriod {
     double total_ay;
 };
 
-void nv__centriod_single(const struct nv_geom *obj,
-                         struct nv__centriod *centriod)
+void nv__centriod_single(const LWGEOM *obj, struct nv__centriod *centriod)
 {
     assert(obj);
     if (nv_geo_dim_g(obj) == 0) {
@@ -47,10 +46,10 @@ void nv__centriod_single(const struct nv_geom *obj,
         size_t npts = obj->npoints;
         double line_len = 0.0;
         for (size_t i = 0; i < npts - 1; ++i) {
-            double x1 = nv__geo_get_x(obj, i);
-            double y1 = nv__geo_get_y(obj, i);
-            double x2 = nv__geo_get_x(obj, i + 1);
-            double y2 = nv__geo_get_y(obj, i + 1);
+            double x1 = lwgeom_get_x(obj, i);
+            double y1 = lwgeom_get_y(obj, i);
+            double x2 = lwgeom_get_x(obj, i + 1);
+            double y2 = lwgeom_get_y(obj, i + 1);
             double segment_len = NV_POINTDISTANCE(x1, y1, x2, y2);
             if (segment_len == 0.0)
                 continue;
@@ -73,8 +72,8 @@ void nv__centriod_single(const struct nv_geom *obj,
         double tx = 0.0;
         double ty = 0.0;
         for (int i = 0; i < obj->npoints; ++i) {
-            tx += nv__geo_get_x(obj, i);
-            ty += nv__geo_get_y(obj, i);
+            tx += lwgeom_get_x(obj, i);
+            ty += lwgeom_get_y(obj, i);
         }
         centriod->total_area += area;
         centriod->total_ax += (tx / obj->npoints);
@@ -82,7 +81,7 @@ void nv__centriod_single(const struct nv_geom *obj,
     }
 }
 
-void nv_prop_geo_centriod(const struct nv_geom *obj, double *xy)
+void nv_prop_geo_centriod(const LWGEOM *obj, double *xy)
 {
     assert(obj);
     struct nv__centriod centriod;

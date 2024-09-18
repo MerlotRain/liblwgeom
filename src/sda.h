@@ -20,27 +20,28 @@
  * IN THE SOFTWARE.
  */
 
-#include "graph.h"
-#include <stddef.h>
-#include <nv-common.h>
+#ifndef SDA_H
+#define SDA_H
 
-struct un_graph *graph_delaunay(double *pp, int num_points)
-{
-    struct un_graph *delanuay =
-        (struct un_graph *)lwmalloc(sizeof(struct un_graph));
-    if (delanuay == NULL)
-        return NULL;
+#include "liblwgeom_internel.h"
 
-    delanuay->nodes =
-        (struct ung_node *)lwmalloc(num_points * sizeof(struct ung_node));
-    if (delanuay->nodes == NULL) {
-        lwfree(delanuay);
-        return NULL;
-    }
-    delanuay->pp = pp;
-    delanuay->num_nodes = num_points;
-    delanuay->edges = NULL;
-    delanuay->num_edges = 0;
+typedef struct {
+    char *data;
+    size_t len;
+} sda_t;
 
-    return delanuay;
-}
+sda_t *sda_new(size_t element_size);
+char *sda_free(sda_t *sda, LWBOOLEAN free_segment);
+sda_t *sda_append_vals(sda_t *a, void *data, size_t len);
+sda_t *sda_prepend_vals(sda_t *a, void *data, size_t len);
+sda_t *sda_insert_vals(sda_t *a, size_t index_, void *data, size_t len);
+sda_t *sda_set_size(sda_t *a, size_t length);
+sda_t *sda_remove_range(sda_t *a, size_t index_, size_t length);
+void sda_set_clear_func(sda_t *a, DestoryFunc func);
+
+#define sda_index(a, t, i)      (((t *)(void *)(a)->data)[(i)])
+#define sda_append_val(a, v)    sda_append_vals(a, &(v), 1)
+#define sda_prepend_val(a, v)   sda_prepend_vals(a, &(v), 1)
+#define sda_insert_val(a, i, v) sda_insert_vals(a, i, &(v), 1)
+
+#endif /* SDA_H */

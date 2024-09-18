@@ -91,7 +91,7 @@ struct geo_array *g_geo_array = NULL;
 void init_geo_point_buckets()
 {
     if (g_geo_array == NULL) {
-        g_geo_array = nv__malloc(sizeof(struct geo_array));
+        g_geo_array = lwmalloc(sizeof(struct geo_array));
         if (g_geo_array == NULL)
             return;
     }

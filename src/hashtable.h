@@ -20,27 +20,7 @@
  * IN THE SOFTWARE.
  */
 
-#include "graph.h"
-#include <stddef.h>
-#include <nv-common.h>
+#ifndef HASHTABLE_H
+#define HASHTABLE_H
 
-struct un_graph *graph_delaunay(double *pp, int num_points)
-{
-    struct un_graph *delanuay =
-        (struct un_graph *)lwmalloc(sizeof(struct un_graph));
-    if (delanuay == NULL)
-        return NULL;
-
-    delanuay->nodes =
-        (struct ung_node *)lwmalloc(num_points * sizeof(struct ung_node));
-    if (delanuay->nodes == NULL) {
-        lwfree(delanuay);
-        return NULL;
-    }
-    delanuay->pp = pp;
-    delanuay->num_nodes = num_points;
-    delanuay->edges = NULL;
-    delanuay->num_edges = 0;
-
-    return delanuay;
-}
+#endif /* HASHTABLE_H */
