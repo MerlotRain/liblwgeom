@@ -26,7 +26,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-static double uv__strtod_with_vc_fix(const char *str, char **str_end)
+static double stok__strtod_with_vc_fix(const char *str, char **str_end)
 {
     double dbl = strtod(str, str_end);
 #if _MSC_VER && !__INTEL_COMPILER
@@ -55,7 +55,7 @@ static double uv__strtod_with_vc_fix(const char *str, char **str_end)
     return dbl;
 }
 
-void uv__stok_init(struct uv__stok *tok, char *t)
+void stok_init(stok_t *tok, char *t)
 {
     tok->head = t;                   // head of the string
     tok->pos = t;                    // current position
@@ -65,10 +65,10 @@ void uv__stok_init(struct uv__stok *tok, char *t)
     tok->ntok = 0.;                  // current token as a number
 }
 
-int uv__stok_next_token(struct uv__stok *tok)
+int stok_next_token(stok_t *tok)
 {
     if (tok->pos == tok->end)
-        return UV__STOK_EOF;
+        return STOK_EOF;
 
     switch (*tok->pos) {
     case '(':
@@ -81,10 +81,10 @@ int uv__stok_next_token(struct uv__stok *tok)
     case ' ': {
         size_t _pos = strspn(tok->pos, " \n\r\t");
         if (_pos == strlen(tok->pos))
-            return UV__STOK_EOF;
+            return STOK_EOF;
         else {
             tok->pos = tok->pos + _pos;
-            return uv__stok_next_token(tok);
+            return stok_next_token(tok);
         }
     }
     }
@@ -96,7 +96,7 @@ int uv__stok_next_token(struct uv__stok *tok)
             tok->pos = tok->end;
         }
         else {
-            return UV__STOK_EOF;
+            return STOK_EOF;
         }
     }
     else {
@@ -106,26 +106,26 @@ int uv__stok_next_token(struct uv__stok *tok)
     }
 
     char *stopstring;
-    double dbl = uv__strtod_with_vc_fix(tok->stok, &stopstring);
+    double dbl = stok__strtod_with_vc_fix(tok->stok, &stopstring);
     if (*stopstring == '\0') {
         tok->ntok = dbl;
         memset(tok->stok, 0, UCHAR_MAX);
-        return UV__STOK_NUM;
+        return STOK_NUM;
     }
     else {
-        return UV__STOK_WORD;
+        return STOK_WORD;
     }
 }
 
-int uv__stok_peek_next_token(struct uv__stok *tok)
+int stok_peek_next_token(stok_t *tok)
 {
     if (tok->pos == tok->end)
-        return UV__STOK_EOF;
+        return STOK_EOF;
 
     char stok[UCHAR_MAX] = {0};
     size_t _pos = strspn(tok->pos, " \n\r\t");
     if (_pos == strlen(tok->pos))
-        return UV__STOK_EOF;
+        return STOK_EOF;
 
     switch (*tok->pos)
     case '(':
@@ -138,22 +138,22 @@ int uv__stok_peek_next_token(struct uv__stok *tok)
         if (tok->pos != tok->end)
             memcpy(stok, tok->pos, strlen(tok->pos));
         else
-            return UV__STOK_EOF;
+            return STOK_EOF;
     }
     else {
         memcpy(stok, tok->pos, brk - tok->pos);
     }
 
     char *stopstring;
-    double dbl = uv__strtod_with_vc_fix(stok, &stopstring);
+    double dbl = stok__strtod_with_vc_fix(stok, &stopstring);
     if (*stopstring == '\0') {
         tok->ntok = dbl;
         memset(tok->stok, 0, strlen(tok->stok));
-        return UV__STOK_NUM;
+        return STOK_NUM;
     }
     else {
         tok->ntok = 0.0;
         memcpy(tok->stok, stok, strlen(stok));
-        return UV__STOK_WORD;
+        return STOK_WORD;
     }
 }

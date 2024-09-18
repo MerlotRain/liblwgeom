@@ -1,0 +1,3 @@
+#  liblwgeom Makefile
+
+CC= gcc

@@ -167,13 +167,13 @@ extern LWGEOM *lwgeom_collection_add_geom(LWGEOM *mobj, LWGEOM *obj);
 
 extern void lwgeom_free(LWGEOM *obj);
 
-extern int lwgeom_hasz(const LWGEOM *obj);
-extern int lwgeom_hasm(const LWGEOM *obj);
-extern int lwgeom_dim_c(const LWGEOM *obj);
-extern int lwgeom_dim_g(const LWGEOM *obj);
-extern int lwgeom_sub_n(const LWGEOM *obj);
-extern LWGEOM *lwgeom_sub_at(const LWGEOM *obj, int i);
-extern int lwgeom_point_n(const LWGEOM *obj);
+extern int lwgeom_has_z(const LWGEOM *obj);
+extern int lwgeom_has_m(const LWGEOM *obj);
+extern int lwgeom_dim_coordinate(const LWGEOM *obj);
+extern int lwgeom_dim_geometry(const LWGEOM *obj);
+extern int lwgeom_children_count(const LWGEOM *obj);
+extern LWGEOM *lwgeom_child_at(const LWGEOM *obj, int i);
+extern int lwgeom_points_count(const LWGEOM *obj);
 extern int lwgeom_point_at(const LWGEOM *obj, int n, double *point);
 extern double *lwgeom_points(const LWGEOM *obj);
 

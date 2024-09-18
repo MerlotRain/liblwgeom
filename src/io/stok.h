@@ -26,23 +26,23 @@
 #include <stddef.h>
 
 enum {
-    UV__STOK_EOF,  // end of string stream
-    UV__STOK_EOL,  // end of line
-    UV__STOK_NUM,  // token a number value
-    UV__STOK_WORD, // token a string value
+    STOK_EOF,  // end of string stream
+    STOK_EOL,  // end of line
+    STOK_NUM,  // token a number value
+    STOK_WORD, // token a string value
 };
 
-struct uv__stok {
+typedef struct {
     double ntok;
     char stok[255];
     size_t len;
     char *head; // string stream head pointer
     char *pos;  // string stream current pointer
     char *end;  // string stream end pointer
-};
+} stok_t;
 
-void uv__stok_init(struct uv__stok *tok, char *t);
-int uv__stok_next_token(struct uv__stok *tok);
-int uv__stok_peek_next_token(struct uv__stok *tok);
+void stok_init(stok_t *tok, char *t);
+int stok_next_token(stok_t *tok);
+int stok_peek_next_token(stok_t *tok);
 
-#endif
+#endif /* STOK_H */

@@ -20,6 +20,7 @@
  * IN THE SOFTWARE.
  */
 
+#include "liblwgeom.h"
 #include "liblwgeom_internel.h"
 #include <string.h>
 
@@ -163,36 +164,36 @@ LWGEOM *lwgeom_collection_add_geom(LWGEOM *mobj, LWGEOM *obj)
     return NULL;
 }
 
-int lwgeom_hasz(const LWGEOM *obj)
+int lwgeom_has_z(const LWGEOM *obj)
 {
     return 0;
 }
 
-int lwgeom_hasm(const LWGEOM *obj)
+int lwgeom_has_m(const LWGEOM *obj)
 {
     return 0;
 }
 
-int lwgeom_dim_c(const LWGEOM *obj)
+int lwgeom_dim_coordinate(const LWGEOM *obj)
 {
     return 0;
 }
 
-int lwgeom_dim_g(const LWGEOM *obj)
+int lwgeom_dim_geometry(const LWGEOM *obj)
 {
     return 0;
 }
 
-int lwgeom_sub_n(const LWGEOM *obj)
+int lwgeom_children_count(const LWGEOM *obj)
 {
     return 0;
 }
-LWGEOM *lwgeom_sub_at(const LWGEOM *obj, int i)
+LWGEOM *lwgeom_child_at(const LWGEOM *obj, int i)
 {
     return NULL;
 }
 
-int lwgeom_point_n(const LWGEOM *obj)
+int lwgeom_points_count(const LWGEOM *obj)
 {
     return 0;
 }

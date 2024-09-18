@@ -47,4 +47,4 @@ int bitset_state(bitset_t *bs);
 size_t bitset_count(bitset_t *bs);
 size_t bitset_size(bitset_t *bs);
 
-#endif
+#endif /* BITSET_H */

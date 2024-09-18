@@ -20,30 +20,25 @@
  * IN THE SOFTWARE.
  */
 
-#include "ordinate.h"
+#ifndef LWGEOM_ORDINATE_H
+#define LWGEOM_ORDINATE_H
 
-struct uv__ordinate uv__ordinate_XY()
-{
-    struct uv__ordinate flag;
-    flag.value = UV__ORDINATE_VALUE_X | UV__ORDINATE_VALUE_Y;
-    flag.changeAllowed = LW_TRUE;
-    return flag;
-}
+#include <stdint.h>
 
-void uv__ordinate_setZ(struct uv__ordinate *o, int v)
-{
-    if ((o->value & UV__ORDINATE_VALUE_Z) != v) {
-        if (o->changeAllowed) {
-            o->value ^= UV__ORDINATE_VALUE_Z;
-        }
-    }
-}
+enum {
+    LWORDINATE_VALUE_X = 1,
+    LWORDINATE_VALUE_Y = 2,
+    LWORDINATE_VALUE_Z = 4,
+    LWORDINATE_VALUE_M = 8
+};
 
-void uv__ordinate_setM(struct uv__ordinate *o, int v)
-{
-    if ((o->value & UV__ORDINATE_VALUE_M) != v) {
-        if (o->changeAllowed) {
-            o->value ^= UV__ORDINATE_VALUE_M;
-        }
-    }
-}
+typedef struct {
+    uint8_t value;
+    int changeAllowed; ///< allow change
+} lwgeom_ordinate;
+
+lwgeom_ordinate lwgeom_ordinate_XY();
+void lwgeom_ordinate_setZ(lwgeom_ordinate *o, int v);
+void lwgeom_ordinate_setM(lwgeom_ordinate *o, int v);
+
+#endif /* LWGEOM_ORDINATE_H */
