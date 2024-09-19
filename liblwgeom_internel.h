@@ -42,13 +42,12 @@
 #define LWMAX(a, b) ((a) > (b) ? (a) : (b))
 #define LWMIN(a, b) ((a) < (b) ? (a) : (b))
 
-
 #define FP_IS_ZERO(A) (fabs(A) <= FP_TOLERANCE)
 #define FP_MAX(A, B) (((A) > (B)) ? (A) : (B))
 #define FP_MIN(A, B) (((A) < (B)) ? (A) : (B))
-#define FP_ABS(a)   ((a) <	(0) ? -(a) : (a))
-#define FP_EQUALS(A, B) (fabs((A)-(B)) <= FP_TOLERANCE)
-#define FP_NEQUALS(A, B) (fabs((A)-(B)) > FP_TOLERANCE)
+#define FP_ABS(a) ((a) < (0) ? -(a) : (a))
+#define FP_EQUALS(A, B) (fabs((A) - (B)) <= FP_TOLERANCE)
+#define FP_NEQUALS(A, B) (fabs((A) - (B)) > FP_TOLERANCE)
 #define FP_LT(A, B) (((A) + FP_TOLERANCE) < (B))
 #define FP_LTEQ(A, B) (((A) - FP_TOLERANCE) <= (B))
 #define FP_GT(A, B) (((A) - FP_TOLERANCE) > (B))
@@ -63,11 +62,10 @@
 #define STR_IEQUALS(A, B) (strcasecmp((A), (B)) == 0)
 #define STR_ISTARTS(A, B) (strncasecmp((A), (B), strlen((B))) == 0)
 
-
 /*
-* this will change to NaN when I figure out how to
-* get NaN in a platform-independent way
-*/
+ * this will change to NaN when I figure out how to
+ * get NaN in a platform-independent way
+ */
 #define NO_VALUE 0.0
 #define NO_Z_VALUE NO_VALUE
 #define NO_M_VALUE NO_VALUE
@@ -84,21 +82,12 @@ size_t lw_nearest_pow(size_t v);
 
 int lw_segment_side(const POINT2D *p1, const POINT2D *p2, const POINT2D *q);
 int lw_arc_side(const POINT2D *A1, const POINT2D *A2, const POINT2D *A3, const POINT2D *Q);
-int lw_arc_calculate_gbox_cartesian_2d(const POINT2D *A1, const POINT2D *A2, const POINT2D *A3, GBOX *gbox);
+int lw_arc_calculate_gbox_cartesian_2d(const POINT2D *A1, const POINT2D *A2, const POINT2D *A3, LWBOX *gbox);
 double lw_arc_center(const POINT2D *p1, const POINT2D *p2, const POINT2D *p3, POINT2D *result);
 int lw_pt_in_seg(const POINT2D *P, const POINT2D *A1, const POINT2D *A2);
 int lw_pt_in_arc(const POINT2D *P, const POINT2D *A1, const POINT2D *A2, const POINT2D *A3);
 int lw_arc_is_pt(const POINT2D *A1, const POINT2D *A2, const POINT2D *A3);
 double lw_seg_length(const POINT2D *A1, const POINT2D *A2);
 double lw_arc_length(const POINT2D *A1, const POINT2D *A2, const POINT2D *A3);
-int pt_in_ring_2d(const POINT2D *p, const POINTARRAY *ring);
-int ptarray_contains_point(const POINTARRAY *pa, const POINT2D *pt);
-int ptarrayarc_contains_point(const POINTARRAY *pa, const POINT2D *pt);
-int ptarray_contains_point_partial(const POINTARRAY *pa, const POINT2D *pt, int check_closed, int *winding_number);
-int ptarrayarc_contains_point_partial(const POINTARRAY *pa, const POINT2D *pt, int check_closed, int *winding_number);
-int lwcompound_contains_point(const LWCOMPOUND *comp, const POINT2D *pt);
-int lwgeom_contains_point(const LWGEOM *geom, const POINT2D *pt);
-
-
 
 #endif /* LIBLWGEOM_INTERNEL_H */

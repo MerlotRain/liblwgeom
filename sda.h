@@ -26,8 +26,8 @@
 #include "liblwgeom_internel.h"
 
 typedef struct {
-    char *data;
-    size_t len;
+	char *data;
+	size_t len;
 } sda_t;
 
 sda_t *sda_new(size_t element_size);
@@ -39,9 +39,9 @@ sda_t *sda_set_size(sda_t *a, size_t length);
 sda_t *sda_remove_range(sda_t *a, size_t index_, size_t length);
 void sda_set_clear_func(sda_t *a, DestoryFunc func);
 
-#define sda_index(a, t, i)      (((t *)(void *)(a)->data)[(i)])
-#define sda_append_val(a, v)    sda_append_vals(a, &(v), 1)
-#define sda_prepend_val(a, v)   sda_prepend_vals(a, &(v), 1)
+#define sda_index(a, t, i) (((t *)(void *)(a)->data)[(i)])
+#define sda_append_val(a, v) sda_append_vals(a, &(v), 1)
+#define sda_prepend_val(a, v) sda_prepend_vals(a, &(v), 1)
 #define sda_insert_val(a, i, v) sda_insert_vals(a, i, &(v), 1)
 
 #endif /* SDA_H */

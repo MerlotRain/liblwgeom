@@ -20,59 +20,51 @@
  * IN THE SOFTWARE.
  */
 
- #include "liblwgeom.h"
+#include "liblwgeom.h"
 
- 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <ctype.h> /* for tolower */
 
-/* Global variables */
-#include "../postgis_config.h"
-#include "liblwgeom_internal.h"
 #include "lwgeom_log.h"
 
 /* Default allocators */
-static void * default_allocator(size_t size);
+static void *default_allocator(size_t size);
 static void default_freeor(void *mem);
-static void * default_reallocator(void *mem, size_t size);
+static void *default_reallocator(void *mem, size_t size);
 lwallocator lwalloc_var = default_allocator;
 lwreallocator lwrealloc_var = default_reallocator;
 lwfreeor lwfree_var = default_freeor;
 
 /* Default reporters */
-static void default_noticereporter(const char *fmt, va_list ap) __attribute__ ((format (printf, 1, 0)));
-static void default_errorreporter(const char *fmt, va_list ap) __attribute__ ((format (printf, 1, 0)));
+static void default_noticereporter(const char *fmt, va_list ap) __attribute__((format(printf, 1, 0)));
+static void default_errorreporter(const char *fmt, va_list ap) __attribute__((format(printf, 1, 0)));
 lwreporter lwnotice_var = default_noticereporter;
 lwreporter lwerror_var = default_errorreporter;
 
 /* Default logger */
-static void default_debuglogger(int level, const char *fmt, va_list ap) __attribute__ ((format (printf, 2, 0)));
+static void default_debuglogger(int level, const char *fmt, va_list ap) __attribute__((format(printf, 2, 0)));
 lwdebuglogger lwdebug_var = default_debuglogger;
 
 #define LW_MSG_MAXLEN 256
 
-static char *lwgeomTypeName[] =
-{
-	"Unknown",
-	"Point",
-	"LineString",
-	"Polygon",
-	"MultiPoint",
-	"MultiLineString",
-	"MultiPolygon",
-	"GeometryCollection",
-	"CircularString",
-	"CompoundCurve",
-	"CurvePolygon",
-	"MultiCurve",
-	"MultiSurface",
-	"PolyhedralSurface",
-	"Triangle",
-	"Tin"
-};
+static char *lwgeomTypeName[] = {"Unknown",
+				 "Point",
+				 "LineString",
+				 "Polygon",
+				 "MultiPoint",
+				 "MultiLineString",
+				 "MultiPolygon",
+				 "GeometryCollection",
+				 "CircularString",
+				 "CompoundCurve",
+				 "CurvePolygon",
+				 "MultiCurve",
+				 "MultiSurface",
+				 "PolyhedralSurface",
+				 "Triangle",
+				 "Tin"};
 
 /*
  * Default allocators
@@ -113,24 +105,24 @@ default_reallocator(void *mem, size_t size)
 static void
 default_noticereporter(const char *fmt, va_list ap)
 {
-	char msg[LW_MSG_MAXLEN+1];
-	vsnprintf (msg, LW_MSG_MAXLEN, fmt, ap);
-	msg[LW_MSG_MAXLEN]='\0';
+	char msg[LW_MSG_MAXLEN + 1];
+	vsnprintf(msg, LW_MSG_MAXLEN, fmt, ap);
+	msg[LW_MSG_MAXLEN] = '\0';
 	fprintf(stderr, "%s\n", msg);
 }
 
 static void
 default_debuglogger(int level, const char *fmt, va_list ap)
 {
-	char msg[LW_MSG_MAXLEN+1];
-	if ( POSTGIS_DEBUG_LEVEL >= level )
+	char msg[LW_MSG_MAXLEN + 1];
+	if (POSTGIS_DEBUG_LEVEL >= level)
 	{
 		/* Space pad the debug output */
 		int i;
-		for ( i = 0; i < level; i++ )
+		for (i = 0; i < level; i++)
 			msg[i] = ' ';
-		vsnprintf(msg+i, LW_MSG_MAXLEN-i, fmt, ap);
-		msg[LW_MSG_MAXLEN]='\0';
+		vsnprintf(msg + i, LW_MSG_MAXLEN - i, fmt, ap);
+		msg[LW_MSG_MAXLEN] = '\0';
 		fprintf(stderr, "%s\n", msg);
 	}
 }
@@ -138,9 +130,9 @@ default_debuglogger(int level, const char *fmt, va_list ap)
 static void
 default_errorreporter(const char *fmt, va_list ap)
 {
-	char msg[LW_MSG_MAXLEN+1];
-	vsnprintf (msg, LW_MSG_MAXLEN, fmt, ap);
-	msg[LW_MSG_MAXLEN]='\0';
+	char msg[LW_MSG_MAXLEN + 1];
+	vsnprintf(msg, LW_MSG_MAXLEN, fmt, ap);
+	msg[LW_MSG_MAXLEN] = '\0';
 	fprintf(stderr, "%s\n", msg);
 	exit(1);
 }
@@ -152,22 +144,32 @@ default_errorreporter(const char *fmt, va_list ap)
  * Only non-NULL values change their respective handler
  */
 void
-lwgeom_set_handlers(lwallocator allocator, lwreallocator reallocator,
-	        lwfreeor freeor, lwreporter errorreporter,
-	        lwreporter noticereporter) {
+lwgeom_set_handlers(lwallocator allocator,
+		    lwreallocator reallocator,
+		    lwfreeor freeor,
+		    lwreporter errorreporter,
+		    lwreporter noticereporter)
+{
 
-	if ( allocator ) lwalloc_var = allocator;
-	if ( reallocator ) lwrealloc_var = reallocator;
-	if ( freeor ) lwfree_var = freeor;
+	if (allocator)
+		lwalloc_var = allocator;
+	if (reallocator)
+		lwrealloc_var = reallocator;
+	if (freeor)
+		lwfree_var = freeor;
 
-	if ( errorreporter ) lwerror_var = errorreporter;
-	if ( noticereporter ) lwnotice_var = noticereporter;
+	if (errorreporter)
+		lwerror_var = errorreporter;
+	if (noticereporter)
+		lwnotice_var = noticereporter;
 }
 
 void
-lwgeom_set_debuglogger(lwdebuglogger debuglogger) {
+lwgeom_set_debuglogger(lwdebuglogger debuglogger)
+{
 
-	if ( debuglogger ) lwdebug_var = debuglogger;
+	if (debuglogger)
+		lwdebug_var = debuglogger;
 }
 
 void
@@ -209,15 +211,15 @@ lwdebug(int level, const char *fmt, ...)
 	va_end(ap);
 }
 
-const char*
+const char *
 lwtype_name(uint8_t type)
 {
-	if ( type > 15 )
+	if (type > 15)
 	{
 		/* assert(0); */
 		return "Invalid type";
 	}
-	return lwgeomTypeName[(int ) type];
+	return lwgeomTypeName[(int)type];
 }
 
 void *
@@ -248,9 +250,9 @@ lwfree(void *mem)
 }
 
 char *
-lwstrdup(const char* a)
+lwstrdup(const char *a)
 {
-	size_t l = strlen(a)+1;
+	size_t l = strlen(a) + 1;
 	char *b = lwalloc(l);
 	strncpy(b, a, l);
 	return b;
@@ -268,7 +270,8 @@ lwstrdup(const char* a)
  *    1 - end truncation (i.e. characters are removed from the end)
  */
 
-char *lwmessage_truncate(char *str, int startpos, int endpos, int maxlength, int truncdirection)
+char *
+lwmessage_truncate(char *str, int startpos, int endpos, int maxlength, int truncdirection)
 {
 	char *output;
 	char *outstart;
@@ -337,28 +340,28 @@ clamp_srid(int32_t srid)
 {
 	int newsrid = srid;
 
-	if ( newsrid <= 0 ) {
-		if ( newsrid != SRID_UNKNOWN ) {
+	if (newsrid <= 0)
+	{
+		if (newsrid != SRID_UNKNOWN)
+		{
 			newsrid = SRID_UNKNOWN;
 			lwnotice("SRID value %d converted to the officially unknown SRID value %d", srid, newsrid);
 		}
-	} else if ( srid > SRID_MAXIMUM ) {
-    newsrid = SRID_USER_MAXIMUM + 1 +
-      /* -1 is to reduce likelihood of clashes */
-      /* NOTE: must match implementation in postgis_restore.pl */
-      ( srid % ( SRID_MAXIMUM - SRID_USER_MAXIMUM - 1 ) );
+	}
+	else if (srid > SRID_MAXIMUM)
+	{
+		newsrid = SRID_USER_MAXIMUM + 1 +
+			  /* -1 is to reduce likelihood of clashes */
+			  /* NOTE: must match implementation in postgis_restore.pl */
+			  (srid % (SRID_MAXIMUM - SRID_USER_MAXIMUM - 1));
 		lwnotice("SRID value %d > SRID_MAXIMUM converted to %d", srid, newsrid);
 	}
 
 	return newsrid;
 }
 
-
-
-
 /* Structure for the type array */
-struct geomtype_struct
-{
+struct geomtype_struct {
 	char *typename;
 	int type;
 	int z;
@@ -370,108 +373,109 @@ struct geomtype_struct
    before it. Otherwise if we search for "POINT" at the top of the
    list we would also match MULTIPOINT, for example. */
 
-struct geomtype_struct geomtype_struct_array[] =
-{
-	{ "GEOMETRYCOLLECTIONZM", COLLECTIONTYPE, 1, 1 },
-	{ "GEOMETRYCOLLECTIONZ", COLLECTIONTYPE, 1, 0 },
-	{ "GEOMETRYCOLLECTIONM", COLLECTIONTYPE, 0, 1 },
-	{ "GEOMETRYCOLLECTION", COLLECTIONTYPE, 0, 0 },
+struct geomtype_struct geomtype_struct_array[] = {{"GEOMETRYCOLLECTIONZM", COLLECTIONTYPE, 1, 1},
+						  {"GEOMETRYCOLLECTIONZ", COLLECTIONTYPE, 1, 0},
+						  {"GEOMETRYCOLLECTIONM", COLLECTIONTYPE, 0, 1},
+						  {"GEOMETRYCOLLECTION", COLLECTIONTYPE, 0, 0},
 
-	{ "GEOMETRYZM", 0, 1, 1 },
-	{ "GEOMETRYZ", 0, 1, 0 },
-	{ "GEOMETRYM", 0, 0, 1 },
-	{ "GEOMETRY", 0, 0, 0 },
+						  {"GEOMETRYZM", 0, 1, 1},
+						  {"GEOMETRYZ", 0, 1, 0},
+						  {"GEOMETRYM", 0, 0, 1},
+						  {"GEOMETRY", 0, 0, 0},
 
-	{ "POLYHEDRALSURFACEZM", POLYHEDRALSURFACETYPE, 1, 1 },
-	{ "POLYHEDRALSURFACEZ", POLYHEDRALSURFACETYPE, 1, 0 },
-	{ "POLYHEDRALSURFACEM", POLYHEDRALSURFACETYPE, 0, 1 },
-	{ "POLYHEDRALSURFACE", POLYHEDRALSURFACETYPE, 0, 0 },
+						  {"POLYHEDRALSURFACEZM", POLYHEDRALSURFACETYPE, 1, 1},
+						  {"POLYHEDRALSURFACEZ", POLYHEDRALSURFACETYPE, 1, 0},
+						  {"POLYHEDRALSURFACEM", POLYHEDRALSURFACETYPE, 0, 1},
+						  {"POLYHEDRALSURFACE", POLYHEDRALSURFACETYPE, 0, 0},
 
-	{ "TINZM", TINTYPE, 1, 1 },
-	{ "TINZ", TINTYPE, 1, 0 },
-	{ "TINM", TINTYPE, 0, 1 },
-	{ "TIN", TINTYPE, 0, 0 },
+						  {"TINZM", TINTYPE, 1, 1},
+						  {"TINZ", TINTYPE, 1, 0},
+						  {"TINM", TINTYPE, 0, 1},
+						  {"TIN", TINTYPE, 0, 0},
 
-	{ "CIRCULARSTRINGZM", CIRCSTRINGTYPE, 1, 1 },
-	{ "CIRCULARSTRINGZ", CIRCSTRINGTYPE, 1, 0 },
-	{ "CIRCULARSTRINGM", CIRCSTRINGTYPE, 0, 1 },
-	{ "CIRCULARSTRING", CIRCSTRINGTYPE, 0, 0 },
+						  {"CIRCULARSTRINGZM", CIRCSTRINGTYPE, 1, 1},
+						  {"CIRCULARSTRINGZ", CIRCSTRINGTYPE, 1, 0},
+						  {"CIRCULARSTRINGM", CIRCSTRINGTYPE, 0, 1},
+						  {"CIRCULARSTRING", CIRCSTRINGTYPE, 0, 0},
 
-	{ "COMPOUNDCURVEZM", COMPOUNDTYPE, 1, 1 },
-	{ "COMPOUNDCURVEZ", COMPOUNDTYPE, 1, 0 },
-	{ "COMPOUNDCURVEM", COMPOUNDTYPE, 0, 1 },
-	{ "COMPOUNDCURVE", COMPOUNDTYPE, 0, 0 },
+						  {"COMPOUNDCURVEZM", COMPOUNDTYPE, 1, 1},
+						  {"COMPOUNDCURVEZ", COMPOUNDTYPE, 1, 0},
+						  {"COMPOUNDCURVEM", COMPOUNDTYPE, 0, 1},
+						  {"COMPOUNDCURVE", COMPOUNDTYPE, 0, 0},
 
-	{ "CURVEPOLYGONZM", CURVEPOLYTYPE, 1, 1 },
-	{ "CURVEPOLYGONZ", CURVEPOLYTYPE, 1, 0 },
-	{ "CURVEPOLYGONM", CURVEPOLYTYPE, 0, 1 },
-	{ "CURVEPOLYGON", CURVEPOLYTYPE, 0, 0 },
+						  {"CURVEPOLYGONZM", CURVEPOLYTYPE, 1, 1},
+						  {"CURVEPOLYGONZ", CURVEPOLYTYPE, 1, 0},
+						  {"CURVEPOLYGONM", CURVEPOLYTYPE, 0, 1},
+						  {"CURVEPOLYGON", CURVEPOLYTYPE, 0, 0},
 
-	{ "MULTICURVEZM", MULTICURVETYPE, 1, 1 },
-	{ "MULTICURVEZ", MULTICURVETYPE, 1, 0 },
-	{ "MULTICURVEM", MULTICURVETYPE, 0, 1 },
-	{ "MULTICURVE", MULTICURVETYPE, 0, 0 },
+						  {"MULTICURVEZM", MULTICURVETYPE, 1, 1},
+						  {"MULTICURVEZ", MULTICURVETYPE, 1, 0},
+						  {"MULTICURVEM", MULTICURVETYPE, 0, 1},
+						  {"MULTICURVE", MULTICURVETYPE, 0, 0},
 
-	{ "MULTISURFACEZM", MULTISURFACETYPE, 1, 1 },
-	{ "MULTISURFACEZ", MULTISURFACETYPE, 1, 0 },
-	{ "MULTISURFACEM", MULTISURFACETYPE, 0, 1 },
-	{ "MULTISURFACE", MULTISURFACETYPE, 0, 0 },
+						  {"MULTISURFACEZM", MULTISURFACETYPE, 1, 1},
+						  {"MULTISURFACEZ", MULTISURFACETYPE, 1, 0},
+						  {"MULTISURFACEM", MULTISURFACETYPE, 0, 1},
+						  {"MULTISURFACE", MULTISURFACETYPE, 0, 0},
 
-	{ "MULTILINESTRINGZM", MULTILINETYPE, 1, 1 },
-	{ "MULTILINESTRINGZ", MULTILINETYPE, 1, 0 },
-	{ "MULTILINESTRINGM", MULTILINETYPE, 0, 1 },
-	{ "MULTILINESTRING", MULTILINETYPE, 0, 0 },
+						  {"MULTILINESTRINGZM", MULTILINETYPE, 1, 1},
+						  {"MULTILINESTRINGZ", MULTILINETYPE, 1, 0},
+						  {"MULTILINESTRINGM", MULTILINETYPE, 0, 1},
+						  {"MULTILINESTRING", MULTILINETYPE, 0, 0},
 
-	{ "MULTIPOLYGONZM", MULTIPOLYGONTYPE, 1, 1 },
-	{ "MULTIPOLYGONZ", MULTIPOLYGONTYPE, 1, 0 },
-	{ "MULTIPOLYGONM", MULTIPOLYGONTYPE, 0, 1 },
-	{ "MULTIPOLYGON", MULTIPOLYGONTYPE, 0, 0 },
+						  {"MULTIPOLYGONZM", MULTIPOLYGONTYPE, 1, 1},
+						  {"MULTIPOLYGONZ", MULTIPOLYGONTYPE, 1, 0},
+						  {"MULTIPOLYGONM", MULTIPOLYGONTYPE, 0, 1},
+						  {"MULTIPOLYGON", MULTIPOLYGONTYPE, 0, 0},
 
-	{ "MULTIPOINTZM", MULTIPOINTTYPE, 1, 1 },
-	{ "MULTIPOINTZ", MULTIPOINTTYPE, 1, 0 },
-	{ "MULTIPOINTM", MULTIPOINTTYPE, 0, 1 },
-	{ "MULTIPOINT", MULTIPOINTTYPE, 0, 0 },
+						  {"MULTIPOINTZM", MULTIPOINTTYPE, 1, 1},
+						  {"MULTIPOINTZ", MULTIPOINTTYPE, 1, 0},
+						  {"MULTIPOINTM", MULTIPOINTTYPE, 0, 1},
+						  {"MULTIPOINT", MULTIPOINTTYPE, 0, 0},
 
-	{ "LINESTRINGZM", LINETYPE, 1, 1 },
-	{ "LINESTRINGZ", LINETYPE, 1, 0 },
-	{ "LINESTRINGM", LINETYPE, 0, 1 },
-	{ "LINESTRING", LINETYPE, 0, 0 },
+						  {"LINESTRINGZM", LINETYPE, 1, 1},
+						  {"LINESTRINGZ", LINETYPE, 1, 0},
+						  {"LINESTRINGM", LINETYPE, 0, 1},
+						  {"LINESTRING", LINETYPE, 0, 0},
 
-	{ "TRIANGLEZM", TRIANGLETYPE, 1, 1 },
-	{ "TRIANGLEZ", TRIANGLETYPE, 1, 0 },
-	{ "TRIANGLEM", TRIANGLETYPE, 0, 1 },
-	{ "TRIANGLE", TRIANGLETYPE, 0, 0 },
+						  {"TRIANGLEZM", TRIANGLETYPE, 1, 1},
+						  {"TRIANGLEZ", TRIANGLETYPE, 1, 0},
+						  {"TRIANGLEM", TRIANGLETYPE, 0, 1},
+						  {"TRIANGLE", TRIANGLETYPE, 0, 0},
 
-	{ "POLYGONZM", POLYGONTYPE, 1, 1 },
-	{ "POLYGONZ", POLYGONTYPE, 1, 0 },
-	{ "POLYGONM", POLYGONTYPE, 0, 1 },
-	{ "POLYGON", POLYGONTYPE, 0, 0 },
+						  {"POLYGONZM", POLYGONTYPE, 1, 1},
+						  {"POLYGONZ", POLYGONTYPE, 1, 0},
+						  {"POLYGONM", POLYGONTYPE, 0, 1},
+						  {"POLYGON", POLYGONTYPE, 0, 0},
 
-	{ "POINTZM", POINTTYPE, 1, 1 },
-	{ "POINTZ", POINTTYPE, 1, 0 },
-	{ "POINTM", POINTTYPE, 0, 1 },
-	{ "POINT", POINTTYPE, 0, 0 }
+						  {"POINTZM", POINTTYPE, 1, 1},
+						  {"POINTZ", POINTTYPE, 1, 0},
+						  {"POINTM", POINTTYPE, 0, 1},
+						  {"POINT", POINTTYPE, 0, 0}
 
 };
-#define GEOMTYPE_STRUCT_ARRAY_LEN (sizeof geomtype_struct_array/sizeof(struct geomtype_struct))
+#define GEOMTYPE_STRUCT_ARRAY_LEN (sizeof geomtype_struct_array / sizeof(struct geomtype_struct))
 
 /*
-* We use a very simple upper case mapper here, because the system toupper() function
-* is locale dependent and may have trouble mapping lower case strings to the upper
-* case ones we expect (see, the "Turkisk I", http://www.i18nguy.com/unicode/turkish-i18n.html)
-* We could also count on PgSQL sending us *lower* case inputs, as it seems to do that
-* regardless of the case the user provides for the type arguments.
-*/
-const char dumb_upper_map[128] = "................................................0123456789.......ABCDEFGHIJKLMNOPQRSTUVWXYZ......ABCDEFGHIJKLMNOPQRSTUVWXYZ.....";
+ * We use a very simple upper case mapper here, because the system toupper() function
+ * is locale dependent and may have trouble mapping lower case strings to the upper
+ * case ones we expect (see, the "Turkisk I", http://www.i18nguy.com/unicode/turkish-i18n.html)
+ * We could also count on PgSQL sending us *lower* case inputs, as it seems to do that
+ * regardless of the case the user provides for the type arguments.
+ */
+const char dumb_upper_map[128] =
+    "................................................0123456789.......ABCDEFGHIJKLMNOPQRSTUVWXYZ......ABCDEFGHIJKLMNOPQRSTUVWXYZ.....";
 
-static char dumb_toupper(int in)
+static char
+dumb_toupper(int in)
 {
-	if ( in < 0 || in > 127 )
+	if (in < 0 || in > 127)
 		return '.';
 	return dumb_upper_map[in];
 }
 
-lwflags_t lwflags(int hasz, int hasm, int geodetic)
+lwflags_t
+lwflags(int hasz, int hasm, int geodetic)
 {
 	lwflags_t flags = 0;
 	if (hasz)
@@ -484,12 +488,13 @@ lwflags_t lwflags(int hasz, int hasm, int geodetic)
 }
 
 /**
-* Calculate type integer and dimensional flags from string input.
-* Case insensitive, and insensitive to spaces at front and back.
-* Type == 0 in the case of the string "GEOMETRY" or "GEOGRAPHY".
-* Return LW_SUCCESS for success.
-*/
-int geometry_type_from_string(const char *str, uint8_t *type, int *z, int *m)
+ * Calculate type integer and dimensional flags from string input.
+ * Case insensitive, and insensitive to spaces at front and back.
+ * Type == 0 in the case of the string "GEOMETRY" or "GEOGRAPHY".
+ * Return LW_SUCCESS for success.
+ */
+int
+geometry_type_from_string(const char *str, uint8_t *type, int *z, int *m)
 {
 	char *tmpstr;
 	size_t tmpstartpos, tmpendpos;
@@ -547,7 +552,6 @@ int geometry_type_from_string(const char *str, uint8_t *type, int *z, int *m)
 
 			return LW_SUCCESS;
 		}
-
 	}
 
 	lwfree(tmpstr);

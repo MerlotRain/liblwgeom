@@ -22,7 +22,8 @@
 
 #include "liblwgeom_internel.h"
 
-LWGEOM *lwgeom_read_wkb(const char *wkb, size_t len, int hex)
+LWGEOM *
+lwgeom_read_wkb(const char *wkb, size_t len, int hex)
 {
-    return NULL;
+	return NULL;
 }
