@@ -43,12 +43,12 @@
 /// @return LW_TRUE if the two Envelopes intersect
 int nv_box_intersects(const struct nv_box env1, const struct nv_box env2)
 {
-    const double x1 = NV_MAX(env1.min.x, env2.min.x);
-    const double x2 = NV_MIN(env1.max.x, env2.max.x);
+    const double x1 = LWMAX(env1.min.x, env2.min.x);
+    const double x2 = LWMIN(env1.max.x, env2.max.x);
     if (x1 > x2)
         return LW_FALSE;
-    const double y1 = NV_MAX(env1.min.y, env2.min.y);
-    const double y2 = NV_MIN(env1.max.y, env2.max.y);
+    const double y1 = LWMAX(env1.min.y, env2.min.y);
+    const double y2 = LWMIN(env1.max.y, env2.max.y);
     return y1 <= y2;
 }
 
@@ -83,10 +83,10 @@ struct nv_box nv_box_union(const struct nv_box env1, const struct nv_box env2)
     if (MV_BOX_NULL(env1) || MV_BOX_NULL(env2)) {
         return b;
     }
-    b.min.x = NV_MIN(env1.min.x, env2.min.x);
-    b.min.y = NV_MIN(env1.min.y, env2.min.y);
-    b.max.x = NV_MIN(env1.max.x, env2.max.x);
-    b.max.y = NV_MIN(env1.max.y, env2.max.y);
+    b.min.x = LWMIN(env1.min.x, env2.min.x);
+    b.min.y = LWMIN(env1.min.y, env2.min.y);
+    b.max.x = LWMIN(env1.max.x, env2.max.x);
+    b.max.y = LWMIN(env1.max.y, env2.max.y);
     return b;
 }
 

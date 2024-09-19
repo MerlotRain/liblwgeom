@@ -208,7 +208,7 @@ void sda_set_clear_func(sda_t *a, DestoryFunc func)
 static void sda_maybe_expand(sda_t_real *array, size_t len)
 {
     size_t max_len, want_len;
-    max_len = NV_MIN(SIZE_MAX / 2 / array->elt_size, UINT_MAX);
+    max_len = LWMIN(SIZE_MAX / 2 / array->elt_size, UINT_MAX);
 
     /* Detect potential overflow */
     if ((max_len - array->len) < len)
@@ -218,13 +218,13 @@ static void sda_maybe_expand(sda_t_real *array, size_t len)
     if (want_len > array->elt_capacity) {
         size_t want_alloc = lw_nearest_pow(sda_elt_len(array, want_len));
         assert(want_alloc >= sda_elt_len(array, want_len));
-        want_alloc = NV_MAX(want_alloc, 16);
+        want_alloc = LWMAX(want_alloc, 16);
 
         array->data = lwrealloc(array->data, want_alloc);
 
         memset(sda_elt_pos(array, array->elt_capacity), 0,
                sda_elt_len(array, want_len - array->elt_capacity));
 
-        array->elt_capacity = NV_MIN(want_alloc / array->elt_size, UINT_MAX);
+        array->elt_capacity = LWMIN(want_alloc / array->elt_size, UINT_MAX);
     }
 }

@@ -25,19 +25,52 @@
 
 #include "liblwgeom.h"
 
-#ifndef NV_MAX
-#define NV_MAX(a, b) ((a) > (b) ? (a) : (b))
-#endif
+#include "lwgeom_log.h"
 
-#ifndef NV_MIN
-#define NV_MIN(a, b) ((a) < (b) ? (a) : (b))
-#endif
+#include <assert.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <float.h>
+#include <math.h>
 
-#define NV_MAX3(a, b, c) \
-    ((a) > (b) ? ((a) > (c) ? (a) : (c)) : ((b) > (c) ? (b) : (c)))
+/**
+ * Floating point comparators.
+ */
+#define LWMAX(a, b) ((a) > (b) ? (a) : (b))
+#define LWMIN(a, b) ((a) < (b) ? (a) : (b))
 
-#define NV_MIN3(a, b, c) \
-    ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
+
+#define FP_IS_ZERO(A) (fabs(A) <= FP_TOLERANCE)
+#define FP_MAX(A, B) (((A) > (B)) ? (A) : (B))
+#define FP_MIN(A, B) (((A) < (B)) ? (A) : (B))
+#define FP_ABS(a)   ((a) <	(0) ? -(a) : (a))
+#define FP_EQUALS(A, B) (fabs((A)-(B)) <= FP_TOLERANCE)
+#define FP_NEQUALS(A, B) (fabs((A)-(B)) > FP_TOLERANCE)
+#define FP_LT(A, B) (((A) + FP_TOLERANCE) < (B))
+#define FP_LTEQ(A, B) (((A) - FP_TOLERANCE) <= (B))
+#define FP_GT(A, B) (((A) - FP_TOLERANCE) > (B))
+#define FP_GTEQ(A, B) (((A) + FP_TOLERANCE) >= (B))
+#define FP_CONTAINS_TOP(A, X, B) (FP_LT(A, X) && FP_LTEQ(X, B))
+#define FP_CONTAINS_BOTTOM(A, X, B) (FP_LTEQ(A, X) && FP_LT(X, B))
+#define FP_CONTAINS_INCL(A, X, B) (FP_LTEQ(A, X) && FP_LTEQ(X, B))
+#define FP_CONTAINS_EXCL(A, X, B) (FP_LT(A, X) && FP_LT(X, B))
+#define FP_CONTAINS(A, X, B) FP_CONTAINS_EXCL(A, X, B)
+
+#define STR_EQUALS(A, B) strcmp((A), (B)) == 0
+#define STR_IEQUALS(A, B) (strcasecmp((A), (B)) == 0)
+#define STR_ISTARTS(A, B) (strncasecmp((A), (B), strlen((B))) == 0)
+
+
+/*
+* this will change to NaN when I figure out how to
+* get NaN in a platform-independent way
+*/
+#define NO_VALUE 0.0
+#define NO_Z_VALUE NO_VALUE
+#define NO_M_VALUE NO_VALUE
 
 // nv-util callback function
 typedef void (*DestoryFunc)(void *);
@@ -46,7 +79,25 @@ typedef void (*HashFunc)(const void *);
 
 // default hash function
 size_t lw_str_hash(const void *str);
+
 size_t lw_nearest_pow(size_t v);
+
+int lw_segment_side(const POINT2D *p1, const POINT2D *p2, const POINT2D *q);
+int lw_arc_side(const POINT2D *A1, const POINT2D *A2, const POINT2D *A3, const POINT2D *Q);
+int lw_arc_calculate_gbox_cartesian_2d(const POINT2D *A1, const POINT2D *A2, const POINT2D *A3, GBOX *gbox);
+double lw_arc_center(const POINT2D *p1, const POINT2D *p2, const POINT2D *p3, POINT2D *result);
+int lw_pt_in_seg(const POINT2D *P, const POINT2D *A1, const POINT2D *A2);
+int lw_pt_in_arc(const POINT2D *P, const POINT2D *A1, const POINT2D *A2, const POINT2D *A3);
+int lw_arc_is_pt(const POINT2D *A1, const POINT2D *A2, const POINT2D *A3);
+double lw_seg_length(const POINT2D *A1, const POINT2D *A2);
+double lw_arc_length(const POINT2D *A1, const POINT2D *A2, const POINT2D *A3);
+int pt_in_ring_2d(const POINT2D *p, const POINTARRAY *ring);
+int ptarray_contains_point(const POINTARRAY *pa, const POINT2D *pt);
+int ptarrayarc_contains_point(const POINTARRAY *pa, const POINT2D *pt);
+int ptarray_contains_point_partial(const POINTARRAY *pa, const POINT2D *pt, int check_closed, int *winding_number);
+int ptarrayarc_contains_point_partial(const POINTARRAY *pa, const POINT2D *pt, int check_closed, int *winding_number);
+int lwcompound_contains_point(const LWCOMPOUND *comp, const POINT2D *pt);
+int lwgeom_contains_point(const LWGEOM *geom, const POINT2D *pt);
 
 
 

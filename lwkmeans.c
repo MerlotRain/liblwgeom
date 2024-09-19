@@ -32,7 +32,7 @@
 /// @param P input data
 /// @param n number of clusters
 /// @param W output data
-void nv_kmeans(struct nv_reader2 *P, int n, struct nv_reader2 **W)
+void lwgeom_kmeans(struct nv_reader2 *P, int n, struct nv_reader2 **W)
 {
     assert(P);
     assert(n > 1);

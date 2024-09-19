@@ -111,13 +111,13 @@ int bitset_state(bitset_t *bs)
 {
     size_t c = bitset_count(bs);
     if (c == 0) {
-        return LWBITSET_STATE_NONE;
+        return BITSET_STATE_NONE;
     }
     else if (c == bs->length) {
-        return LWBITSET_STATE_ALL;
+        return BITSET_STATE_ALL;
     }
     else {
-        return LWBITSET_STATE_ANY;
+        return BITSET_STATE_ANY;
     }
 }
 

@@ -26,9 +26,9 @@
 #include <stddef.h>
 
 enum {
-    LWBITSET_STATE_NONE, ///< All bits are LW_FALSE
-    LWBITSET_STATE_ALL,  ///< All bits are LW_TRUE
-    LWBITSET_STATE_ANY   ///< Some bits are LW_TRUE
+    BITSET_STATE_NONE, ///< All bits are LW_FALSE
+    BITSET_STATE_ALL,  ///< All bits are LW_TRUE
+    BITSET_STATE_ANY   ///< Some bits are LW_TRUE
 };
 
 typedef struct {

@@ -45,49 +45,86 @@ typedef int LWBOOLEAN;
 #define LW_GEOM_MPOLY      6
 #define LW_GEOM_COLLECTION 7
 
-typedef void *(*lwmalloctor)(size_t size);
-typedef void *(*lwreallocator)(void *ptr, size_t size);
-typedef void *(*lwcallocator)(size_t count, size_t size);
-typedef void (*lwfreeor)(void *ptr);
-extern int lw_replace_allocator(lwmalloctor malloctor,
-                                lwreallocator reallocator,
-                                lwcallocator callocator, lwfreeor freeor);
+typedef void* (*lwallocator)(size_t size);
+typedef void* (*lwreallocator)(void *mem, size_t size);
+typedef void (*lwfreeor)(void* mem);
+typedef void (*lwreporter)(const char* fmt, va_list ap)
+  __attribute__ (( format(printf, 1, 0) ));
+typedef void (*lwdebuglogger)(int level, const char* fmt, va_list ap)
+  __attribute__ (( format(printf, 2,0) ));
 
+/**
+ * \brief Install custom memory management and error handling functions you want your
+ */
+extern void lwgeom_set_handlers(lwallocator allocator,
+        lwreallocator reallocator, lwfreeor freeor, lwreporter errorreporter,
+        lwreporter noticereporter);
+
+extern void lwgeom_set_debuglogger(lwdebuglogger debuglogger);
+
+/* Memory management */
 void *lwcalloc(size_t count, size_t size);
 void *lwmalloc0(size_t size);
 void *lwmalloc(size_t size);
-void lwfree(void *ptr);
-void *lwrealloc(void *ptr, size_t size);
+void lwfree(void *mem);
+void *lwrealloc(void *mem, size_t size);
 
-typedef struct {
+
+/******************************************************************
+* POINT2D, POINT3D, POINT3DM, POINT4D
+*/
+typedef struct
+{
     double x, y;
-} POINT2D;
+}
+POINT2D;
 
-typedef struct {
+typedef struct
+{
     double x, y, z;
-} POINT3D;
+}
+POINT3DZ;
 
-typedef struct {
+typedef struct
+{
     double x, y, z;
-} POINT3DZ;
+}
+POINT3D;
 
-typedef struct {
+typedef struct
+{
     double x, y, m;
-} POINT3DM;
+}
+POINT3DM;
 
-typedef struct {
+typedef struct
+{
     double x, y, z, m;
-} POINT4D;
+}
+POINT4D;
 
-typedef struct {
+
+/******************************************************************
+* LWBOX structure.
+* We include the flags (information about dimensionality),
+* so we don't have to constantly pass them
+* into functions that use the GBOX.
+*/
+typedef struct
+{
+    lwflags_t flags;
     double xmin;
-    double ymin;
     double xmax;
+    double ymin;
     double ymax;
     double zmin;
     double zmax;
 } LWBOX;
 
+
+/******************************************************************
+* LWGEOM structure.
+*/
 typedef struct LWGEOM LWGEOM; /* forward declaration */
 
 struct LWGEOM {
@@ -100,29 +137,75 @@ struct LWGEOM {
     LWGEOM **geoms;   ///< multi objects pointer
 };
 
-extern double lwgeom_tolerance(double tol);
-extern double lwgeom_tolerance2();
+
+/******************************************************************
+* LWGEOM_SDO structure.
+* It's Oracle Spataial Geometry structure. 
+*/
+typedef struct {
+    int sdo_gtype;
+    int sdo_srid;
+    size_t sdo_elem_count;
+    int *sdo_elem_info;
+    size_t sdo_ord_count;
+    double *sdo_ordinates;
+} LWGEOM_SDO;
+
+
+typedef struct {
+    LWGEOM* geom;
+    size_t prop_size;
+    int properties[];
+} LW_SGO;
+
+typedef struct 
+{
+    size_t cur_index;
+    size_t nsgo;
+    size_t nsgo_max;
+    LW_SGO** nsgo;
+}LWGEOMREADER2;
+
+/******************************************************************
+* LWELLIPSE structure.
+* LWELLIPSE is used to describe an ellipse or circle.
+* Before V1.0, it would be treated as a regular geometric shape and
+* temporarily not included in the unified management of the nv_geom model,
+* while providing relevant algorithms for circles or ellipses.
+ */
+typedef struct {
+    POINT2D center;
+    double major;
+    double minor;
+    double azimuth;
+} LWELLIPSE;
+
+typedef enum 
+{
+    /// Two points form a circle, and the line segment between these two points
+    /// is the diameter of the circle
+    NV_CONSTRUCT_CIRCLE_2P,
+    /// Three points form a circle, and these three points are on the circle
+    NV_CONSTRUCT_CIRCLE_3P,
+    /// To construct a circle with three tangent lines, six points need to be
+    /// passed in. These six points form three straight lines, which can
+    /// generate 0-2 circles. They are also the inscribed circles of a triangle
+    NV_CONSTRUCT_CIRCLE_ICT
+} LWELLIPSE_CONSTRUCT_ALGORITHM;
+
+extern double lw_tolerance(double tol);
+extern double lw_tolerance2();
 
 /// @brief calculate point distance
 #define LW_POINTDISTANCE(x0, y0, x1, y1) \
     sqrt(pow((x0) - (x1), 2) + pow((y0) - (y1), 2))
 #define LW_POINTDISTANCE2(A, B)       LW_POINTDISTANCE((A).x, (A).y, (B).x, (B).y)
-
-/// @brief check point A, B is equal
-#define LW_POINT_EQUAL(A, B)          (LW_POINTDISTANCE2((A), (B)) < lwgeom_tolerance2())
-
-/// @brief return point A angle
+#define LW_POINT_EQUAL(A, B)          (LW_POINTDISTANCE2((A), (B)) < lw_tolerance2())
 #define LW_POINT_ANGLE(A)             (atan2((A).y, (A).x))
+#define LW_DOUBLE_NEARES(A)           (fabs((A)) < lw_tolerance2())
+#define LW_DOUBLE_NEARES2(A, B)       (fabs((A) - (B)) < lw_tolerance2())
 
-/// @brief check double value is equal
-#define LW_DOUBLE_NEARES(A)           (fabs((A)) < lwgeom_tolerance2())
-
-/// @brief check double value is equal
-#define LW_DOUBLE_NEARES2(A, B)       (fabs((A) - (B)) < lwgeom_tolerance2())
-
-/// @brief return coordinate X in point i
 #define LW_PP_X(obj, i)               ((obj)->pp[(i) * (obj)->cdim])
-/// @brief return coordinate Y in point i
 #define LW_PP_Y(obj, i)               ((obj)->pp[(i) * (obj)->cdim + 1])
 
 #define LW_FLAG_Z                     0x01
@@ -201,14 +284,7 @@ extern int lwgeom_write_kml(const LWGEOM *obj, char **kml, size_t *len);
 extern int lwgeom_write_gml2(const LWGEOM *obj, char **gml, size_t *len);
 extern int lwgeom_write_gml3(const LWGEOM *obj, char **gml, size_t *len);
 
-typedef struct {
-    int sdo_gtype;
-    int sdo_srid;
-    size_t sdo_elem_count;
-    int *sdo_elem_info;
-    size_t sdo_ord_count;
-    double *sdo_ordinates;
-} LWGEOM_SDO;
+
 
 extern LWGEOM *lwgeom_read_ora(const LWGEOM_SDO sdo, int flag);
 extern int lwgeom_write_ora(const LWGEOM *obj, LWGEOM_SDO *sdo);
@@ -217,6 +293,13 @@ extern double lwgeom_prop_width(const LWGEOM *obj);
 extern double lwgeom_prop_height(const LWGEOM *obj);
 extern double lwgeom_prop_area(const LWGEOM *obj);
 extern double lwgeom_prop_length(const LWGEOM *obj);
+
+extern void lwellipse_construct_circle(const POINT2D *p, int t, LWELLIPSE *es, int *n);
+extern void lwellipse_prop_eccentricity(const LWELLIPSE ell, double* v);
+extern void lwellipse_prop_area(const LWELLIPSE ell, double* v);
+extern void lwellipse_prop_foci(const LWELLIPSE ell, POINT2D* f1, POINT2D* p2);
+extern void lwellipse_prop_focus_distance(const LWELLIPSE ell, double* v);
+extern LWGEOM *lwellipse_stroke(LWELLIPSE e, uint32_t param, LWBOOLEAN hasz, LWBOOLEAN hasm);
 
 #ifdef __cplusplus
 }

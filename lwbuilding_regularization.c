@@ -23,7 +23,7 @@
 #include "liblwgeom_internel.h"
 #include <float.h>
 
-struct bbr_seg {
+typedef struct {
     int index;
     double x0;
     double y0;
@@ -33,14 +33,14 @@ struct bbr_seg {
     double mx;
     double my;
     double dis;
-};
+} bbr_seg;
 
 /// @brief Make the rings formed by the building outlines extracted from the
 /// city image rectangular
 /// @param xy building outline coordinates, Points may be added or deleted
 /// within the algorithm
 /// @param np number of points
-void nv_building_regularization(double *xy, int np)
+void lwgeom_building_regularization(double *xy, int np)
 {
     assert(xy && np > 4);
 
@@ -49,8 +49,7 @@ void nv_building_regularization(double *xy, int np)
     int rdp_np = np;
 
     // segments
-    struct bbr_seg *segs =
-        (struct bbr_seg *)nv__calloc(rdp_np - 1, sizeof(struct bbr_seg));
+    bbr_seg *segs = (bbr_seg *)lwcalloc(rdp_np - 1, sizeof(bbr_seg));
     if (segs == NULL) {
         return;
     }
