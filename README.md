@@ -1,15 +1,6 @@
-# mathSE (Math Spatial Engine)
-
-----
-
-Mathse is an open-source geographic information mathematical library that 
-provides important geometric models and algorithms in two-dimensional geographic 
-information. In the future, it will gradually provide data structures and 
-algorithms for tiles, grids, and three-dimensional models.
+# liblwgeom (light-weight geometry)
 
 
-## Build Status
+Liblwgeome is a lightweight geographic geometry library, named after PostGIS geometry models.
 
-## Build/Install
-
-See the [INSTALL](INSTALL.md) file.
+It will provide basic geometric operations and geometric processing algorithms, while supporting the reading and writing of common vector files such as shapefiles, spatialite, etc.

@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 3.0...3.20)
-project(libnv LANGUAGES C CXX)
+project(liblwgeom LANGUAGES C CXX)
 
+set(lwgeom lwgeom)
 if(MSVC)
-    set(nv libnv)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -wd4244 -wd4800 -wd4805 -wd4101 -D_CRT_NONSTDC_NO_WARNINGS")
-else()
-    set(nv nv)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -16,13 +14,13 @@ execute_process(COMMAND ${GIT_EXECUTABLE} describe --long --tags --always
                   OUTPUT_VARIABLE NL_PACKAGE_VERSION)
 string(STRIP "${NL_PACKAGE_VERSION}" PACKAGE_VERSION)
 
-option(BUILD_SHARD_LIBRARY "build shared libnv library" ON)
-option(BUILD_TESTS "build libnv tests" OFF)
-option(BUILD_WITH_ICONV "build with iconv" OFF)
+option(BUILD_TESTS "build liblwgeom tests" OFF)
+option(BUILD_WITH_ICONV "build with icolwgeom" OFF)
 option(BUILD_WITH_PROJ "build with proj" OFF)
 option(BUILD_WITH_CAIRO "build with cairo" OFF)
 
 find_package(PkgConfig REQUIRED)
+pkg_check_modules(CUnit cunit)
 if(BUILD_WITH_CAIRO)
   pkg_check_modules(CAIRO cairo)
   message("found cario: " ${CAIRO_FOUND})
@@ -31,7 +29,7 @@ if(BUILD_WITH_CAIRO)
 endif()
 
 if(BUILD_WITH_ICONV)
-  find_package(Iconv REQUIRED)
+  find_package(Icolwgeom REQUIRED)
 endif()
 
 if(BUILD_WITH_PROJ)
@@ -67,7 +65,7 @@ if (WIN32)
 elseif (APPLE)
   CHECK_INCLUDE_FILE("machine/endian.h" HAVE_MACHINE_ENDIAN_H)
 endif()
-CHECK_INCLUDE_FILE("iconv.h" HAVE_ICONV_H)
+CHECK_INCLUDE_FILE("icolwgeom.h" HAVE_ICONV_H)
 CHECK_INCLUDE_FILE("pcre2.h" HAVE_PCRE2_H)
 CHECK_INCLUDE_FILE("sys/stat.h" HAVE_SYS_STAT_H)
 CHECK_INCLUDE_FILE("direct.h" HAVE_DIRECT_H)
@@ -85,7 +83,7 @@ check_symbol_exists("memmem" "string.h" HAVE_MEMMEM)
 check_symbol_exists("memmove" "string.h" HAVE_MEMMOVE)
 check_symbol_exists("realloc" "stdlib.h" HAVE_REALLOC)
 check_symbol_exists("scandir" "dirent.h" HAVE_SCANDIR)
-check_symbol_exists("setenv" "stdlib.h" HAVE_SETENV)
+check_symbol_exists("setelwgeom" "stdlib.h" HAVE_SETENV)
 check_symbol_exists("strcasecmp" "strings.h" HAVE_STRCASECMP)
 check_symbol_exists("strcasestr" "string.h" HAVE_STRCASESTR)
 check_symbol_exists("strchr" "string.h" HAVE_STRCHR)
@@ -104,59 +102,55 @@ check_symbol_exists("wcsnlen" "wchar.h" HAVE_WCSNLEN)
 # Setup build directories
 #-----------------------------------------------------------------------------
 # Place executables and shared libraries in the same location for
-# convenience of direct execution from common spot and for
-# convenience in environments without RPATH support.
+# colwgeomenience of direct execution from common spot and for
+# colwgeomenience in elwgeomironments without RPATH support.
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
-file(GLOB_RECURSE nv_HEADERS ${CMAKE_CURRENT_LIST_DIR}/include/*.h CONFIGURE_DEPEND)
-file(GLOB_RECURSE nv_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c CONFIGURE_DEPEND)
-file(GLOB_RECURSE nv_HEADER_PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/*.h CONFIGURE_DEPEND)
+#-----------------------------------------------------------------------------
+# version about
+#-----------------------------------------------------------------------------
+set(LWGEOM_VERSION_MAJOR 1)
+set(LWGEOM_VERSION_MINOR 0)
+set(LWGEOM_VERSION_PATCH 1)
 
-if(BUILD_SHARD_LIBRARY)
-  add_library(${nv} SHARED
-      ${nv_HEADERS}
-      ${nv_SOURCES}
-      ${nv_HEADER_PRIVATE}
-  )
-  target_compile_definitions(${nv} PRIVATE BUILD_NV_SHARED)
-else()
-  add_library(${nv} STATIC
-    ${nv_HEADERS}
-    ${nv_SOURCES}
-    ${nv_HEADER_PRIVATE}
-  )
-endif()
+#-----------------------------------------------------------------------------
+# source files
+#-----------------------------------------------------------------------------
+file(GLOB_RECURSE lwgeom_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c CONFIGURE_DEPEND)
+file(GLOB_RECURSE lwgeom_HEADER_PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/*.h CONFIGURE_DEPEND)
 
-if(WIN32)
-  target_compile_definitions(${nv} PUBLIC _USE_MATH_DEFINES)
-endif()
-
-target_include_directories(${nv} PUBLIC 
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
+add_library(${lwgeom} STATIC
+  ${lwgeom_SOURCES}
+  ${lwgeom_HEADER_PRIVATE}
 )
 
-target_include_directories(${nv} PRIVATE 
+if(WIN32)
+  target_compile_definitions(${lwgeom} PUBLIC _USE_MATH_DEFINES)
+endif()
+
+target_include_directories(${lwgeom} PUBLIC 
+  ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+target_include_directories(${lwgeom} PRIVATE 
   ${CMAKE_CURRENT_SOURCE_DIR}/src
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/nv-util
 )
 
 if(BUILD_WITH_CAIRO)
-  target_include_directories(${nv} PRIVATE ${CAIRO_INCLUDE_DIRS})
-  target_link_libraries(${nv} ${CAIRO_LIBRARIES})
+  target_include_directories(${lwgeom} PRIVATE ${CAIRO_INCLUDE_DIRS})
+  target_link_libraries(${lwgeom} ${CAIRO_LIBRARIES})
 endif()
 
 if(BUILD_WITH_OPENCV)
-  target_link_libraries(${nv} ${OpenCV_LIBS})
+  target_link_libraries(${lwgeom} ${OpenCV_LIBS})
 endif()
 
 if(BUILD_WITH_PROJ)
-  target_link_libraries(${nv} PROJ::proj)
+  target_link_libraries(${lwgeom} PROJ::proj)
 endif()
 
 if(BUILD_TESTS)
   include(CTest)
-  add_subdirectory(cunit)
-  add_subdirectory(tests)
 endif()
