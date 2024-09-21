@@ -20,7 +20,8 @@
  * IN THE SOFTWARE.
  */
 
-#include "liblwgeom_internel.h"
+#include "liblwgeom.h"
+#include <assert.h>
 
 /// @brief K-means clustering
 ///
@@ -33,7 +34,7 @@
 /// @param n number of clusters
 /// @param W output data
 void
-lwgeom_kmeans(struct nv_reader2 *P, int n, struct nv_reader2 **W)
+lwgeom_kmeans(LWGEOMREADER2 *P, int n, LWGEOMREADER2 **W)
 {
 	assert(P);
 	assert(n > 1);

@@ -27,34 +27,51 @@
 extern "C" {
 #endif
 
-#include <assert.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <stdio.h>
-#include <math.h>
+#include <stdarg.h>
 
+/**
+ * Return types for functions with status returns.
+ */
 typedef int LWBOOLEAN;
-#define LW_TRUE 1
-#define LW_FALSE 0
+#define LW_TRUE    1
+#define LW_FALSE   0
+#define LW_UNKNOWN 2
+#define LW_FAILURE 0
+#define LW_SUCCESS 1
 
-#define LW_GEOM_POINT 1
-#define LW_GEOM_LINE 2
-#define LW_GEOM_POLY 3
-#define LW_GEOM_MPOINT 4
-#define LW_GEOM_MLINE 5
-#define LW_GEOM_MPOLY 6
-#define LW_GEOM_COLLECTION 7
+/**
+ * light-weight geometry types
+ */
+#define POINTTYPE      1
+#define LINETYPE       2
+#define POLYTYPE       3
+#define MPOINTTYPE     4
+#define MLINETYPE      5
+#define MPOLYTYPE      6
+#define COLLECTIONTYPE 7
 
+/**
+ * Global functions for memory/logging handlers.
+ */
 typedef void *(*lwallocator)(size_t size);
 typedef void *(*lwreallocator)(void *mem, size_t size);
 typedef void (*lwfreeor)(void *mem);
 typedef void (*lwreporter)(const char *fmt, va_list ap) __attribute__((format(printf, 1, 0)));
 typedef void (*lwdebuglogger)(int level, const char *fmt, va_list ap) __attribute__((format(printf, 2, 0)));
 
+/******************************************************************
+ * LWGEOM and LWBOX both use LWFLAGS bit mask.
+ * Serializations (may) use different bit mask schemes.
+ */
 typedef uint16_t lwflags_t;
 
 /**
- * \brief Install custom memory management and error handling functions you want your
+ * Install custom memory management and error handling functions you want your
+ * application to use.
+ * @ingroup system
+ * @todo take a structure ?
  */
 extern void lwgeom_set_handlers(lwallocator allocator,
 				lwreallocator reallocator,
@@ -70,6 +87,12 @@ void *lwmalloc0(size_t size);
 void *lwmalloc(size_t size);
 void lwfree(void *mem);
 void *lwrealloc(void *mem, size_t size);
+
+/******************************************************************
+ * LWGEOM Global tolerance
+ */
+extern double lwtolerance(double tol);
+extern double lwtolerance2();
 
 /******************************************************************
  * POINT2D, POINT3D, POINT3DM, POINT4D
@@ -155,7 +178,7 @@ typedef struct {
  * LWELLIPSE structure.
  * LWELLIPSE is used to describe an ellipse or circle.
  * Before V1.0, it would be treated as a regular geometric shape and
- * temporarily not included in the unified management of the nv_geom model,
+ * temporarily not included in the unified management of the LWGEOM model,
  * while providing relevant algorithms for circles or ellipses.
  */
 typedef struct {
@@ -167,40 +190,38 @@ typedef struct {
 
 typedef enum
 {
-	/// Two points form a circle, and the line segment between these two points
-	/// is the diameter of the circle
-	NV_CONSTRUCT_CIRCLE_2P,
+	/// Two points form a circle, and the line segment between these two
+	/// points is the diameter of the circle
+	LWELLIPSE_CONSTRUCT_CIRCLE_2P,
 	/// Three points form a circle, and these three points are on the circle
-	NV_CONSTRUCT_CIRCLE_3P,
-	/// To construct a circle with three tangent lines, six points need to be
-	/// passed in. These six points form three straight lines, which can
-	/// generate 0-2 circles. They are also the inscribed circles of a triangle
-	NV_CONSTRUCT_CIRCLE_ICT
+	LWELLIPSE_CONSTRUCT_CIRCLE_3P,
+	/// To construct a circle with three tangent lines, six points need to
+	/// be passed in. These six points form three straight lines, which can
+	/// generate 0-2 circles. They are also the inscribed circles of a
+	/// triangle
+	LWELLIPSE_CONSTRUCT_CIRCLE_ICT
 } LWELLIPSE_CONSTRUCT_ALGORITHM;
-
-extern double lw_tolerance(double tol);
-extern double lw_tolerance2();
 
 /// @brief calculate point distance
 #define LW_POINTDISTANCE(x0, y0, x1, y1) sqrt(pow((x0) - (x1), 2) + pow((y0) - (y1), 2))
-#define LW_POINTDISTANCE2(A, B) LW_POINTDISTANCE((A).x, (A).y, (B).x, (B).y)
-#define LW_POINT_EQUAL(A, B) (LW_POINTDISTANCE2((A), (B)) < lw_tolerance2())
-#define LW_POINT_ANGLE(A) (atan2((A).y, (A).x))
-#define LW_DOUBLE_NEARES(A) (fabs((A)) < lw_tolerance2())
-#define LW_DOUBLE_NEARES2(A, B) (fabs((A) - (B)) < lw_tolerance2())
+#define LW_POINTDISTANCE2(A, B)          LW_POINTDISTANCE((A).x, (A).y, (B).x, (B).y)
+#define LW_POINT_EQUAL(A, B)             (LW_POINTDISTANCE2((A), (B)) < lwtolerance2())
+#define LW_POINT_ANGLE(A)                (atan2((A).y, (A).x))
+#define LW_DOUBLE_NEARES(A)              (fabs((A)) < lwtolerance2())
+#define LW_DOUBLE_NEARES2(A, B)          (fabs((A) - (B)) < lwtolerance2())
 
 #define LW_PP_X(obj, i) ((obj)->pp[(i) * (obj)->cdim])
 #define LW_PP_Y(obj, i) ((obj)->pp[(i) * (obj)->cdim + 1])
 
-#define LW_FLAG_Z 0x01
-#define LW_FLAG_M 0x02
+#define LW_FLAG_Z          0x01
+#define LW_FLAG_M          0x02
 #define LW_FLAG_SHELL_RING 0x04
-#define LW_FLAG_HOLE_RING 0x08
+#define LW_FLAG_HOLE_RING  0x08
 
-#define LWFLAGS_GET_Z(flags) ((flags) & LW_FLAG_Z)
-#define LWFLAGS_GET_M(flags) ((flags) & LW_FLAG_M)
+#define LWFLAGS_GET_Z(flags)          ((flags) & LW_FLAG_Z)
+#define LWFLAGS_GET_M(flags)          ((flags) & LW_FLAG_M)
 #define LWFLAGS_GET_SHELL_RING(flags) ((flags) & LW_FLAG_SHELL_RING)
-#define LWFLAGS_GET_HOLE_RING(flags) ((flags) & LW_FLAG_HOLE_RING)
+#define LWFLAGS_GET_HOLE_RING(flags)  ((flags) & LW_FLAG_HOLE_RING)
 
 #define LWFLAGS_SET_Z(flags, value) ((flags) = (value) ? ((flags) | LW_FLAG_Z) : ((flags) & ~LW_FLAG_Z))
 #define LWFLAGS_SET_M(flags, value) ((flags) = (value) ? ((flags) | LW_FLAG_M) : ((flags) & ~LW_FLAG_M))
@@ -270,9 +291,12 @@ extern double lwgeom_prop_length(const LWGEOM *obj);
 extern void lwellipse_construct_circle(const POINT2D *p, int t, LWELLIPSE *es, int *n);
 extern void lwellipse_prop_eccentricity(const LWELLIPSE ell, double *v);
 extern void lwellipse_prop_area(const LWELLIPSE ell, double *v);
+extern void lwellipse_prop_perimeter(const LWELLIPSE ell, double *v);
 extern void lwellipse_prop_foci(const LWELLIPSE ell, POINT2D *f1, POINT2D *p2);
 extern void lwellipse_prop_focus_distance(const LWELLIPSE ell, double *v);
 extern LWGEOM *lwellipse_stroke(LWELLIPSE e, uint32_t param, LWBOOLEAN hasz, LWBOOLEAN hasm);
+
+extern LWGEOM *lwgeom_clone(const LWGEOM *obj);
 
 #ifdef __cplusplus
 }

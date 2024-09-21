@@ -20,8 +20,17 @@
  * IN THE SOFTWARE.
  */
 
-#include "liblwgeom_internel.h"
+#include "liblwgeom.h"
 #include <string.h>
+#include <assert.h>
+#include <math.h>
+
+void nv_segment_intersection(const POINT2D p1,
+			     const POINT2D p2,
+			     const POINT2D p3,
+			     const POINT2D p4,
+			     POINT2D *pin,
+			     int *intersection);
 
 LWBOX
 lwgeom__query_envolpe(const double *pp, int npoints, int cdim)
@@ -94,7 +103,7 @@ lwgeom_point(const double *pp, int hasz, int hasm)
 	if (!obj)
 		return NULL;
 	memset(obj, 0, sizeof(LWGEOM));
-	obj->type = LW_GEOM_POINT;
+	obj->type = POINTTYPE;
 	obj->npoints = 1;
 	size_t msize = LW_POINTBYTESIZE(hasz, hasm) * sizeof(double);
 	obj->pp = (double *)lwmalloc(msize);

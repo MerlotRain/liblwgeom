@@ -41,7 +41,7 @@ lwgeom_read_ora(const LWGEOM_SDO sdo, int flag)
 	}
 	else if (tt > 4 && tt < 8)
 	{
-		// multi nv_geom
+		// multi LWGEOM
 	}
 	return NULL;
 }

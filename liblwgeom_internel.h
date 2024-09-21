@@ -27,38 +27,29 @@
 
 #include "lwgeom_log.h"
 
-#include <assert.h>
-#include <stdarg.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <float.h>
-#include <math.h>
-
 /**
  * Floating point comparators.
  */
 #define LWMAX(a, b) ((a) > (b) ? (a) : (b))
 #define LWMIN(a, b) ((a) < (b) ? (a) : (b))
 
-#define FP_IS_ZERO(A) (fabs(A) <= FP_TOLERANCE)
-#define FP_MAX(A, B) (((A) > (B)) ? (A) : (B))
-#define FP_MIN(A, B) (((A) < (B)) ? (A) : (B))
-#define FP_ABS(a) ((a) < (0) ? -(a) : (a))
-#define FP_EQUALS(A, B) (fabs((A) - (B)) <= FP_TOLERANCE)
-#define FP_NEQUALS(A, B) (fabs((A) - (B)) > FP_TOLERANCE)
-#define FP_LT(A, B) (((A) + FP_TOLERANCE) < (B))
-#define FP_LTEQ(A, B) (((A) - FP_TOLERANCE) <= (B))
-#define FP_GT(A, B) (((A) - FP_TOLERANCE) > (B))
-#define FP_GTEQ(A, B) (((A) + FP_TOLERANCE) >= (B))
-#define FP_CONTAINS_TOP(A, X, B) (FP_LT(A, X) && FP_LTEQ(X, B))
+#define FP_IS_ZERO(A)               (fabs(A) <= FP_TOLERANCE)
+#define FP_MAX(A, B)                (((A) > (B)) ? (A) : (B))
+#define FP_MIN(A, B)                (((A) < (B)) ? (A) : (B))
+#define FP_ABS(a)                   ((a) < (0) ? -(a) : (a))
+#define FP_EQUALS(A, B)             (fabs((A) - (B)) <= FP_TOLERANCE)
+#define FP_NEQUALS(A, B)            (fabs((A) - (B)) > FP_TOLERANCE)
+#define FP_LT(A, B)                 (((A) + FP_TOLERANCE) < (B))
+#define FP_LTEQ(A, B)               (((A) - FP_TOLERANCE) <= (B))
+#define FP_GT(A, B)                 (((A) - FP_TOLERANCE) > (B))
+#define FP_GTEQ(A, B)               (((A) + FP_TOLERANCE) >= (B))
+#define FP_CONTAINS_TOP(A, X, B)    (FP_LT(A, X) && FP_LTEQ(X, B))
 #define FP_CONTAINS_BOTTOM(A, X, B) (FP_LTEQ(A, X) && FP_LT(X, B))
-#define FP_CONTAINS_INCL(A, X, B) (FP_LTEQ(A, X) && FP_LTEQ(X, B))
-#define FP_CONTAINS_EXCL(A, X, B) (FP_LT(A, X) && FP_LT(X, B))
-#define FP_CONTAINS(A, X, B) FP_CONTAINS_EXCL(A, X, B)
+#define FP_CONTAINS_INCL(A, X, B)   (FP_LTEQ(A, X) && FP_LTEQ(X, B))
+#define FP_CONTAINS_EXCL(A, X, B)   (FP_LT(A, X) && FP_LT(X, B))
+#define FP_CONTAINS(A, X, B)        FP_CONTAINS_EXCL(A, X, B)
 
-#define STR_EQUALS(A, B) strcmp((A), (B)) == 0
+#define STR_EQUALS(A, B)  strcmp((A), (B)) == 0
 #define STR_IEQUALS(A, B) (strcasecmp((A), (B)) == 0)
 #define STR_ISTARTS(A, B) (strncasecmp((A), (B), strlen((B))) == 0)
 
@@ -66,7 +57,7 @@
  * this will change to NaN when I figure out how to
  * get NaN in a platform-independent way
  */
-#define NO_VALUE 0.0
+#define NO_VALUE   0.0
 #define NO_Z_VALUE NO_VALUE
 #define NO_M_VALUE NO_VALUE
 
@@ -79,6 +70,28 @@ typedef void (*HashFunc)(const void *);
 size_t lw_str_hash(const void *str);
 
 size_t lw_nearest_pow(size_t v);
+
+int lwbox_intersects(const LWBOX env1, const LWBOX env2);
+LWBOX lwbox_intersection(const LWBOX env1, const LWBOX env2);
+LWBOX lwbox_union(const LWBOX env1, const LWBOX env2);
+LWGEOM *lwbox_stroke(LWBOX e, int gdim);
+
+double lwpoint_angle(const POINT2D p0);
+double lwpoint_angle2(const POINT2D p0, const POINT2D p1);
+int lwpoint_acute(const POINT2D p0, const POINT2D p1, const POINT2D p2);
+int lwpoint_obtuse(const POINT2D p0, const POINT2D p1, const POINT2D p2);
+double lwpoint_angle_between(const POINT2D tip1, const POINT2D tail, const POINT2D tip2);
+double lwpoint_interior_angle(const POINT2D p0, const POINT2D p1, const POINT2D p2);
+int
+lwpoint_angle_bisector(const POINT2D A, const POINT2D B, const POINT2D C, const POINT2D D, POINT2D *p, double *angle);
+double lwsegment_dis_point_to_segment(const POINT2D p, const POINT2D A, const POINT2D B);
+double lwsegment_dis_point_to_perpendicular(const POINT2D p, const POINT2D A, const POINT2D B);
+void lwsegment_intersection(const POINT2D p1,
+			    const POINT2D p2,
+			    const POINT2D p3,
+			    const POINT2D p4,
+			    POINT2D *pin,
+			    int *intersection);
 
 int lw_segment_side(const POINT2D *p1, const POINT2D *p2, const POINT2D *q);
 int lw_arc_side(const POINT2D *A1, const POINT2D *A2, const POINT2D *A3, const POINT2D *Q);

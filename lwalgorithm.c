@@ -20,7 +20,10 @@
  * IN THE SOFTWARE.
  */
 
+#include "liblwgeom.h"
 #include "liblwgeom_internel.h"
+#include <math.h>
+#include <assert.h>
 
 /// triangle inscribed circle
 static LWELLIPSE
@@ -133,7 +136,7 @@ lwgeom__from_2parallels_line(const POINT2D pt1_par1,
 			     int *n)
 {
 	int _en = 0;
-	const double radius = nv_dis_point_to_perpendicular(pt1_par1, pt1_par2, pt2_par2) / 2.0;
+	const double radius = lwsegment_dis_point_to_perpendicular(pt1_par1, pt1_par2, pt2_par2) / 2.0;
 
 	int isInter;
 	const POINT2D ptInter;
@@ -141,17 +144,17 @@ lwgeom__from_2parallels_line(const POINT2D pt1_par1,
 	POINT2D ptInter_par1line1, ptInter_par2line1;
 	double angle1, angle2;
 	double x, y;
-	nv_angle_bisector(pt1_par1, pt2_par1, pt1_line1, pt2_line1, &ptInter_par1line1, &angle1);
+	lwpoint_angle_bisector(pt1_par1, pt2_par1, pt1_line1, pt2_line1, &ptInter_par1line1, &angle1);
 
-	nv_angle_bisector(pt1_par2, pt2_par2, pt1_line1, pt2_line1, &ptInter_par2line1, &angle2);
+	lwpoint_angle_bisector(pt1_par2, pt2_par2, pt1_line1, pt2_line1, &ptInter_par2line1, &angle2);
 
 	POINT2D center;
-	nv_segment_intersection(ptInter_par1line1,
-				nv__point_project(ptInter_par1line1, 1.0, angle1),
-				ptInter_par2line1,
-				nv__point_project(ptInter_par2line1, 1.0, angle2),
-				&center,
-				&isInter);
+	lwsegment_intersection(ptInter_par1line1,
+			       nv__point_project(ptInter_par1line1, 1.0, angle1),
+			       ptInter_par2line1,
+			       nv__point_project(ptInter_par2line1, 1.0, angle2),
+			       &center,
+			       &isInter);
 	if (isInter)
 	{
 		_en++;
@@ -162,12 +165,12 @@ lwgeom__from_2parallels_line(const POINT2D pt1_par1,
 		rs[_en - 1].azimuth = 0;
 	}
 
-	nv_segment_intersection(ptInter_par1line1,
-				nv__point_project(ptInter_par1line1, 1.0, angle1),
-				ptInter_par2line1,
-				nv__point_project(ptInter_par2line1, 1.0, angle2 + 90),
-				&center,
-				&isInter);
+	lwsegment_intersection(ptInter_par1line1,
+			       nv__point_project(ptInter_par1line1, 1.0, angle1),
+			       ptInter_par2line1,
+			       nv__point_project(ptInter_par2line1, 1.0, angle2 + 90),
+			       &center,
+			       &isInter);
 	if (isInter)
 	{
 		_en++;
@@ -178,12 +181,12 @@ lwgeom__from_2parallels_line(const POINT2D pt1_par1,
 		rs[_en - 1].azimuth = 0;
 	}
 
-	nv_segment_intersection(ptInter_par1line1,
-				nv__point_project(ptInter_par1line1, 1.0, angle1 + 90),
-				ptInter_par2line1,
-				nv__point_project(ptInter_par2line1, 1.0, angle2),
-				&center,
-				&isInter);
+	lwsegment_intersection(ptInter_par1line1,
+			       nv__point_project(ptInter_par1line1, 1.0, angle1 + 90),
+			       ptInter_par2line1,
+			       nv__point_project(ptInter_par2line1, 1.0, angle2),
+			       &center,
+			       &isInter);
 	if (isInter && !lwellipse__contains_circle(rs, *n, center, radius))
 	{
 		_en++;
@@ -194,12 +197,12 @@ lwgeom__from_2parallels_line(const POINT2D pt1_par1,
 		rs[_en - 1].azimuth = 0;
 	}
 
-	nv_segment_intersection(ptInter_par1line1,
-				nv__point_project(ptInter_par1line1, 1.0, angle1 + 90),
-				ptInter_par2line1,
-				nv__point_project(ptInter_par2line1, 1.0, angle2),
-				&center,
-				&isInter);
+	lwsegment_intersection(ptInter_par1line1,
+			       nv__point_project(ptInter_par1line1, 1.0, angle1 + 90),
+			       ptInter_par2line1,
+			       nv__point_project(ptInter_par2line1, 1.0, angle2),
+			       &center,
+			       &isInter);
 	if (isInter && !lwellipse__contains_circle(rs, *n, center, radius))
 	{
 		_en++;
@@ -245,7 +248,7 @@ lwellipse_construct_circle(const POINT2D *p, int t, LWELLIPSE *rs, int *n)
 	/// @param pt1 First point.
 	/// @param pt2 Second point.
 	///
-	if (NV_CONSTRUCT_CIRCLE_2P == t)
+	if (LWELLIPSE_CONSTRUCT_CIRCLE_2P == t)
 	{
 		POINT2D pt1 = p[0];
 		POINT2D pt2 = p[1];
@@ -270,7 +273,7 @@ lwellipse_construct_circle(const POINT2D *p, int t, LWELLIPSE *rs, int *n)
 	/// @param pt2 Second point.
 	/// @param pt3 Third point.
 	///
-	else if (NV_CONSTRUCT_CIRCLE_3P == t)
+	else if (LWELLIPSE_CONSTRUCT_CIRCLE_3P == t)
 	{
 		POINT2D p1, p2, p3;
 		POINT2D pt1 = p[0];
@@ -375,7 +378,7 @@ lwellipse_construct_circle(const POINT2D *p, int t, LWELLIPSE *rs, int *n)
 	/// is returned. -- This case happens only when two tangents are parallels.
 	/// (since QGIS 3.18)
 	///
-	else if (NV_CONSTRUCT_CIRCLE_ICT == t)
+	else if (LWELLIPSE_CONSTRUCT_CIRCLE_ICT == t)
 	{
 		POINT2D pt1_tg1 = p[0];
 		POINT2D pt2_tg1 = p[1];
@@ -388,9 +391,9 @@ lwellipse_construct_circle(const POINT2D *p, int t, LWELLIPSE *rs, int *n)
 		int isIntersect_tg1tg2 = LW_FALSE;
 		int isIntersect_tg1tg3 = LW_FALSE;
 		int isIntersect_tg2tg3 = LW_FALSE;
-		nv_segment_intersection(pt1_tg1, pt2_tg1, pt1_tg2, pt2_tg2, &p1, &isIntersect_tg1tg2);
-		nv_segment_intersection(pt1_tg1, pt2_tg1, pt1_tg3, pt2_tg3, &p2, &isIntersect_tg1tg3);
-		nv_segment_intersection(pt1_tg2, pt2_tg2, pt1_tg3, pt2_tg3, &p3, &isIntersect_tg2tg3);
+		lwsegment_intersection(pt1_tg1, pt2_tg1, pt1_tg2, pt2_tg2, &p1, &isIntersect_tg1tg2);
+		lwsegment_intersection(pt1_tg1, pt2_tg1, pt1_tg3, pt2_tg3, &p2, &isIntersect_tg1tg3);
+		lwsegment_intersection(pt1_tg2, pt2_tg2, pt1_tg3, pt2_tg3, &p3, &isIntersect_tg2tg3);
 
 		if (!isIntersect_tg1tg2 && !isIntersect_tg2tg3) // three lines are parallels
 		{
@@ -420,76 +423,49 @@ lwellipse_construct_circle(const POINT2D *p, int t, LWELLIPSE *rs, int *n)
 	}
 }
 
-/// @brief query ellipse attribute
-///
-/// Calculate the ellipse attribute. \a flags are a combination of
-/// \a NV_ELLIPSE_PROP macro series. When passing in \a values externally, the
-/// data structure needs to be organized by oneself. The algorithm will write
-/// the calculation result in sequence based on the bits of the flag.
-///
-/// @param ell ellipse
-/// @param flags query flag
-/// @param values query result
-/// @return
 void
-lwellipse_prop_value(const LWELLIPSE ell, int flags, double *values)
+lwellipse_prop_eccentricity(const LWELLIPSE ell, double *v)
 {
-	int pos = 0;
-	assert(values);
+	assert(ell.major != 0.0);
+	double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
+	*v = dis / ell.major;
+}
 
-	// calc eccentrucity
-	if (flags & NV_ELLIPSE_PROP_VALUE_ECCENTRICITY)
+void
+lwellipse_prop_area(const LWELLIPSE ell, double *v)
+{
+	*v = M_PI * ell.major * ell.minor;
+}
+
+void
+lwellipse_prop_perimeter(const LWELLIPSE ell, double *v)
+{
+	if (ell.major == ell.minor)
 	{
-		double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
-		values[pos] = dis / ell.major;
-		pos += 1;
+		*v = M_PI * 2.0 * ell.major;
 	}
-
-	// calc area
-	if (flags & NV_ELLIPSE_PROP_VALUE_AREA)
+	else
 	{
-		values[pos] = M_PI * ell.major * ell.minor;
-		pos += 1;
-	}
-
-	// calc perimeter
-	if (flags & NV_ELLIPSE_PROP_VALUE_PERIMETER)
-	{
-		if (ell.major == ell.minor)
-		{
-			values[pos] = M_PI * 2.0 * ell.major;
-		}
-		else
-		{
-			values[pos] =
-			    M_PI *
-			    (3 * (ell.major + ell.minor) -
+		*v = M_PI * (3 * (ell.major + ell.minor) -
 			     sqrt(10 * ell.major * ell.minor + 3 * (ell.major * ell.major + ell.minor * ell.minor)));
-		}
-		pos += 1;
-	}
-
-	// calc foci
-	if (flags & NV_ELLIPSE_PROP_VALUE_FOCI)
-	{
-		double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
-		POINT2D p1 = nv__point_project(ell.center, dis, ell.azimuth);
-		POINT2D p2 = nv__point_project(ell.center, -dis, ell.azimuth);
-		memcpy(values + pos, &p1, sizeof(POINT2D));
-		memcpy(values + pos + 2, &p2, sizeof(POINT2D));
-		pos += 4;
-	}
-
-	// calc focus distance
-	if (flags & NV_ELLIPSE_PROP_FOCUS_DISTANCE)
-	{
-		double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
-		values[pos] = dis;
-		pos += 1;
 	}
 }
 
-/// @brief stroke ellipse to nv_geom
+void
+lwellipse_prop_foci(const LWELLIPSE ell, POINT2D *f1, POINT2D *f2)
+{
+	double dis = sqrt(ell.major * ell.major - ell.minor * ell.minor);
+	*f1 = nv__point_project(ell.center, dis, ell.azimuth);
+	*f2 = nv__point_project(ell.center, -dis, ell.azimuth);
+}
+
+void
+lwellipse_prop_focus_distance(const LWELLIPSE ell, double *v)
+{
+	*v = sqrt(ell.major * ell.major - ell.minor * ell.minor);
+}
+
+/// @brief stroke ellipse to LWGEOM
 /// @param e ellipse
 /// @param param geometry dim and segment count
 /// Use the highest bit of an integer to represent the geometric dimension, 1:
@@ -501,7 +477,7 @@ lwellipse_prop_value(const LWELLIPSE ell, int flags, double *values)
 /// param: 246 create a polygon, segment to 46 linesegments
 /// param: 52: error code, use default value
 ///
-/// @return nv_geom
+/// @return LWGEOM
 LWGEOM *
 lwellipse_stroke(LWELLIPSE e, uint32_t param, LWBOOLEAN hasz, LWBOOLEAN hasm)
 {
@@ -535,5 +511,4 @@ lwellipse_stroke(LWELLIPSE e, uint32_t param, LWBOOLEAN hasz, LWBOOLEAN hasm)
 	pp[nseg * 2 + 1] = pp[1];
 
 	return NULL;
-	// nv_geo_create_single(gdim, nseg + 1, 2, pp, 0);
 }

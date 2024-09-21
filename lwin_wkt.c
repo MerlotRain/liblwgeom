@@ -289,8 +289,6 @@ wkt_read_point(stok_t *token, lwgeom_ordinate *flag)
 	wkt_get_coordinates(token, flag, &coord, &n);
 	if (coord && n == 1)
 	{
-		// return nv_geo_create_single(
-		//     0, 1, (flag->value & LWORDINATE_VALUE_Z) ? 3 : 2, coord, 0);
 	}
 	return NULL;
 }
@@ -303,8 +301,6 @@ wkt_read_linestring(stok_t *token, lwgeom_ordinate *flag)
 	wkt_get_coordinates(token, flag, &coord, &n);
 	if (coord && n > 1)
 	{
-		// return nv_geo_create_single(
-		//     1, n, (flag->value & LWORDINATE_VALUE_Z) ? 3 : 2, coord, 0);
 	}
 	return NULL;
 }
@@ -317,8 +313,6 @@ wkt_read_linearring(stok_t *token, lwgeom_ordinate *flag)
 	wkt_get_coordinates(token, flag, &coord, &n);
 	if (coord && n > 1)
 	{
-		// return nv_geo_create_single(
-		//     2, n, (flag->value & LWORDINATE_VALUE_Z) ? 3 : 2, coord, 0);
 	}
 	return NULL;
 }

@@ -1,4 +1,5 @@
-#include "./bitset.h"
+#include "bitset.h"
+#include "liblwgeom.h"
 
 struct nv__simplify_rdp {
 	int np;         ///< number of points
@@ -17,7 +18,7 @@ nv__simplify_line(const LWGEOM *obj)
 		return NULL;
 
 	if (obj->npoints < 3)
-		return nv_prop_geo_clone(obj);
+		return lwgeom_clone(obj);
 
 	struct nv__simplify_rdp *intrdp =
 	    (struct nv__simplify_rdp *)lwmalloc(sizeof(struct nv__simplify_rdp) + obj->npoints * sizeof(uint8_t));
@@ -25,7 +26,7 @@ nv__simplify_line(const LWGEOM *obj)
 		return NULL;
 	intrdp->np = obj->npoints;
 	intrdp->pp = obj->pp;
-	intrdp->usef = nv__bitset_new(obj->npoints);
+	intrdp->usef = bitset_new(obj->npoints);
 	if (intrdp->usef == NULL)
 	{
 		lwfree(intrdp);

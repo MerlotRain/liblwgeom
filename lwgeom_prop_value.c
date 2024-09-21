@@ -20,7 +20,9 @@
  * IN THE SOFTWARE.
  */
 
-#include "liblwgeom_internel.h"
+#include "liblwgeom.h"
+#include <assert.h>
+#include <math.h>
 
 static double
 lwgeom__prop_area(const LWGEOM *obj)

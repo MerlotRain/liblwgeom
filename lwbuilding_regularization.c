@@ -22,6 +22,8 @@
 
 #include "liblwgeom.h"
 #include <float.h>
+#include <assert.h>
+#include <math.h>
 
 typedef struct {
 	int index;

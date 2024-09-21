@@ -23,29 +23,32 @@
 #include "liblwgeom_internel.h"
 #include <float.h>
 #include <math.h>
+#include <assert.h>
 
 /// check box is null?
 #define MV_BOX_NULL(B) \
-	(isnan(B.min.x) && isnan(B.max.x) && isnan(B.min.y) && isnan(B.max.y)) || \
-	    (LW_DOUBLE_NEARES2(B.min.x, DBL_MAX) && LW_DOUBLE_NEARES2(B.min.y, DBL_MAX) && \
-	     LW_DOUBLE_NEARES2(B.max.x, -DBL_MAX) && LW_DOUBLE_NEARES2(B.max.y, -DBL_MAX))
+	(isnan(B.xmin) && isnan(B.xmax) && isnan(B.ymin) && isnan(B.ymax)) || \
+	    (LW_DOUBLE_NEARES2(B.xmin, DBL_MAX) && LW_DOUBLE_NEARES2(B.ymin, DBL_MAX) && \
+	     LW_DOUBLE_NEARES2(B.xmax, -DBL_MAX) && LW_DOUBLE_NEARES2(B.ymax, -DBL_MAX))
 
 /// init box
-#define MV_BOX_INIT(B) struct nv_box B = {.min = {.x = DBL_MIN, .y = DBL_MIN}, .max = {.x = DBL_MAX, .y = DBL_MAX}};
+#define MV_BOX_INIT(B) \
+	LWBOX B = { \
+	    .xmin = DBL_MIN, .ymin = DBL_MIN, .zmin = DBL_MIN, .xmax = DBL_MAX, .ymax = DBL_MAX, .zmax = DBL_MAX};
 
 /// @brief Check two box is intersects
 /// @param env1 the first Envelope
 /// @param env2 the second Envelope
 /// @return LW_TRUE if the two Envelopes intersect
 int
-nv_box_intersects(const struct nv_box env1, const struct nv_box env2)
+nv_box_intersects(const LWBOX env1, const LWBOX env2)
 {
-	const double x1 = LWMAX(env1.min.x, env2.min.x);
-	const double x2 = LWMIN(env1.max.x, env2.max.x);
+	const double x1 = LWMAX(env1.xmin, env2.xmin);
+	const double x2 = LWMIN(env1.xmax, env2.xmax);
 	if (x1 > x2)
 		return LW_FALSE;
-	const double y1 = LWMAX(env1.min.y, env2.min.y);
-	const double y2 = LWMIN(env1.max.y, env2.max.y);
+	const double y1 = LWMAX(env1.ymin, env2.ymin);
+	const double y2 = LWMIN(env1.ymax, env2.ymax);
 	return y1 <= y2;
 }
 
@@ -53,8 +56,8 @@ nv_box_intersects(const struct nv_box env1, const struct nv_box env2)
 /// @param env1 the first Envelope
 /// @param env2 the second Envelope
 /// @return the intersection of the two Envelopes
-struct nv_box
-nv_box_intersection(const struct nv_box env1, const struct nv_box env2)
+LWBOX
+nv_box_intersection(const LWBOX env1, const LWBOX env2)
 {
 	MV_BOX_INIT(b)
 	if (MV_BOX_NULL(env1) || MV_BOX_NULL(env2))
@@ -64,10 +67,10 @@ nv_box_intersection(const struct nv_box env1, const struct nv_box env2)
 
 	if (nv_box_intersects(env1, env2))
 	{
-		b.min.x = env1.min.x > env2.min.x ? env1.min.x : env2.min.x;
-		b.min.y = env1.min.y > env2.min.y ? env1.min.y : env2.min.y;
-		b.max.x = env1.max.x < env2.max.x ? env1.max.x : env2.max.x;
-		b.max.y = env1.max.y < env2.max.y ? env1.max.y : env2.max.y;
+		b.xmin = env1.xmin > env2.xmin ? env1.xmin : env2.xmin;
+		b.ymin = env1.ymin > env2.ymin ? env1.ymin : env2.ymin;
+		b.xmax = env1.xmax < env2.xmax ? env1.xmax : env2.xmax;
+		b.ymax = env1.ymax < env2.ymax ? env1.ymax : env2.ymax;
 	}
 	return b;
 }
@@ -76,27 +79,27 @@ nv_box_intersection(const struct nv_box env1, const struct nv_box env2)
 /// @param env1 the original Envelope
 /// @param env2 the Envelope to be contained
 /// @return the enlarged Envelope
-struct nv_box
-nv_box_union(const struct nv_box env1, const struct nv_box env2)
+LWBOX
+nv_box_union(const LWBOX env1, const LWBOX env2)
 {
 	MV_BOX_INIT(b)
 	if (MV_BOX_NULL(env1) || MV_BOX_NULL(env2))
 	{
 		return b;
 	}
-	b.min.x = LWMIN(env1.min.x, env2.min.x);
-	b.min.y = LWMIN(env1.min.y, env2.min.y);
-	b.max.x = LWMIN(env1.max.x, env2.max.x);
-	b.max.y = LWMIN(env1.max.y, env2.max.y);
+	b.xmin = LWMIN(env1.xmin, env2.xmin);
+	b.ymin = LWMIN(env1.ymin, env2.ymin);
+	b.xmax = LWMIN(env1.xmax, env2.xmax);
+	b.ymax = LWMIN(env1.ymax, env2.ymax);
 	return b;
 }
 
-/// @brief Convert nv_box object to nv_geom
+/// @brief Convert nv_box object to LWGEOM
 /// @param e the nv_box object
 /// @param gdim the geometry dimension
-/// @return the nv_geom object
+/// @return the LWGEOM object
 LWGEOM *
-nv_box_stroke(struct nv_box e, int gdim)
+nv_box_stroke(LWBOX e, int gdim)
 {
 	return NULL; // TODO
 }
@@ -135,20 +138,8 @@ nv__arc_center(POINT2D c0, POINT2D c1, POINT2D c2, POINT2D *center)
 	return 1;
 }
 
-/// @brief stroke arc to nv_geom
-/// @param arc arc
-/// @param maxAngleStepSizeDegress max angle step size
-/// @return nv_geom
 LWGEOM *
-nv_arc_stroke(struct nv_arc arc, double maxAngleStepSizeDegress)
-{
-	double startAngle, alongAngle, endAngle;
-	double cx, cy, radius;
-	return 0;
-}
-
-LWGEOM *
-nv_prop_geo_clone(const LWGEOM *obj)
+lwgeom_clone(const LWGEOM *obj)
 {
 	assert(obj);
 

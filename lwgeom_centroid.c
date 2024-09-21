@@ -21,6 +21,8 @@
  */
 
 #include "liblwgeom_internel.h"
+#include <math.h>
+#include <assert.h>
 
 struct nv__centriod {
 	POINT2D p_cent_sum;
@@ -38,13 +40,13 @@ void
 nv__centriod_single(const LWGEOM *obj, struct nv__centriod *centriod)
 {
 	assert(obj);
-	if (nv_geo_dim_g(obj) == 0)
+	if (lwgeom_dim_geometry(obj) == 0)
 	{
 		centriod->p_cent_sum.x += obj->pp[0];
 		centriod->p_cent_sum.y += obj->pp[1];
 		centriod->pt_num += 1;
 	}
-	else if (nv_geo_dim_g(obj) == 1)
+	else if (lwgeom_dim_geometry(obj) == 1)
 	{
 		size_t npts = obj->npoints;
 		double line_len = 0.0;
@@ -54,7 +56,7 @@ nv__centriod_single(const LWGEOM *obj, struct nv__centriod *centriod)
 			double y1 = lwgeom_get_y(obj, i);
 			double x2 = lwgeom_get_x(obj, i + 1);
 			double y2 = lwgeom_get_y(obj, i + 1);
-			double segment_len = NV_POINTDISTANCE(x1, y1, x2, y2);
+			double segment_len = LW_POINTDISTANCE(x1, y1, x2, y2);
 			if (segment_len == 0.0)
 				continue;
 
@@ -72,9 +74,9 @@ nv__centriod_single(const LWGEOM *obj, struct nv__centriod *centriod)
 			centriod->pt_num += 1;
 		}
 	}
-	else if (nv_geo_dim_g(obj) == 2)
+	else if (lwgeom_dim_geometry(obj) == 2)
 	{
-		double area = nv_prop_area_value(obj);
+		double area = lwgeom_prop_area(obj);
 		double tx = 0.0;
 		double ty = 0.0;
 		for (int i = 0; i < obj->npoints; ++i)
@@ -101,21 +103,21 @@ nv_prop_geo_centriod(const LWGEOM *obj, double *xy)
 	{
 		for (int i = 0; i < obj->ngeoms; ++i)
 		{
-			nv__centriod_single(obj->objects[i], &centriod);
+			nv__centriod_single(obj->geoms[i], &centriod);
 		}
 	}
 
-	if (nv_geo_dim_g(obj) == 0)
+	if (lwgeom_dim_geometry(obj) == 0)
 	{
 		xy[0] = centriod.p_cent_sum.x / centriod.pt_num;
 		xy[1] = centriod.p_cent_sum.y / centriod.pt_num;
 	}
-	else if (nv_geo_dim_g(obj) == 1)
+	else if (lwgeom_dim_geometry(obj) == 1)
 	{
 		xy[0] = centriod.l_cent_sum.x / centriod.total_length;
 		xy[1] = centriod.l_cent_sum.y / centriod.total_length;
 	}
-	else if (nv_geo_dim_g(obj) == 2)
+	else if (lwgeom_dim_geometry(obj) == 2)
 	{
 		xy[0] = centriod.total_area / centriod.total_ax;
 		xy[1] = centriod.total_area / centriod.total_ay;

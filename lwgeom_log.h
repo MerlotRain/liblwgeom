@@ -50,18 +50,18 @@
 #ifndef LWGEOM_LOG_H
 #define LWGEOM_LOG_H 1
 
-#include <stdarg.h>
-
 /*
  * Debug macros
  */
-#if POSTGIS_DEBUG_LEVEL > 0
+#if LWGEOM_DEBUG_LEVEL > 0
+
+#include <stdarg.h>
 
 /* Display a notice at the given debug level */
 #define LWDEBUG(level, msg) \
 	do \
 	{ \
-		if (POSTGIS_DEBUG_LEVEL >= level) \
+		if (LWGEOM_DEBUG_LEVEL >= level) \
 			lwdebug(level, "[%s:%s:%d] " msg, __FILE__, __func__, __LINE__); \
 	} while (0);
 
@@ -70,75 +70,54 @@
 #define LWDEBUGF(level, msg, ...) \
 	do \
 	{ \
-		if (POSTGIS_DEBUG_LEVEL >= level) \
+		if (LWGEOM_DEBUG_LEVEL >= level) \
 			lwdebug(level, "[%s:%s:%d] " msg, __FILE__, __func__, __LINE__, __VA_ARGS__); \
 	} while (0);
 
-#ifdef POSTGIS_DEBUG_GEOMETRY_WKB
-/* Display a notice and a HEXWKB representation of a geometry
- * at the given debug level */
-#define LWDEBUGG(level, geom, msg) \
-	if (POSTGIS_DEBUG_LEVEL >= level) \
-		do \
-		{ \
-			char *wkt = lwgeom_to_hexwkb_buffer(geom, WKB_EXTENDED); \
-			LWDEBUGF(level, msg ": %s", wkt); \
-			lwfree(wkt); \
-		} while (0);
-/* Display a formatted notice and a HEXWKB representation of a geometry
- * at the given debug level */
-#define LWDEBUGGF(level, geom, fmt, ...) \
-	if (POSTGIS_DEBUG_LEVEL >= level) \
-		do \
-		{ \
-			char *wkt = lwgeom_to_hexwkb_buffer(geom, WKT_EXTENDED); \
-			LWDEBUGF(level, fmt ": %s", __VA_ARGS__, wkt); \
-			lwfree(wkt); \
-		} while (0);
-#else /* ndef POSTGIS_DEBUG_GEOMETRY_WKB */
 /* Display a notice and an HEXWKB representation of a geometry
  * at the given debug level */
 #define LWDEBUGG(level, geom, msg) \
-	if (POSTGIS_DEBUG_LEVEL >= level) \
+	if (LWGEOM_DEBUG_LEVEL >= level) \
 		do \
 		{ \
 			size_t sz; \
-			char *wkt = lwgeom_to_wkt(geom, WKT_EXTENDED, 15, &sz); \
+			char *wkt; \
+			lwgeom_write_wkt(geom, &wkt, &sz); \
 			LWDEBUGF(level, msg ": %s", wkt); \
 			lwfree(wkt); \
 		} while (0);
 /* Display a formatted notice and a WKT representation of a geometry
  * at the given debug level */
 #define LWDEBUGGF(level, geom, fmt, ...) \
-	if (POSTGIS_DEBUG_LEVEL >= level) \
+	if (LWGEOM_DEBUG_LEVEL >= level) \
 		do \
 		{ \
 			size_t sz; \
-			char *wkt = lwgeom_to_wkt(geom, WKT_EXTENDED, 15, &sz); \
+			char *wkt; \
+			lwgeom_write_wkt(geom, &wkt, &sz); \
 			LWDEBUGF(level, fmt ": %s", __VA_ARGS__, wkt); \
 			lwfree(wkt); \
 		} while (0);
-#endif
 
-#else /* POSTGIS_DEBUG_LEVEL <= 0 */
-
-/* Empty prototype that can be optimised away by the compiler
- * for non-debug builds */
-#define LWDEBUG(level, msg) ((void)0)
+#else /* LWGEOM_DEBUG_LEVEL <= 0 */
 
 /* Empty prototype that can be optimised away by the compiler
  * for non-debug builds */
-#define LWDEBUGF(level, msg, ...) ((void)0)
+#define LWDEBUG(level, msg)              ((void)0)
 
 /* Empty prototype that can be optimised away by the compiler
  * for non-debug builds */
-#define LWDEBUGG(level, geom, msg) ((void)0)
+#define LWDEBUGF(level, msg, ...)        ((void)0)
+
+/* Empty prototype that can be optimised away by the compiler
+ * for non-debug builds */
+#define LWDEBUGG(level, geom, msg)       ((void)0)
 
 /* Empty prototype that can be optimised away by the compiler
  * for non-debug builds */
 #define LWDEBUGGF(level, geom, fmt, ...) ((void)0)
 
-#endif /* POSTGIS_DEBUG_LEVEL <= 0 */
+#endif /* LWGEOM_DEBUG_LEVEL <= 0 */
 
 /**
  * Write a notice out to the notice handler.
