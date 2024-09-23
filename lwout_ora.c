@@ -23,7 +23,8 @@
 #include "liblwgeom.h"
 #include "liblwgeom_internel.h"
 
-int lwgeom_write_ora(const LWGEOM *obj, LWGEOM_SDO *sdo)
+int
+lwgeom_write_ora(const LWGEOM *obj, LWGEOM_SDO *sdo)
 {
-    return 0;
+	return 0;
 }

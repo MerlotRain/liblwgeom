@@ -22,12 +22,14 @@
 
 #include "liblwgeom_internel.h"
 
-int lwgeom_write_gml2(const LWGEOM *g, char **data, size_t *len)
+int
+lwgeom_write_gml2(const LWGEOM *g, char **data, size_t *len)
 {
-    return 0;
+	return 0;
 }
 
-int lwgeom_write_gml3(const LWGEOM *g, char **data, size_t *len)
+int
+lwgeom_write_gml3(const LWGEOM *g, char **data, size_t *len)
 {
-    return 0;
+	return 0;
 }

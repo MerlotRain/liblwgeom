@@ -23,28 +23,35 @@
 #include "lwgeom_ordinate.h"
 #include "liblwgeom_internel.h"
 
-lwgeom_ordinate lwgeom_ordinate_XY()
+lwgeom_ordinate
+lwgeom_ordinate_XY()
 {
-    lwgeom_ordinate flag;
-    flag.value = LWORDINATE_VALUE_X | LWORDINATE_VALUE_Y;
-    flag.changeAllowed = LW_TRUE;
-    return flag;
+	lwgeom_ordinate flag;
+	flag.value = LWORDINATE_VALUE_X | LWORDINATE_VALUE_Y;
+	flag.changeAllowed = LW_TRUE;
+	return flag;
 }
 
-void lwgeom_ordinate_setZ(lwgeom_ordinate *o, int v)
+void
+lwgeom_ordinate_setZ(lwgeom_ordinate *o, int v)
 {
-    if ((o->value & LWORDINATE_VALUE_Z) != v) {
-        if (o->changeAllowed) {
-            o->value ^= LWORDINATE_VALUE_Z;
-        }
-    }
+	if ((o->value & LWORDINATE_VALUE_Z) != v)
+	{
+		if (o->changeAllowed)
+		{
+			o->value ^= LWORDINATE_VALUE_Z;
+		}
+	}
 }
 
-void lwgeom_ordinate_setM(lwgeom_ordinate *o, int v)
+void
+lwgeom_ordinate_setM(lwgeom_ordinate *o, int v)
 {
-    if ((o->value & LWORDINATE_VALUE_M) != v) {
-        if (o->changeAllowed) {
-            o->value ^= LWORDINATE_VALUE_M;
-        }
-    }
+	if ((o->value & LWORDINATE_VALUE_M) != v)
+	{
+		if (o->changeAllowed)
+		{
+			o->value ^= LWORDINATE_VALUE_M;
+		}
+	}
 }

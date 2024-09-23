@@ -25,23 +25,23 @@
 
 /// @brief undirected graph node
 struct ung_node {
-    int id;
+	int id;
 };
 
 /// @brief undirected graph edge
 struct ung_edge {
-    int id;   ///< id
-    int from; ///< from node id
-    int to;   ///< to node id
+	int id;   ///< id
+	int from; ///< from node id
+	int to;   ///< to node id
 };
 
 /// @brief undirected graph
 struct un_graph {
-    double *pp;             ///< graph point coordinates
-    int num_nodes;          ///< number of nodes
-    struct ung_node *nodes; ///< nodes
-    int num_edges;          ///< number of edges
-    struct ung_edge *edges; ///< edges
+	double *pp;             ///< graph point coordinates
+	int num_nodes;          ///< number of nodes
+	struct ung_node *nodes; ///< nodes
+	int num_edges;          ///< number of edges
+	struct ung_edge *edges; ///< edges
 };
 
 struct un_graph *graph_delaunay(double *pp, int num_points);

@@ -22,7 +22,8 @@
 
 #include "liblwgeom_internel.h"
 
-LWGEOM *lwgeom_read_ewkt(const char *data, size_t len)
+LWGEOM *
+lwgeom_read_ewkt(const char *data, size_t len)
 {
-    return NULL;
+	return NULL;
 }

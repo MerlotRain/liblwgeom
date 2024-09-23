@@ -25,20 +25,21 @@
 
 #include <stddef.h>
 
-enum {
-    STOK_EOF,  // end of string stream
-    STOK_EOL,  // end of line
-    STOK_NUM,  // token a number value
-    STOK_WORD, // token a string value
+enum
+{
+	STOK_EOF,  // end of string stream
+	STOK_EOL,  // end of line
+	STOK_NUM,  // token a number value
+	STOK_WORD, // token a string value
 };
 
 typedef struct {
-    double ntok;
-    char stok[255];
-    size_t len;
-    char *head; // string stream head pointer
-    char *pos;  // string stream current pointer
-    char *end;  // string stream end pointer
+	double ntok;
+	char stok[255];
+	size_t len;
+	char *head; // string stream head pointer
+	char *pos;  // string stream current pointer
+	char *end;  // string stream end pointer
 } stok_t;
 
 void stok_init(stok_t *tok, char *t);

@@ -25,16 +25,17 @@
 
 #include <stddef.h>
 
-enum {
-    LWBITSET_STATE_NONE, ///< All bits are LW_FALSE
-    LWBITSET_STATE_ALL,  ///< All bits are LW_TRUE
-    LWBITSET_STATE_ANY   ///< Some bits are LW_TRUE
+enum
+{
+	BITSET_STATE_NONE, ///< All bits are LW_FALSE
+	BITSET_STATE_ALL,  ///< All bits are LW_TRUE
+	BITSET_STATE_ANY   ///< Some bits are LW_TRUE
 };
 
 typedef struct {
-    size_t length;
-    size_t capacity;
-    char data[];
+	size_t length;
+	size_t capacity;
+	char data[];
 } bitset_t;
 
 bitset_t *bitset_new(size_t size);

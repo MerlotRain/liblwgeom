@@ -25,16 +25,17 @@
 
 #include <stdint.h>
 
-enum {
-    LWORDINATE_VALUE_X = 1,
-    LWORDINATE_VALUE_Y = 2,
-    LWORDINATE_VALUE_Z = 4,
-    LWORDINATE_VALUE_M = 8
+enum
+{
+	LWORDINATE_VALUE_X = 1,
+	LWORDINATE_VALUE_Y = 2,
+	LWORDINATE_VALUE_Z = 4,
+	LWORDINATE_VALUE_M = 8
 };
 
 typedef struct {
-    uint8_t value;
-    int changeAllowed; ///< allow change
+	uint8_t value;
+	int changeAllowed; ///< allow change
 } lwgeom_ordinate;
 
 lwgeom_ordinate lwgeom_ordinate_XY();
