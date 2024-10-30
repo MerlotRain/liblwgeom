@@ -22,7 +22,7 @@
 
 #include "bitset.h"
 #include <string.h>
-#include "liblwgeom.h"
+#include "lwutil.h"
 
 /// @brief Create a new bitset.
 /// @param size The size of the bitset.

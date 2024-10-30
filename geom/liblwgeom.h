@@ -23,13 +23,10 @@
 #ifndef LIBLWGEOM_H
 #define LIBLWGEOM_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include <stddef.h>
 #include <stdarg.h>
+#include <syslog.h>
 
 /**
  * Return types for functions with status returns.
@@ -297,9 +294,5 @@ extern void lwellipse_prop_focus_distance(const LWELLIPSE ell, double *v);
 extern LWGEOM *lwellipse_stroke(LWELLIPSE e, uint32_t param, LWBOOLEAN hasz, LWBOOLEAN hasm);
 
 extern LWGEOM *lwgeom_clone(const LWGEOM *obj);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* LIBLWGEOM_H */

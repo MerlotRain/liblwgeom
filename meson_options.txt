@@ -1,0 +1,3 @@
+option('zlog', type: 'boolean', value: false, description: 'Enable zlog support')
+option('zlog_include_dir', type: 'string', value: '', description: 'Path to zlog include directory')
+option('zlog_lib_dir', type: 'string', value: '', description: 'Path to zlog library directory')
