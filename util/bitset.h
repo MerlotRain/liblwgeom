@@ -19,3 +19,33 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
+
+#ifndef BITSET_H
+#define BITSET_H
+
+#include <stddef.h>
+
+enum
+{
+	BITSET_STATE_NONE, ///< All bits are LW_FALSE
+	BITSET_STATE_ALL,  ///< All bits are LW_TRUE
+	BITSET_STATE_ANY   ///< Some bits are LW_TRUE
+};
+
+typedef struct {
+	size_t length;
+	size_t capacity;
+	char data[];
+} bitset_t;
+
+extern bitset_t *bitset_new(size_t size);
+extern void bitset_free(bitset_t *bs);
+extern void bitset_set(bitset_t *bs, size_t index);
+extern void bitset_clear(bitset_t *bs, size_t index);
+extern int bitset_test(bitset_t *bs, size_t index);
+extern void bitset_flip(bitset_t *bs, size_t index);
+extern int bitset_state(bitset_t *bs);
+extern size_t bitset_count(bitset_t *bs);
+extern size_t bitset_size(bitset_t *bs);
+
+#endif /* BITSET_H */

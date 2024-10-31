@@ -20,7 +20,32 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef BYTEBUFFER_H
-#define BYTEBUFFER_H
+#include "logger.h"
 
-#endif /* BYTEBUFFER_H */
+zlog_category_t *log_category = NULL;
+
+int
+log_init()
+{
+	if (zlog_init("log.conf"))
+	{
+		printf("Error: zlog_init\n");
+		zlog_fini();
+		return -1;
+	}
+
+	log_category = zlog_get_category("cat");
+	if (!log_category)
+	{
+		printf("Error: get cat fail\n");
+		zlog_fini();
+		return -2;
+	}
+	return 0;
+}
+
+void
+log_fini()
+{
+	zlog_fini();
+}

@@ -20,14 +20,14 @@
  * IN THE SOFTWARE.
  */
 
-#include "liblwgeom.h"
+#include "lwutil.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
-#include "lwgeom_log.h"
+#include <zlog.h>
 
 #define LWGEOM_DEBUG_LEVEL 1
 
